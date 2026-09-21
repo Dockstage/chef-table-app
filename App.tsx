@@ -630,12 +630,21 @@ function ReviewModal({
           </Text>
           <View style={styles.starsRow}>
             {[1, 2, 3, 4, 5].map((value) => (
-              <Pressable key={value} onPress={() => setRating(value)} style={styles.starButton}>
+              <Pressable
+                key={value}
+                accessibilityRole="radio"
+                accessibilityLabel={`Оценка ${value} из 5`}
+                accessibilityState={{ checked: value === rating }}
+                onPress={() => setRating(value)}
+                style={styles.starButton}
+              >
                 <Text style={[styles.star, value <= rating && styles.starActive]}>★</Text>
               </Pressable>
             ))}
           </View>
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Отправить оценку шефу"
             disabled={rating === 0 || busy}
             onPress={() => onSubmit(rating)}
             style={[styles.primaryButton, (rating === 0 || busy) && styles.buttonDisabled]}
