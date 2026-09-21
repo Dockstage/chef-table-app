@@ -37,6 +37,7 @@ erDiagram
       int availableSeats
       int priceKopecks
       int rentalPriceKopecks
+      int availableRentalKits
       string address
       string cancellationReason
     }
@@ -62,6 +63,7 @@ erDiagram
 ## Инварианты
 
 - `availableSeats` находится в диапазоне от 0 до `capacity`.
+- `availableRentalKits` находится в диапазоне от 0 до `capacity` и уменьшается только после подтверждения проката.
 - Активная бронь уникальна по `(userId, classId)`.
 - `totalPriceKopecks = priceKopecks + rentalPriceKopecks`, если выбран прокат.
 - `allergyNotes` содержит не более 300 символов.

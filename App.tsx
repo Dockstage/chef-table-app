@@ -488,6 +488,8 @@ function ClassModal({
     cookingClass.priceKopecks +
     (equipment === 'rental' ? cookingClass.rentalPriceKopecks : 0);
   const bookable = isBookable(cookingClass) && allergies.length <= 300;
+  const rentalAvailable = cookingClass.availableRentalKits > 0;
+  const selectionAvailable = equipment !== 'rental' || rentalAvailable;
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose} transparent>
@@ -547,13 +549,22 @@ function ClassModal({
               <Pressable
                 accessibilityRole="radio"
                 accessibilityLabel={`Арендовать рабочий набор за ${formatMoney(cookingClass.rentalPriceKopecks)}`}
-                accessibilityState={{ checked: equipment === 'rental' }}
+                accessibilityState={{ checked: equipment === 'rental', disabled: !rentalAvailable }}
+                disabled={!rentalAvailable}
                 onPress={() => setEquipment('rental')}
-                style={[styles.optionCard, equipment === 'rental' && styles.optionCardActive]}
+                style={[
+                  styles.optionCard,
+                  equipment === 'rental' && styles.optionCardActive,
+                  !rentalAvailable && styles.optionCardDisabled,
+                ]}
               >
                 <Text style={styles.optionIcon}>✦</Text>
                 <Text style={styles.optionTitle}>Нужен набор</Text>
-                <Text style={styles.optionPrice}>+{formatMoney(cookingClass.rentalPriceKopecks)}</Text>
+                <Text style={styles.optionPrice}>
+                  {rentalAvailable
+                    ? `+${formatMoney(cookingClass.rentalPriceKopecks)} · осталось ${cookingClass.availableRentalKits}`
+                    : 'нет свободных наборов'}
+                </Text>
               </Pressable>
             </View>
 
@@ -584,9 +595,12 @@ function ClassModal({
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={`Записаться на класс, итого ${formatMoney(total)}`}
-              disabled={!bookable || busy}
+              disabled={!bookable || !selectionAvailable || busy}
               onPress={() => onBook(equipment, allergies)}
-              style={[styles.primaryButton, (!bookable || busy) && styles.buttonDisabled]}
+              style={[
+                styles.primaryButton,
+                (!bookable || !selectionAvailable || busy) && styles.buttonDisabled,
+              ]}
             >
               {busy ? (
                 <ActivityIndicator color="#FFFFFF" />
@@ -1102,6 +1116,7 @@ const styles = StyleSheet.create({
   equipmentRow: { flexDirection: 'row', gap: 10 },
   optionCard: { flex: 1, borderWidth: 1, borderColor: palette.line, borderRadius: 17, padding: 14, backgroundColor: palette.paper },
   optionCardActive: { borderColor: palette.tomato, backgroundColor: '#FFF5F1' },
+  optionCardDisabled: { opacity: 0.48 },
   optionIcon: { color: palette.tomato, fontSize: 18, marginBottom: 9 },
   optionTitle: { color: palette.ink, fontSize: 12, fontWeight: '900' },
   optionPrice: { color: palette.muted, fontSize: 10, marginTop: 3 },

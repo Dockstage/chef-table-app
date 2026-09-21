@@ -30,6 +30,7 @@ export type CookingClass = {
   availableSeats: number;
   priceKopecks: number;
   rentalPriceKopecks: number;
+  availableRentalKits: number;
   address: string;
   accent: string;
   softAccent: string;
@@ -64,6 +65,7 @@ export type ApiErrorCode =
   | 'SLOT_FULL'
   | 'SLOT_CANCELLED'
   | 'DUPLICATE_BOOKING'
+  | 'RENTAL_UNAVAILABLE'
   | 'CANCELLATION_CLOSED'
   | 'REVIEW_NOT_ALLOWED';
 

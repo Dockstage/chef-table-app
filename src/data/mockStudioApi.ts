@@ -59,6 +59,12 @@ export class MockStudioApi implements StudioApi {
         'Вы уже записаны на этот класс. Проверьте раздел «Мои записи».',
       );
     }
+    if (input.equipmentOption === 'rental' && cookingClass.availableRentalKits <= 0) {
+      throw new StudioApiError(
+        'RENTAL_UNAVAILABLE',
+        'Прокатные наборы закончились. Выберите свой набор или другой класс.',
+      );
+    }
 
     const booking: Booking = {
       id: `booking-${Date.now()}`,
@@ -71,6 +77,7 @@ export class MockStudioApi implements StudioApi {
     };
     this.bookings.unshift(booking);
     cookingClass.availableSeats -= 1;
+    if (input.equipmentOption === 'rental') cookingClass.availableRentalKits -= 1;
     return structuredClone(booking);
   }
 
@@ -90,6 +97,12 @@ export class MockStudioApi implements StudioApi {
       cookingClass.capacity,
       cookingClass.availableSeats + 1,
     );
+    if (booking.equipmentOption === 'rental') {
+      cookingClass.availableRentalKits = Math.min(
+        cookingClass.capacity,
+        cookingClass.availableRentalKits + 1,
+      );
+    }
     return structuredClone(booking);
   }
 

@@ -107,7 +107,7 @@ components:
       enum: [beginner, advanced]
     CookingClass:
       type: object
-      required: [id, title, chef, startsAt, status, availableSeats, capacity, priceKopecks]
+      required: [id, title, description, dishes, level, chef, startsAt, durationMinutes, status, availableSeats, capacity, priceKopecks, rentalPriceKopecks, availableRentalKits, address]
       properties:
         id: { type: string, format: uuid }
         title: { type: string }
@@ -122,6 +122,7 @@ components:
         capacity: { type: integer, minimum: 1 }
         priceKopecks: { type: integer, minimum: 0 }
         rentalPriceKopecks: { type: integer, minimum: 0 }
+        availableRentalKits: { type: integer, minimum: 0 }
         address: { type: string }
         cancellationReason: { type: [string, 'null'] }
     Chef:
@@ -157,6 +158,6 @@ components:
       type: object
       required: [code, message]
       properties:
-        code: { type: string, enum: [SLOT_FULL, SLOT_CANCELLED, DUPLICATE_BOOKING] }
+        code: { type: string, enum: [SLOT_FULL, SLOT_CANCELLED, DUPLICATE_BOOKING, RENTAL_UNAVAILABLE] }
         message: { type: string }
 

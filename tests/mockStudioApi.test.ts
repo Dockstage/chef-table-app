@@ -45,6 +45,38 @@ describe('MockStudioApi booking invariants', () => {
     expect(updated.availableSeats).toBe(before - 1);
   });
 
+  it('rejects rental when no working kits are available', async () => {
+    const api = new MockStudioApi(initialClasses, []);
+    const target = initialClasses.find(
+      (item) => item.status === 'scheduled' && item.availableRentalKits === 0,
+    )!;
+
+    await expect(
+      api.createBooking({
+        classId: target.id,
+        equipmentOption: 'rental',
+        allergyNotes: 'Нет',
+      }),
+    ).rejects.toMatchObject({ code: 'RENTAL_UNAVAILABLE' } satisfies Partial<StudioApiError>);
+  });
+
+  it('returns a rented kit to the available stock after cancellation', async () => {
+    const api = new MockStudioApi(initialClasses, initialBookings);
+    const rentalBooking = initialBookings.find(
+      (item) => item.status === 'confirmed' && item.equipmentOption === 'rental',
+    )!;
+    const targetBefore = (await api.getClasses()).find(
+      (item) => item.id === rentalBooking.classId,
+    )!;
+
+    await api.cancelBooking(rentalBooking.id);
+
+    const targetAfter = (await api.getClasses()).find(
+      (item) => item.id === rentalBooking.classId,
+    )!;
+    expect(targetAfter.availableRentalKits).toBe(targetBefore.availableRentalKits + 1);
+  });
+
   it('accepts one review and rejects a repeated review', async () => {
     const api = new MockStudioApi(initialClasses, initialBookings);
     const attended = initialBookings.find((item) => item.status === 'attended')!;
