@@ -15,6 +15,10 @@ import {
 
 import { createStudioApi } from './src/data/createStudioApi';
 import {
+  registerForPushNotifications,
+  subscribeToStudioCancellations,
+} from './src/notifications/pushNotifications';
+import {
   canCancelBooking,
   canReview,
   filterClasses,
@@ -53,6 +57,7 @@ const palette = {
 
 type Tab = 'discover' | 'bookings' | 'profile';
 type BookingFilter = 'upcoming' | 'history';
+type PushStatus = 'idle' | 'enabling' | 'enabled' | 'denied' | 'unsupported';
 
 type DayOption = {
   key: string;
@@ -441,7 +446,15 @@ function BookingsScreen({
   );
 }
 
-function ProfileScreen({ bookings }: { bookings: Booking[] }) {
+function ProfileScreen({
+  bookings,
+  pushStatus,
+  onEnablePush,
+}: {
+  bookings: Booking[];
+  pushStatus: PushStatus;
+  onEnablePush: () => void;
+}) {
   const visited = bookings.filter((item) => item.status === 'attended').length;
   return (
     <ScrollView contentContainerStyle={styles.screenContent}>
@@ -466,7 +479,6 @@ function ProfileScreen({ bookings }: { bookings: Booking[] }) {
       <View style={styles.profileList}>
         {[
           ['Аллергии и предпочтения', 'Указать заранее'],
-          ['Уведомления', 'Напоминания включены'],
           ['Помощь', 'Связаться со студией'],
         ].map(([title, subtitle]) => (
           <View key={title} style={styles.profileListItem}>
@@ -477,6 +489,27 @@ function ProfileScreen({ bookings }: { bookings: Booking[] }) {
             <Text style={styles.chevron}>›</Text>
           </View>
         ))}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Включить уведомления об отмене классов"
+          disabled={pushStatus === 'enabling' || pushStatus === 'enabled' || pushStatus === 'unsupported'}
+          onPress={onEnablePush}
+          style={styles.profileListItem}
+        >
+          <View>
+            <Text style={styles.profileItemTitle}>Уведомления об отменах</Text>
+            <Text style={styles.profileItemSubtitle}>
+              {{
+                idle: 'Включить push-уведомления',
+                enabling: 'Подключаем…',
+                enabled: 'Включены',
+                denied: 'Нет разрешения — нажмите, чтобы повторить',
+                unsupported: 'Доступны в Android и iOS приложении',
+              }[pushStatus]}
+            </Text>
+          </View>
+          <Text style={styles.chevron}>{pushStatus === 'enabled' ? '✓' : '›'}</Text>
+        </Pressable>
       </View>
       <Text style={styles.version}>Шеф-стол · MVP 1.0</Text>
     </ScrollView>
@@ -742,6 +775,9 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [horizonDays, setHorizonDays] = useState(7);
+  const [pushStatus, setPushStatus] = useState<PushStatus>(
+    Platform.OS === 'web' ? 'unsupported' : 'idle',
+  );
 
   const refresh = async (days = horizonDays) => {
     const [scheduleClasses, nextBookings] = await Promise.all([
@@ -771,6 +807,40 @@ export default function App() {
     const timeout = setTimeout(() => setToast(null), 3200);
     return () => clearTimeout(timeout);
   }, [toast]);
+
+  useEffect(() => {
+    let unsubscribe: () => void = () => undefined;
+    void subscribeToStudioCancellations(() => {
+      void refresh(horizonDays);
+      setTab('bookings');
+      setToast('Студия отменила класс. Причина сохранена в истории.');
+    }).then((cleanup) => {
+      unsubscribe = cleanup;
+    });
+    return () => unsubscribe();
+  }, [horizonDays]);
+
+  const handleEnablePush = async () => {
+    setPushStatus('enabling');
+    try {
+      const result = await registerForPushNotifications();
+      if (result.status === 'enabled') {
+        await api.registerPushToken({ token: result.token, platform: result.platform });
+        setPushStatus('enabled');
+        setToast('Уведомления об отменах включены.');
+      } else {
+        setPushStatus(result.status);
+        setToast(
+          result.status === 'denied'
+            ? 'Разрешение не выдано. Его можно включить в настройках телефона.'
+            : 'Push-уведомления доступны в Android и iOS приложении.',
+        );
+      }
+    } catch {
+      setPushStatus('idle');
+      setToast('Не удалось подключить уведомления. Попробуйте ещё раз.');
+    }
+  };
 
   const handleBook = async (equipment: EquipmentOption, allergyNotes: string) => {
     if (!selectedClass) return;
@@ -863,7 +933,13 @@ export default function App() {
               onReview={setReviewBooking}
             />
           )}
-          {tab === 'profile' && <ProfileScreen bookings={bookings} />}
+          {tab === 'profile' && (
+            <ProfileScreen
+              bookings={bookings}
+              pushStatus={pushStatus}
+              onEnablePush={() => void handleEnablePush()}
+            />
+          )}
         </View>
         <BottomNav value={tab} onChange={setTab} />
 

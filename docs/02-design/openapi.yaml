@@ -6,6 +6,21 @@ info:
 servers:
   - url: https://api.example.test/v1
 paths:
+  /push-tokens:
+    post:
+      summary: Зарегистрировать нативный push-токен текущего клиента
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, platform]
+              properties:
+                token: { type: string, minLength: 1 }
+                platform: { type: string, enum: [android, ios] }
+      responses:
+        '204': { description: Токен зарегистрирован }
   /classes/{classId}:
     get:
       summary: Карточка класса, включая архивный или отменённый слот

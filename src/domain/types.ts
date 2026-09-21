@@ -1,6 +1,7 @@
 export type Level = 'beginner' | 'advanced';
 export type ClassStatus = 'scheduled' | 'cancelled' | 'completed';
 export type EquipmentOption = 'own' | 'rental';
+export type PushPlatform = 'android' | 'ios';
 export type BookingStatus =
   | 'confirmed'
   | 'attended'
@@ -68,6 +69,11 @@ export type ReviewInput = {
   comment?: string;
 };
 
+export type PushTokenInput = {
+  token: string;
+  platform: PushPlatform;
+};
+
 export type ApiErrorCode =
   | 'SLOT_FULL'
   | 'SLOT_CANCELLED'
@@ -94,5 +100,6 @@ export interface StudioApi {
   createBooking(input: CreateBookingInput): Promise<Booking>;
   cancelBooking(bookingId: string): Promise<Booking>;
   submitReview(input: ReviewInput): Promise<Booking>;
+  registerPushToken(input: PushTokenInput): Promise<void>;
 }
 

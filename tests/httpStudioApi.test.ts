@@ -60,4 +60,18 @@ describe('HttpStudioApi contract', () => {
       }),
     ).rejects.toMatchObject({ code: 'RENTAL_UNAVAILABLE', message: 'Наборы закончились.' });
   });
+
+  it('registers a native push token with the backend', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      new Response(null, { status: 204 }),
+    );
+    const api = new HttpStudioApi('https://studio.example/v1', fetchMock as typeof fetch);
+
+    await api.registerPushToken({ token: 'device-token', platform: 'android' });
+
+    expect(String(fetchMock.mock.calls[0]![0])).toBe('https://studio.example/v1/push-tokens');
+    expect(fetchMock.mock.calls[0]![1]?.body).toBe(
+      JSON.stringify({ token: 'device-token', platform: 'android' }),
+    );
+  });
 });

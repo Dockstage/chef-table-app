@@ -4,6 +4,7 @@ import {
   CookingClass,
   CreateBookingInput,
   ReviewInput,
+  PushTokenInput,
   ScheduleQuery,
   StudioApi,
   StudioApiError,
@@ -91,6 +92,13 @@ export class HttpStudioApi implements StudioApi {
     return this.request(`/bookings/${encodeURIComponent(bookingId)}/review`, {
       method: 'POST',
       body: JSON.stringify(body),
+    });
+  }
+
+  registerPushToken(input: PushTokenInput): Promise<void> {
+    return this.request('/push-tokens', {
+      method: 'POST',
+      body: JSON.stringify(input),
     });
   }
 }

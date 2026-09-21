@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "plugins": ["expo-notifications"],
     "splash": {
       "backgroundColor": "#F5F0E8"
     },

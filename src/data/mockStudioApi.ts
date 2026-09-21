@@ -5,6 +5,7 @@ import {
   CreateBookingInput,
   ReviewInput,
   ScheduleQuery,
+  PushTokenInput,
   StudioApi,
   StudioApiError,
 } from '../domain/types';
@@ -16,6 +17,7 @@ const wait = (milliseconds = 260) =>
 export class MockStudioApi implements StudioApi {
   private classes: CookingClass[];
   private bookings: Booking[];
+  private pushTokens: PushTokenInput[] = [];
 
   constructor(
     classes: CookingClass[] = initialClasses,
@@ -140,5 +142,12 @@ export class MockStudioApi implements StudioApi {
     booking.rating = input.rating;
     booking.reviewComment = input.comment?.trim() || undefined;
     return structuredClone(booking);
+  }
+
+  async registerPushToken(input: PushTokenInput): Promise<void> {
+    await wait(80);
+    if (!this.pushTokens.some((item) => item.token === input.token)) {
+      this.pushTokens.push(structuredClone(input));
+    }
   }
 }
