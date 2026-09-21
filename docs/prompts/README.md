@@ -17,5 +17,6 @@
 | `010-push-cancellations.md` | push об отмене студией |
 | `011-accessibility-and-ux.md` | отдельные UX/accessibility-итерации |
 | `012-compliance-remediation.md` | финальное устранение расхождений |
+| `013-final-contract-audit.md` | согласование контракта и финального комплекта |
 
 Промпты двух первоначальных дефектов также приведены непосредственно в `docs/tasks/BUG-001-duplicate-booking.md` и `docs/tasks/BUG-002-cancelled-class-error.md`, рядом с симптомом и проверкой.
