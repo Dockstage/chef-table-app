@@ -40,7 +40,9 @@ describe('HttpStudioApi contract', () => {
     });
 
     const init = fetchMock.mock.calls[0]![1] as RequestInit;
-    expect(new Headers(init.headers).get('Idempotency-Key')).toBeTruthy();
+    expect(new Headers(init.headers).get('Idempotency-Key')).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    );
   });
 
   it('maps an API problem to StudioApiError', async () => {
