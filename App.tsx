@@ -81,6 +81,12 @@ function getDays(): DayOption[] {
   });
 }
 
+function formatCountdown(cookingClass: CookingClass): string {
+  const hours = hoursUntilClass(cookingClass);
+  if (hours < 24) return 'сегодня';
+  return `${Math.ceil(hours / 24)} дн.`;
+}
+
 function ScreenHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
     <View style={styles.header}>
@@ -380,7 +386,7 @@ function BookingsScreen({
                     <View style={styles.countdown}>
                       <Text style={styles.countdownLabel}>До встречи</Text>
                       <Text style={styles.countdownValue}>
-                        {Math.ceil(hoursUntilClass(cookingClass) / 24)} дн.
+                        {formatCountdown(cookingClass)}
                       </Text>
                     </View>
                     <Pressable
