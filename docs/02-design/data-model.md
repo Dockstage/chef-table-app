@@ -7,6 +7,7 @@ erDiagram
     CHEF ||--o{ COOKING_CLASS : leads
     PROGRAM ||--o{ COOKING_CLASS : schedules
     BOOKING ||--o| REVIEW : receives
+    USER ||--o{ PUSH_TOKEN : registers
 
     USER {
       uuid id PK
@@ -16,8 +17,9 @@ erDiagram
     CHEF {
       uuid id PK
       string name
-      string avatarUrl
+      string role
       number rating
+      string initials
     }
     PROGRAM {
       uuid id PK
@@ -39,6 +41,9 @@ erDiagram
       int rentalPriceKopecks
       int availableRentalKits
       string address
+      string eyebrow
+      string accent
+      string softAccent
       string cancellationReason
     }
     BOOKING {
@@ -50,6 +55,7 @@ erDiagram
       string allergyNotes
       int totalPriceKopecks
       datetime createdAt
+      string studioCancellationReason
     }
     REVIEW {
       uuid id PK
@@ -57,6 +63,11 @@ erDiagram
       int rating
       string comment
       datetime createdAt
+    }
+    PUSH_TOKEN {
+      uuid userId FK
+      string token
+      string platform
     }
 ```
 
@@ -70,6 +81,7 @@ erDiagram
 - `review.rating` — целое число от 1 до 5.
 - Отзыв уникален по `bookingId`.
 - Отменённый класс не может принимать новые брони.
+- Push-токен привязывается к текущему авторизованному клиенту и платформе `android` или `ios`.
 
-Модель описывает контракт, а не внутреннюю схему существующего backend.
+Модель описывает контракт, а не внутреннюю схему существующего backend. В ответе `Booking` API проекция отзыва денормализована в поля `rating` и `reviewComment`, а причина отмены студией передаётся как `studioCancellationReason`; сущность `REVIEW` на диаграмме сохраняет логическую связь один-к-одному.
 

@@ -32,7 +32,7 @@ sequenceDiagram
     Backend->>Backend: class.status = cancelled
     Backend->>Backend: booking.status = cancelled_by_studio
     Backend->>Push: reason + bookingId
-    Push-->>App: Уведомление
+    Push-->>App: Уведомление в foreground / открытие / cold start
     App->>Backend: GET /v1/bookings
     Backend-->>App: Бронь со статусом и причиной
 ```

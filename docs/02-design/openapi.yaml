@@ -9,6 +9,7 @@ paths:
   /push-tokens:
     post:
       summary: Зарегистрировать нативный push-токен текущего клиента
+      description: После регистрации backend отправляет отмену класса в формате ClassCancellationPush.
       requestBody:
         required: true
         content:
@@ -109,6 +110,9 @@ paths:
               schema: { $ref: '#/components/schemas/Booking' }
         '409':
           description: Дедлайн отмены прошёл
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Problem' }
   /bookings/{bookingId}/review:
     post:
       summary: Оценить шефа после посещения
@@ -129,7 +133,11 @@ paths:
                 comment: { type: string, maxLength: 500 }
       responses:
         '201': { description: Отзыв сохранён }
-        '409': { description: Отзыв уже существует или класс не посещён }
+        '409':
+          description: Отзыв уже существует или класс не посещён
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Problem' }
 components:
   schemas:
     Level:
@@ -137,10 +145,11 @@ components:
       enum: [beginner, advanced]
     CookingClass:
       type: object
-      required: [id, title, description, dishes, level, chef, startsAt, durationMinutes, status, availableSeats, capacity, priceKopecks, rentalPriceKopecks, availableRentalKits, address]
+      required: [id, title, eyebrow, description, dishes, level, chef, startsAt, durationMinutes, status, availableSeats, capacity, priceKopecks, rentalPriceKopecks, availableRentalKits, address, accent, softAccent]
       properties:
         id: { type: string, format: uuid }
         title: { type: string }
+        eyebrow: { type: string }
         description: { type: string }
         dishes: { type: array, items: { type: string } }
         level: { $ref: '#/components/schemas/Level' }
@@ -154,14 +163,18 @@ components:
         rentalPriceKopecks: { type: integer, minimum: 0 }
         availableRentalKits: { type: integer, minimum: 0 }
         address: { type: string }
+        accent: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        softAccent: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
         cancellationReason: { type: [string, 'null'] }
     Chef:
       type: object
-      required: [id, name, rating]
+      required: [id, name, role, rating, initials]
       properties:
         id: { type: string, format: uuid }
         name: { type: string }
+        role: { type: string }
         rating: { type: number, minimum: 0, maximum: 5 }
+        initials: { type: string, minLength: 1, maxLength: 4 }
     CreateBooking:
       type: object
       required: [classId, equipmentOption, allergyNotes]
@@ -179,7 +192,7 @@ components:
           type: string
           enum: [confirmed, attended, cancelled_by_client, cancelled_by_studio]
         equipmentOption: { type: string, enum: [own, rental] }
-        allergyNotes: { type: string }
+        allergyNotes: { type: string, maxLength: 300 }
         totalPriceKopecks: { type: integer, minimum: 0 }
         createdAt: { type: string, format: date-time }
         studioCancellationReason: { type: [string, 'null'] }
@@ -189,6 +202,13 @@ components:
       type: object
       required: [code, message]
       properties:
-        code: { type: string, enum: [SLOT_FULL, SLOT_CANCELLED, DUPLICATE_BOOKING, RENTAL_UNAVAILABLE] }
+        code: { type: string, enum: [SLOT_FULL, SLOT_CANCELLED, DUPLICATE_BOOKING, RENTAL_UNAVAILABLE, CANCELLATION_CLOSED, REVIEW_NOT_ALLOWED] }
         message: { type: string }
+    ClassCancellationPush:
+      type: object
+      required: [type, bookingId, reason]
+      properties:
+        type: { type: string, const: class_cancelled }
+        bookingId: { type: string, format: uuid }
+        reason: { type: string }
 

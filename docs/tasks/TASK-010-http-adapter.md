@@ -24,9 +24,10 @@
 
 - [x] Диапазон и уровень сериализуются в query string.
 - [x] Создание брони содержит уникальный ключ.
+- [x] `Idempotency-Key` соответствует UUID даже без `crypto.randomUUID()`.
 - [x] Ошибка backend сохраняет код и понятное сообщение.
 - [x] Без env приложение запускается на mock.
 
 ## Commit
 
-`a3c5ae1` — `feat: add configurable HTTP API adapter`.
+`a3c5ae1` — `feat: add configurable HTTP API adapter`; `ed714fc` — UUID-совместимый ключ идемпотентности.

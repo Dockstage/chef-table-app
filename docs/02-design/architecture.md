@@ -46,7 +46,7 @@ flowchart LR
 
 - Expo + React Native + TypeScript: единая кодовая база и web-preview.
 - `HttpStudioApi` реализует OpenAPI-контракт; mock остаётся автономным demo fallback.
-- Expo Notifications получает APNs/FCM-токен по явному согласию, регистрирует его в API и обновляет брони по `class_cancelled`.
+- Expo Notifications получает APNs/FCM-токен по явному согласию, регистрирует его в API и обновляет брони по `class_cancelled` при foreground-доставке, открытии уведомления и холодном запуске.
 - Один экран-контейнер без внешнего навигатора: меньше инфраструктуры, три явных раздела.
 - Чистые domain-функции тестируются без рендера UI.
 - Деньги хранятся в копейках.
