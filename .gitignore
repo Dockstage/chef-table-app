@@ -3,6 +3,7 @@ node_modules/
 dist/
 web-build/
 coverage/
+.gh-cli/
 *.log
 .DS_Store
 
