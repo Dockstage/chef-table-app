@@ -11,15 +11,6 @@ export async function registerForPushNotifications(): Promise<PushRegistrationRe
   if (Platform.OS !== 'android' && Platform.OS !== 'ios') return { status: 'unsupported' };
 
   const Notifications = await import('expo-notifications');
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowBanner: true,
-      shouldShowList: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
-  });
-
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('class-cancellations', {
       name: 'Отмены классов',
@@ -43,8 +34,39 @@ export async function subscribeToStudioCancellations(
 ): Promise<() => void> {
   if (Platform.OS === 'web') return () => undefined;
   const Notifications = await import('expo-notifications');
-  const subscription = Notifications.addNotificationReceivedListener((notification) => {
-    if (isStudioCancellationNotification(notification.request.content.data)) onCancellation();
+  let active = true;
+  const handlePayload = (data: unknown) => {
+    if (active && isStudioCancellationNotification(data)) onCancellation();
+  };
+
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
   });
-  return () => subscription.remove();
+
+  const receivedSubscription = Notifications.addNotificationReceivedListener((notification) => {
+    handlePayload(notification.request.content.data);
+  });
+  const responseSubscription = Notifications.addNotificationResponseReceivedListener((response) => {
+    handlePayload(response.notification.request.content.data);
+  });
+
+  const lastResponse = await Notifications.getLastNotificationResponseAsync();
+  if (
+    lastResponse &&
+    isStudioCancellationNotification(lastResponse.notification.request.content.data)
+  ) {
+    handlePayload(lastResponse.notification.request.content.data);
+    await Notifications.clearLastNotificationResponseAsync();
+  }
+
+  return () => {
+    active = false;
+    receivedSubscription.remove();
+    responseSubscription.remove();
+  };
 }
