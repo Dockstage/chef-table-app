@@ -37,7 +37,16 @@ export class MockStudioApi implements StudioApi {
   async createBooking(input: CreateBookingInput): Promise<Booking> {
     await wait(420);
     const cookingClass = this.classes.find((item) => item.id === input.classId);
-    if (!cookingClass || cookingClass.availableSeats <= 0) {
+    if (!cookingClass) {
+      throw new StudioApiError('SLOT_FULL', 'Класс больше не доступен.');
+    }
+    if (cookingClass.status === 'cancelled') {
+      throw new StudioApiError(
+        'SLOT_CANCELLED',
+        'Студия отменила этот класс. Выберите другой слот.',
+      );
+    }
+    if (cookingClass.availableSeats <= 0) {
       throw new StudioApiError('SLOT_FULL', 'Место уже заняли. Обновили расписание.');
     }
 
