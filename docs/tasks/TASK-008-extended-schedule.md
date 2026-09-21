@@ -28,4 +28,4 @@
 
 ## Commit
 
-Заполняется после фиксации реализации.
+`2f4b617` — `feat: extend schedule date range`.

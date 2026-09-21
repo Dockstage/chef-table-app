@@ -30,4 +30,4 @@
 
 ## Commit
 
-Заполняется после фиксации реализации.
+`1edf78b` — `feat: handle studio cancellation push notifications`.

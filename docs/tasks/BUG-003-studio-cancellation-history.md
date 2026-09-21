@@ -24,4 +24,4 @@ R-008 и US-04: отменённая студией бронь не удаляе
 
 ## Commit
 
-Заполняется после фиксации исправления.
+`ef12f07` — `fix: move studio cancellations to history`.

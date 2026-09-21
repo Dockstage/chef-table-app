@@ -27,4 +27,4 @@
 
 ## Commit
 
-Заполняется после фиксации реализации.
+`ac64757` — `feat: enforce rental kit availability`.

@@ -29,4 +29,4 @@
 
 ## Commit
 
-Заполняется после фиксации реализации.
+`a3c5ae1` — `feat: add configurable HTTP API adapter`.

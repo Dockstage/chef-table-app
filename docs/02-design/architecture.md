@@ -2,7 +2,7 @@
 
 ## Контекст
 
-Клиентское приложение «Шеф-стол» работает на Android, iOS и в web-режиме для демонстрации. Production-backend существует вне проекта. В репозитории используется `MockStudioApi`, реализующий тот же контракт асинхронными методами.
+Клиентское приложение «Шеф-стол» работает на Android, iOS и в web-режиме для демонстрации. Production-backend существует вне проекта. `createStudioApi` выбирает реальный `HttpStudioApi`, когда задан `EXPO_PUBLIC_API_BASE_URL`, иначе использует воспроизводимый `MockStudioApi`.
 
 ```mermaid
 flowchart LR
@@ -22,7 +22,7 @@ flowchart LR
 | UI | Экраны, формы, состояния загрузки/ошибки | Schedule, Booking sheet, My classes |
 | Application | Состояние приложения и пользовательские действия | загрузка слотов, бронирование, отмена |
 | Domain | Чистые типы и бизнес-правила | цена, дедлайн отмены, фильтрация |
-| Data | Реализация API и преобразование DTO | `MockStudioApi` |
+| Data | Реализация API и преобразование DTO | `HttpStudioApi`, `MockStudioApi` |
 
 Зависимости направлены внутрь: UI использует domain и интерфейс API; domain не зависит от React Native.
 
@@ -45,6 +45,8 @@ flowchart LR
 ## Решения для MVP
 
 - Expo + React Native + TypeScript: единая кодовая база и web-preview.
+- `HttpStudioApi` реализует OpenAPI-контракт; mock остаётся автономным demo fallback.
+- Expo Notifications получает APNs/FCM-токен по явному согласию, регистрирует его в API и обновляет брони по `class_cancelled`.
 - Один экран-контейнер без внешнего навигатора: меньше инфраструктуры, три явных раздела.
 - Чистые domain-функции тестируются без рендера UI.
 - Деньги хранятся в копейках.
@@ -52,9 +54,8 @@ flowchart LR
 
 ## Production-доработки
 
-- заменить `MockStudioApi` на HTTP-адаптер;
 - добавить безопасное хранилище токена;
 - подключить мониторинг ошибок и аналитику без PII;
 - добавить offline-cache с политикой протухания;
-- подключить push provider и deep links.
+- настроить production-ключи APNs/FCM у существующего backend и deep links.
 
