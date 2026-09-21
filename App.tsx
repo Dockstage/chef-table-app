@@ -809,15 +809,24 @@ export default function App() {
   }, [toast]);
 
   useEffect(() => {
+    let disposed = false;
     let unsubscribe: () => void = () => undefined;
     void subscribeToStudioCancellations(() => {
-      void refresh(horizonDays);
+      void refresh(horizonDays).catch(() =>
+        setToast('Получили отмену, но не смогли обновить записи. Повторите позже.'),
+      );
       setTab('bookings');
       setToast('Студия отменила класс. Причина сохранена в истории.');
     }).then((cleanup) => {
-      unsubscribe = cleanup;
+      if (disposed) cleanup();
+      else unsubscribe = cleanup;
+    }).catch(() => {
+      if (!disposed) setToast('Не удалось подключить обработчик уведомлений.');
     });
-    return () => unsubscribe();
+    return () => {
+      disposed = true;
+      unsubscribe();
+    };
   }, [horizonDays]);
 
   const handleEnablePush = async () => {
