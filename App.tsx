@@ -528,6 +528,9 @@ function ClassModal({
             <Text style={styles.formLabel}>Ваш рабочий набор</Text>
             <View style={styles.equipmentRow}>
               <Pressable
+                accessibilityRole="radio"
+                accessibilityLabel="Возьму свой рабочий набор"
+                accessibilityState={{ checked: equipment === 'own' }}
                 onPress={() => setEquipment('own')}
                 style={[styles.optionCard, equipment === 'own' && styles.optionCardActive]}
               >
@@ -536,6 +539,9 @@ function ClassModal({
                 <Text style={styles.optionPrice}>без доплаты</Text>
               </Pressable>
               <Pressable
+                accessibilityRole="radio"
+                accessibilityLabel={`Арендовать рабочий набор за ${formatMoney(cookingClass.rentalPriceKopecks)}`}
+                accessibilityState={{ checked: equipment === 'rental' }}
                 onPress={() => setEquipment('rental')}
                 style={[styles.optionCard, equipment === 'rental' && styles.optionCardActive]}
               >
@@ -552,6 +558,7 @@ function ClassModal({
               </Text>
             </View>
             <TextInput
+              accessibilityLabel="Аллергии и ограничения в питании"
               multiline
               value={allergies}
               onChangeText={setAllergies}
@@ -569,6 +576,8 @@ function ClassModal({
               <Text style={styles.totalValue}>{formatMoney(total)}</Text>
             </View>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Записаться на класс, итого ${formatMoney(total)}`}
               disabled={!bookable || busy}
               onPress={() => onBook(equipment, allergies)}
               style={[styles.primaryButton, (!bookable || busy) && styles.buttonDisabled]}
