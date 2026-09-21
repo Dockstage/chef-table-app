@@ -14,7 +14,7 @@ describe('MockStudioApi booking invariants', () => {
         equipmentOption: 'own',
         allergyNotes: 'Нет',
       }),
-    ).rejects.toMatchObject<Partial<StudioApiError>>({ code: 'DUPLICATE_BOOKING' });
+    ).rejects.toMatchObject({ code: 'DUPLICATE_BOOKING' } satisfies Partial<StudioApiError>);
   });
 
   it('returns SLOT_CANCELLED when booking a class cancelled by the studio', async () => {
@@ -27,7 +27,7 @@ describe('MockStudioApi booking invariants', () => {
         equipmentOption: 'own',
         allergyNotes: 'Нет',
       }),
-    ).rejects.toMatchObject<Partial<StudioApiError>>({ code: 'SLOT_CANCELLED' });
+    ).rejects.toMatchObject({ code: 'SLOT_CANCELLED' } satisfies Partial<StudioApiError>);
   });
 
   it('decrements the seat count after a successful booking', async () => {
@@ -56,4 +56,3 @@ describe('MockStudioApi booking invariants', () => {
     });
   });
 });
-

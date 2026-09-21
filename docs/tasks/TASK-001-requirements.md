@@ -28,5 +28,4 @@
 
 ## Commit
 
-Заполняется после фиксации этапа в Git.
-
+`b4f7e52` — `docs: define cooking studio MVP requirements`.

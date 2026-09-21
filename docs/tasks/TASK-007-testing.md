@@ -28,5 +28,4 @@ R-001–R-012.
 
 ## Commit
 
-Заполняется после финального прогона.
-
+`733e262` — `test: add MVP cases and expose booking defects`.

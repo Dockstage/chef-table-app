@@ -30,5 +30,4 @@ R-001–R-012, особенно R-004 и R-008.
 
 ## Commit
 
-Заполняется после фиксации этапа в Git.
-
+`3ebd36b` — `docs: add architecture data model and API contract`.
