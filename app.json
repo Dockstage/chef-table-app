@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Шеф-стол",
+    "slug": "chef-table",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#F5F0E8"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ru.summer.chefTable"
+    },
+    "android": {
+      "package": "ru.summer.cheftable",
+      "adaptiveIcon": {
+        "backgroundColor": "#F5F0E8"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "name": "Шеф-стол"
+    }
+  }
+}
+
