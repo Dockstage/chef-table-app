@@ -26,4 +26,4 @@ R-004, US-03: активная бронь уникальна по клиенту
 
 ## Commit
 
-`3e637dc` — `fix: reject duplicate active booking`.
+`dcf5ff8` — `fix: reject duplicate active booking`.

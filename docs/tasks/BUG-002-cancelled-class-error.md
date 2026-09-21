@@ -26,4 +26,4 @@ R-008, US-03: повторная запись запрещена, API возвр
 
 ## Commit
 
-`54e1b19` — `fix: report studio-cancelled class correctly`.
+`f070a38` — `fix: report studio-cancelled class correctly`.

@@ -28,4 +28,4 @@
 
 ## Commit
 
-`b4f7e52` — `docs: define cooking studio MVP requirements`.
+`172e8e6` — `docs: define cooking studio MVP requirements`.

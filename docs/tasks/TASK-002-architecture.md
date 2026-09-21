@@ -30,4 +30,4 @@ R-001–R-012, особенно R-004 и R-008.
 
 ## Commit
 
-`3ebd36b` — `docs: add architecture data model and API contract`.
+`daf9df8` — `docs: add architecture data model and API contract`.
