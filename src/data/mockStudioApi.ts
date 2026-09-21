@@ -41,7 +41,16 @@ export class MockStudioApi implements StudioApi {
       throw new StudioApiError('SLOT_FULL', 'Место уже заняли. Обновили расписание.');
     }
 
-    // Конкурентные проверки расширяются после тестирования Mock API.
+    const hasActiveBooking = this.bookings.some(
+      (booking) => booking.classId === input.classId && booking.status === 'confirmed',
+    );
+    if (hasActiveBooking) {
+      throw new StudioApiError(
+        'DUPLICATE_BOOKING',
+        'Вы уже записаны на этот класс. Проверьте раздел «Мои записи».',
+      );
+    }
+
     const booking: Booking = {
       id: `booking-${Date.now()}`,
       classId: cookingClass.id,
@@ -92,4 +101,3 @@ export class MockStudioApi implements StudioApi {
     return structuredClone(booking);
   }
 }
-
