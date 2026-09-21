@@ -138,6 +138,7 @@ export class MockStudioApi implements StudioApi {
       throw new StudioApiError('REVIEW_NOT_ALLOWED', 'Эту запись нельзя оценить.');
     }
     booking.rating = input.rating;
+    booking.reviewComment = input.comment?.trim() || undefined;
     return structuredClone(booking);
   }
 }

@@ -47,6 +47,7 @@ export type Booking = {
   createdAt: string;
   studioCancellationReason?: string;
   rating?: number;
+  reviewComment?: string;
 };
 
 export type ScheduleQuery = {

@@ -93,8 +93,13 @@ describe('MockStudioApi booking invariants', () => {
     const api = new MockStudioApi(initialClasses, initialBookings);
     const attended = initialBookings.find((item) => item.status === 'attended')!;
 
-    const updated = await api.submitReview({ bookingId: attended.id, rating: 5 });
+    const updated = await api.submitReview({
+      bookingId: attended.id,
+      rating: 5,
+      comment: 'Понятно объясняет технику.',
+    });
     expect(updated.rating).toBe(5);
+    expect(updated.reviewComment).toBe('Понятно объясняет технику.');
     await expect(api.submitReview({ bookingId: attended.id, rating: 4 })).rejects.toMatchObject({
       code: 'REVIEW_NOT_ALLOWED',
     });

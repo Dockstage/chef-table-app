@@ -169,6 +169,7 @@ components:
         createdAt: { type: string, format: date-time }
         studioCancellationReason: { type: [string, 'null'] }
         rating: { type: [integer, 'null'], minimum: 1, maximum: 5 }
+        reviewComment: { type: [string, 'null'], maxLength: 500 }
     Problem:
       type: object
       required: [code, message]

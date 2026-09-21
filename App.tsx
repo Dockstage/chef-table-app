@@ -425,7 +425,12 @@ function BookingsScreen({
                 )}
 
                 {booking.rating !== undefined && (
-                  <Text style={styles.savedRating}>Ваша оценка: {'★'.repeat(booking.rating)}</Text>
+                  <View>
+                    <Text style={styles.savedRating}>Ваша оценка: {'★'.repeat(booking.rating)}</Text>
+                    {booking.reviewComment && (
+                      <Text style={styles.savedReviewComment}>«{booking.reviewComment}»</Text>
+                    )}
+                  </View>
                 )}
               </View>
             );
@@ -643,10 +648,14 @@ function ReviewModal({
   cookingClass: CookingClass | undefined;
   busy: boolean;
   onClose: () => void;
-  onSubmit: (rating: number) => void;
+  onSubmit: (rating: number, comment: string) => void;
 }) {
   const [rating, setRating] = useState(0);
-  useEffect(() => setRating(0), [booking]);
+  const [comment, setComment] = useState('');
+  useEffect(() => {
+    setRating(0);
+    setComment('');
+  }, [booking]);
   return (
     <Modal visible={Boolean(booking)} animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.reviewBackdrop}>
@@ -672,11 +681,22 @@ function ReviewModal({
               </Pressable>
             ))}
           </View>
+          <TextInput
+            accessibilityLabel="Комментарий к оценке шефа"
+            multiline
+            maxLength={500}
+            value={comment}
+            onChangeText={setComment}
+            placeholder="Комментарий — по желанию"
+            placeholderTextColor="#9D988F"
+            style={styles.reviewCommentInput}
+          />
+          <Text style={styles.reviewCommentCount}>{comment.length}/500</Text>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Отправить оценку шефу"
             disabled={rating === 0 || busy}
-            onPress={() => onSubmit(rating)}
+            onPress={() => onSubmit(rating, comment)}
             style={[styles.primaryButton, (rating === 0 || busy) && styles.buttonDisabled]}
           >
             <Text style={styles.primaryButtonText}>Отправить оценку</Text>
@@ -802,11 +822,11 @@ export default function App() {
     ]);
   };
 
-  const handleReview = async (rating: number) => {
+  const handleReview = async (rating: number, comment: string) => {
     if (!reviewBooking) return;
     setBusy(true);
     try {
-      await api.submitReview({ bookingId: reviewBooking.id, rating });
+      await api.submitReview({ bookingId: reviewBooking.id, rating, comment });
       await refresh();
       setReviewBooking(null);
       setToast('Спасибо! Оценка поможет команде студии.');
@@ -1088,6 +1108,7 @@ const styles = StyleSheet.create({
   reviewButtonStars: { color: '#F1BD5B', fontSize: 12, letterSpacing: 1 },
   reviewButtonText: { color: '#FFFFFF', fontWeight: '800', fontSize: 12 },
   savedRating: { color: palette.warning, fontSize: 12, fontWeight: '800', marginTop: 16 },
+  savedReviewComment: { color: palette.muted, fontSize: 12, lineHeight: 18, marginTop: 6 },
   profileHero: { alignItems: 'center', backgroundColor: palette.paper, borderRadius: 24, paddingVertical: 28, marginBottom: 14 },
   profileAvatar: { width: 78, height: 78, borderRadius: 39, backgroundColor: palette.sage, alignItems: 'center', justifyContent: 'center', marginBottom: 13 },
   profileAvatarText: { color: '#FFFFFF', fontSize: 22, fontWeight: '900' },
@@ -1174,6 +1195,8 @@ const styles = StyleSheet.create({
   starButton: { padding: 5 },
   star: { fontSize: 34, color: '#D8D1C6' },
   starActive: { color: '#E4A638' },
+  reviewCommentInput: { width: '100%', minHeight: 82, borderWidth: 1, borderColor: palette.line, backgroundColor: palette.canvas, borderRadius: 14, padding: 12, color: palette.ink, fontSize: 12, textAlignVertical: 'top' },
+  reviewCommentCount: { width: '100%', textAlign: 'right', color: palette.muted, fontSize: 10, marginTop: 5, marginBottom: 12 },
   reviewClose: { padding: 12, marginTop: 5 },
   reviewCloseText: { color: palette.muted, fontSize: 12, fontWeight: '700' },
   toast: { position: 'absolute', left: 16, right: 16, bottom: Platform.OS === 'ios' ? 102 : 84, backgroundColor: palette.ink, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', alignItems: 'center' },
