@@ -74,7 +74,8 @@ export type ApiErrorCode =
   | 'DUPLICATE_BOOKING'
   | 'RENTAL_UNAVAILABLE'
   | 'CANCELLATION_CLOSED'
-  | 'REVIEW_NOT_ALLOWED';
+  | 'REVIEW_NOT_ALLOWED'
+  | 'NETWORK_ERROR';
 
 export class StudioApiError extends Error {
   constructor(

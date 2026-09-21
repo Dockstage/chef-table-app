@@ -14,7 +14,7 @@
 - loading, empty, success и предметные error states;
 - доступные подписи и состояния интерактивных элементов.
 
-Приложение использует асинхронный `MockStudioApi`. Он имитирует существующий backend и соблюдает тот же контракт, включая серверные конфликты `SLOT_FULL`, `SLOT_CANCELLED` и `DUPLICATE_BOOKING`.
+Без настройки приложение использует асинхронный `MockStudioApi`. Для подключения существующего backend скопируйте `.env.example` в `.env` и задайте `EXPO_PUBLIC_API_BASE_URL`: фабрика автоматически выберет `HttpStudioApi`. HTTP-адаптер реализует диапазоны расписания, загрузку класса, бронирование с `Idempotency-Key`, отмену, отзывы и предметные ошибки API.
 
 ## Технологии
 
@@ -33,6 +33,14 @@
 
 ```bash
 npm install
+npm run web
+```
+
+Для запуска с реальным API:
+
+```bash
+copy .env.example .env
+# замените EXPO_PUBLIC_API_BASE_URL на адрес инфраструктуры студии
 npm run web
 ```
 

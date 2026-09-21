@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 
-import { MockStudioApi } from './src/data/mockStudioApi';
+import { createStudioApi } from './src/data/createStudioApi';
 import {
   canCancelBooking,
   canReview,
@@ -34,7 +34,7 @@ import {
   StudioApiError,
 } from './src/domain/types';
 
-const api = new MockStudioApi();
+const api = createStudioApi();
 
 const palette = {
   canvas: '#F5F0E8',
