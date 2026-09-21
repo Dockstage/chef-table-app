@@ -107,6 +107,7 @@ function ClassCard({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={`${item.title}, ${formatTime(item.startsAt)}, ${item.availableSeats} мест`}
       onPress={onPress}
       style={({ pressed }) => [styles.classCard, pressed && styles.pressed]}
     >
@@ -163,6 +164,7 @@ function Segment<T extends string>({
         <Pressable
           key={option.value}
           accessibilityRole="button"
+          accessibilityState={{ selected: value === option.value }}
           onPress={() => onChange(option.value)}
           style={[styles.segmentItem, value === option.value && styles.segmentItemActive]}
         >
@@ -237,6 +239,9 @@ function DiscoverScreen({
           return (
             <Pressable
               key={day.key}
+              accessibilityRole="button"
+              accessibilityLabel={`${day.weekday}, ${day.day} ${day.month}`}
+              accessibilityState={{ selected: active }}
               onPress={() => setSelectedDay(day.key)}
               style={[styles.dayCard, active && styles.dayCardActive]}
             >
@@ -1105,4 +1110,3 @@ const styles = StyleSheet.create({
   toastMark: { color: '#9ED6B9', fontSize: 16, fontWeight: '900', marginRight: 10 },
   toastText: { color: '#FFFFFF', fontSize: 12, lineHeight: 17, flex: 1, fontWeight: '700' },
 });
-
