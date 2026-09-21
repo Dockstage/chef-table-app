@@ -28,4 +28,4 @@
 
 ## Commit
 
-Фиксируется отдельным документационным commit.
+`7420444` — `docs: add submission evidence and traceability`.
