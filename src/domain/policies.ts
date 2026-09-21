@@ -1,6 +1,14 @@
-import { Booking, CookingClass, EquipmentOption, Level } from './types';
+import { Booking, CookingClass, EquipmentOption, Level, ScheduleQuery } from './types';
 
 export const CANCELLATION_DEADLINE_HOURS = 12;
+
+export function getScheduleQuery(days: number, now = new Date()): ScheduleQuery {
+  const from = new Date(now);
+  from.setHours(0, 0, 0, 0);
+  const to = new Date(from);
+  to.setDate(to.getDate() + days);
+  return { from: from.toISOString(), to: to.toISOString() };
+}
 
 export function getBookingTotal(
   cookingClass: CookingClass,

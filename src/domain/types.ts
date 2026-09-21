@@ -49,6 +49,12 @@ export type Booking = {
   rating?: number;
 };
 
+export type ScheduleQuery = {
+  from: string;
+  to: string;
+  level?: Level;
+};
+
 export type CreateBookingInput = {
   classId: string;
   equipmentOption: EquipmentOption;
@@ -80,7 +86,8 @@ export class StudioApiError extends Error {
 }
 
 export interface StudioApi {
-  getClasses(): Promise<CookingClass[]>;
+  getClasses(query?: ScheduleQuery): Promise<CookingClass[]>;
+  getClass(classId: string): Promise<CookingClass>;
   getBookings(): Promise<Booking[]>;
   createBooking(input: CreateBookingInput): Promise<Booking>;
   cancelBooking(bookingId: string): Promise<Booking>;

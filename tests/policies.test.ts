@@ -6,6 +6,7 @@ import {
   canReview,
   filterClasses,
   getBookingTotal,
+  getScheduleQuery,
   isBookable,
 } from '../src/domain/policies';
 
@@ -24,6 +25,14 @@ describe('booking price', () => {
 });
 
 describe('schedule policy', () => {
+  it('builds an exclusive 30-day API range from the local day boundary', () => {
+    const now = new Date('2026-06-10T15:30:00+03:00');
+    const query = getScheduleQuery(30, now);
+    expect(new Date(query.to).getTime() - new Date(query.from).getTime()).toBe(
+      30 * 24 * 3_600_000,
+    );
+  });
+
   it('keeps the selected date while applying a level filter', () => {
     const date = initialClasses[1]!.startsAt.slice(0, 10);
     const result = filterClasses(initialClasses, date, 'advanced');

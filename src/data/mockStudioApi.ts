@@ -4,6 +4,7 @@ import {
   CookingClass,
   CreateBookingInput,
   ReviewInput,
+  ScheduleQuery,
   StudioApi,
   StudioApiError,
 } from '../domain/types';
@@ -24,9 +25,26 @@ export class MockStudioApi implements StudioApi {
     this.bookings = structuredClone(bookings);
   }
 
-  async getClasses(): Promise<CookingClass[]> {
+  async getClasses(query?: ScheduleQuery): Promise<CookingClass[]> {
     await wait();
-    return structuredClone(this.classes);
+    const classes = query
+      ? this.classes.filter((item) => {
+          const timestamp = new Date(item.startsAt).getTime();
+          return (
+            timestamp >= new Date(query.from).getTime() &&
+            timestamp < new Date(query.to).getTime() &&
+            (!query.level || item.level === query.level)
+          );
+        })
+      : this.classes;
+    return structuredClone(classes);
+  }
+
+  async getClass(classId: string): Promise<CookingClass> {
+    await wait(80);
+    const cookingClass = this.classes.find((item) => item.id === classId);
+    if (!cookingClass) throw new Error('Class not found');
+    return structuredClone(cookingClass);
   }
 
   async getBookings(): Promise<Booking[]> {

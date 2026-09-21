@@ -6,6 +6,21 @@ info:
 servers:
   - url: https://api.example.test/v1
 paths:
+  /classes/{classId}:
+    get:
+      summary: Карточка класса, включая архивный или отменённый слот
+      parameters:
+        - in: path
+          name: classId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Класс найден
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CookingClass' }
+        '404': { description: Класс не найден }
   /classes:
     get:
       summary: Список кулинарных классов

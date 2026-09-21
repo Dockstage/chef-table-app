@@ -21,6 +21,7 @@ import {
   formatLongDate,
   formatMoney,
   formatTime,
+  getScheduleQuery,
   hoursUntilClass,
   isBookable,
 } from './src/domain/policies';
@@ -66,10 +67,10 @@ function toDateKey(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function getDays(): DayOption[] {
+function getDays(length: number): DayOption[] {
   const formatter = new Intl.DateTimeFormat('ru-RU', { weekday: 'short' });
   const monthFormatter = new Intl.DateTimeFormat('ru-RU', { month: 'short' });
-  return Array.from({ length: 7 }, (_, index) => {
+  return Array.from({ length }, (_, index) => {
     const date = new Date();
     date.setDate(date.getDate() + index);
     return {
@@ -204,18 +205,26 @@ function DiscoverScreen({
   classes,
   loading,
   onSelect,
+  horizonDays,
+  onHorizonChange,
 }: {
   classes: CookingClass[];
   loading: boolean;
   onSelect: (item: CookingClass) => void;
+  horizonDays: number;
+  onHorizonChange: (days: number) => void;
 }) {
-  const days = useMemo(getDays, []);
+  const days = useMemo(() => getDays(horizonDays), [horizonDays]);
   const [selectedDay, setSelectedDay] = useState(days[0]!.key);
   const [level, setLevel] = useState<Level | 'all'>('all');
   const visibleClasses = useMemo(
     () => filterClasses(classes, selectedDay, level),
     [classes, selectedDay, level],
   );
+
+  useEffect(() => {
+    if (!days.some((day) => day.key === selectedDay)) setSelectedDay(days[0]!.key);
+  }, [days, selectedDay]);
 
   return (
     <ScrollView
@@ -234,7 +243,17 @@ function DiscoverScreen({
         </View>
       </View>
 
-      <Text style={styles.sectionLabel}>Ближайшие 7 дней</Text>
+      <Text style={styles.sectionLabel}>Период расписания</Text>
+      <Segment
+        value={String(horizonDays)}
+        options={[
+          { value: '7', label: '7 дней' },
+          { value: '14', label: '14 дней' },
+          { value: '30', label: '30 дней' },
+        ]}
+        onChange={(value) => onHorizonChange(Number(value))}
+      />
+      <Text style={styles.sectionLabel}>Выберите дату</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -705,21 +724,30 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [horizonDays, setHorizonDays] = useState(7);
 
-  const refresh = async () => {
-    const [nextClasses, nextBookings] = await Promise.all([
-      api.getClasses(),
+  const refresh = async (days = horizonDays) => {
+    const [scheduleClasses, nextBookings] = await Promise.all([
+      api.getClasses(getScheduleQuery(days)),
       api.getBookings(),
     ]);
-    setClasses(nextClasses);
+    const scheduledIds = new Set(scheduleClasses.map((item) => item.id));
+    const missingClassIds = [
+      ...new Set(nextBookings.map((item) => item.classId).filter((id) => !scheduledIds.has(id))),
+    ];
+    const bookingClasses = await Promise.all(
+      missingClassIds.map((classId) => api.getClass(classId)),
+    );
+    setClasses([...scheduleClasses, ...bookingClasses]);
     setBookings(nextBookings);
   };
 
   useEffect(() => {
-    refresh()
+    setLoading(true);
+    refresh(horizonDays)
       .catch(() => setToast('Не удалось загрузить данные. Попробуйте ещё раз.'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [horizonDays]);
 
   useEffect(() => {
     if (!toast) return;
@@ -802,7 +830,13 @@ export default function App() {
       <View style={styles.phoneFrame}>
         <View style={styles.page}>
           {tab === 'discover' && (
-            <DiscoverScreen classes={classes} loading={loading} onSelect={setSelectedClass} />
+            <DiscoverScreen
+              classes={classes}
+              loading={loading}
+              onSelect={setSelectedClass}
+              horizonDays={horizonDays}
+              onHorizonChange={setHorizonDays}
+            />
           )}
           {tab === 'bookings' && (
             <BookingsScreen

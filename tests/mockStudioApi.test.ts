@@ -5,6 +5,18 @@ import { MockStudioApi } from '../src/data/mockStudioApi';
 import { StudioApiError } from '../src/domain/types';
 
 describe('MockStudioApi booking invariants', () => {
+  it('returns classes inside the requested extended date range', async () => {
+    const api = new MockStudioApi(initialClasses, initialBookings);
+    const from = new Date();
+    from.setHours(0, 0, 0, 0);
+    const to = new Date(from);
+    to.setDate(to.getDate() + 14);
+
+    const classes = await api.getClasses({ from: from.toISOString(), to: to.toISOString() });
+    expect(classes.some((item) => item.title === 'Хлеб на закваске')).toBe(true);
+    expect(classes.some((item) => item.title === 'Грузинское застолье')).toBe(false);
+  });
+
   it('rejects a second active booking for the same client and class', async () => {
     const api = new MockStudioApi(initialClasses, initialBookings);
 
