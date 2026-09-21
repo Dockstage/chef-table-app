@@ -1,0 +1,162 @@
+openapi: 3.1.0
+info:
+  title: Chef Table Client API
+  version: 1.0.0
+  description: Контракт клиентского приложения с существующей инфраструктурой студии.
+servers:
+  - url: https://api.example.test/v1
+paths:
+  /classes:
+    get:
+      summary: Список кулинарных классов
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          required: true
+          schema: { type: string, format: date-time }
+        - in: query
+          name: level
+          schema: { $ref: '#/components/schemas/Level' }
+      responses:
+        '200':
+          description: Список слотов
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/CookingClass' }
+  /bookings:
+    get:
+      summary: Брони текущего клиента
+      responses:
+        '200':
+          description: Список броней
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Booking' }
+    post:
+      summary: Создать бронь
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateBooking' }
+      responses:
+        '201':
+          description: Бронь создана
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Booking' }
+        '409':
+          description: Место недоступно
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Problem' }
+  /bookings/{bookingId}/cancel:
+    post:
+      summary: Отменить бронь клиентом
+      parameters:
+        - in: path
+          name: bookingId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Бронь отменена
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Booking' }
+        '409':
+          description: Дедлайн отмены прошёл
+  /bookings/{bookingId}/review:
+    post:
+      summary: Оценить шефа после посещения
+      parameters:
+        - in: path
+          name: bookingId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rating]
+              properties:
+                rating: { type: integer, minimum: 1, maximum: 5 }
+                comment: { type: string, maxLength: 500 }
+      responses:
+        '201': { description: Отзыв сохранён }
+        '409': { description: Отзыв уже существует или класс не посещён }
+components:
+  schemas:
+    Level:
+      type: string
+      enum: [beginner, advanced]
+    CookingClass:
+      type: object
+      required: [id, title, chef, startsAt, status, availableSeats, capacity, priceKopecks]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        description: { type: string }
+        dishes: { type: array, items: { type: string } }
+        level: { $ref: '#/components/schemas/Level' }
+        chef: { $ref: '#/components/schemas/Chef' }
+        startsAt: { type: string, format: date-time }
+        durationMinutes: { type: integer }
+        status: { type: string, enum: [scheduled, cancelled, completed] }
+        availableSeats: { type: integer, minimum: 0 }
+        capacity: { type: integer, minimum: 1 }
+        priceKopecks: { type: integer, minimum: 0 }
+        rentalPriceKopecks: { type: integer, minimum: 0 }
+        address: { type: string }
+        cancellationReason: { type: [string, 'null'] }
+    Chef:
+      type: object
+      required: [id, name, rating]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        rating: { type: number, minimum: 0, maximum: 5 }
+    CreateBooking:
+      type: object
+      required: [classId, equipmentOption, allergyNotes]
+      properties:
+        classId: { type: string, format: uuid }
+        equipmentOption: { type: string, enum: [own, rental] }
+        allergyNotes: { type: string, maxLength: 300 }
+    Booking:
+      type: object
+      required: [id, classId, status, equipmentOption, allergyNotes, totalPriceKopecks, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        classId: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [confirmed, attended, cancelled_by_client, cancelled_by_studio]
+        equipmentOption: { type: string, enum: [own, rental] }
+        allergyNotes: { type: string }
+        totalPriceKopecks: { type: integer, minimum: 0 }
+        createdAt: { type: string, format: date-time }
+        studioCancellationReason: { type: [string, 'null'] }
+        rating: { type: [integer, 'null'], minimum: 1, maximum: 5 }
+    Problem:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string, enum: [SLOT_FULL, SLOT_CANCELLED, DUPLICATE_BOOKING] }
+        message: { type: string }
+
