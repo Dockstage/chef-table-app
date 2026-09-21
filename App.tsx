@@ -18,6 +18,7 @@ import {
   canCancelBooking,
   canReview,
   filterClasses,
+  filterBookings,
   formatLongDate,
   formatMoney,
   formatTime,
@@ -351,11 +352,7 @@ function BookingsScreen({
     () => new Map(classes.map((item) => [item.id, item])),
     [classes],
   );
-  const visible = bookings.filter((booking) =>
-    filter === 'upcoming'
-      ? booking.status === 'confirmed' || booking.status === 'cancelled_by_studio'
-      : booking.status === 'attended' || booking.status === 'cancelled_by_client',
-  );
+  const visible = filterBookings(bookings, filter);
 
   return (
     <ScrollView

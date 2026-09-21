@@ -62,6 +62,19 @@ export function canReview(booking: Booking): boolean {
   return booking.status === 'attended' && booking.rating === undefined;
 }
 
+export function filterBookings(
+  bookings: Booking[],
+  filter: 'upcoming' | 'history',
+): Booking[] {
+  return bookings.filter((booking) =>
+    filter === 'upcoming'
+      ? booking.status === 'confirmed'
+      : booking.status === 'attended' ||
+        booking.status === 'cancelled_by_client' ||
+        booking.status === 'cancelled_by_studio',
+  );
+}
+
 export function formatMoney(kopecks: number): string {
   return `${new Intl.NumberFormat('ru-RU').format(kopecks / 100)} ₽`;
 }

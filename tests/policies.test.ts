@@ -5,6 +5,7 @@ import {
   canCancelBooking,
   canReview,
   filterClasses,
+  filterBookings,
   getBookingTotal,
   getScheduleQuery,
   isBookable,
@@ -64,6 +65,14 @@ describe('cancellation and review policy', () => {
   it('allows only an unrated attended booking to be reviewed', () => {
     expect(canReview(initialBookings[1]!)).toBe(true);
     expect(canReview(initialBookings[0]!)).toBe(false);
+  });
+
+  it('keeps a studio-cancelled booking in history, not upcoming', () => {
+    const cancelledByStudio = initialBookings.find(
+      (item) => item.status === 'cancelled_by_studio',
+    )!;
+    expect(filterBookings(initialBookings, 'upcoming')).not.toContain(cancelledByStudio);
+    expect(filterBookings(initialBookings, 'history')).toContain(cancelledByStudio);
   });
 });
 
