@@ -22,5 +22,6 @@
 | `015-elicitation-and-domain.md` | вопросы заказчику, допущения и описание домена |
 | `016-formalize-requirements.md` | разделение бизнес-, функциональных и нефункциональных требований |
 | `017-user-stories-and-use-cases.md` | усиление User Stories, INVEST и полных Use Cases |
+| `018-screen-registry-and-design-briefs.md` | реестр экранов, foundations и постановки дизайнеру |
 
 Промпты двух первоначальных дефектов также приведены непосредственно в `docs/tasks/BUG-001-duplicate-booking.md` и `docs/tasks/BUG-002-cancelled-class-error.md`, рядом с симптомом и проверкой.
