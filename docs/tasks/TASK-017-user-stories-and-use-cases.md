@@ -36,5 +36,4 @@
 
 ## Commit
 
-Будет указан после отдельного commit этой задачи.
-
+`073d281` — `docs: strengthen user stories and use cases`.
