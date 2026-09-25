@@ -19,5 +19,6 @@
 | `012-compliance-remediation.md` | финальное устранение расхождений |
 | `013-final-contract-audit.md` | согласование контракта и финального комплекта |
 | `014-scope-expansion.md` | фиксация собственного FastAPI/backend как учебного расширения скоупа |
+| `015-elicitation-and-domain.md` | вопросы заказчику, допущения и описание домена |
 
 Промпты двух первоначальных дефектов также приведены непосредственно в `docs/tasks/BUG-001-duplicate-booking.md` и `docs/tasks/BUG-002-cancelled-class-error.md`, рядом с симптомом и проверкой.
