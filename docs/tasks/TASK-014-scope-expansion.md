@@ -32,4 +32,4 @@
 
 ## Commit
 
-Будет указан после отдельного commit этой задачи.
+`8d4de43` — `docs: record FastAPI backend scope decision`.

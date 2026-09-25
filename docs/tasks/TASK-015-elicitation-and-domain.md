@@ -36,4 +36,4 @@
 
 ## Commit
 
-Будет указан после отдельного commit этой задачи.
+`c77a607` — `docs: split elicitation and describe domain`.
