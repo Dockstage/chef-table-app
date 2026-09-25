@@ -37,5 +37,4 @@
 
 ## Commit
 
-Будет указан после отдельного commit этой задачи.
-
+`60dae24` — `docs: synchronize technical design and API contract`.
