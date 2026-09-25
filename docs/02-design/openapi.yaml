@@ -1,214 +1,759 @@
 openapi: 3.1.0
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Chef Table Client API
-  version: 1.0.0
-  description: Контракт клиентского приложения с существующей инфраструктурой студии.
+  version: 1.1.0
+  description: |
+    Канонический контракт клиентского приложения «Шеф-стол» с референсным FastAPI-backend.
+    Все операции выполняются от имени seeded demo-клиента из Bearer-токена. Каталог доступен
+    только для чтения; клиент изменяет свои брони, отзывы и push-токены.
 servers:
+  - url: http://localhost:8000/v1
+    description: Локальный Docker Compose
   - url: https://api.example.test/v1
+    description: Учебный стенд
+tags:
+  - name: Classes
+    description: Read-only каталог и расписание
+  - name: Bookings
+    description: Брони текущего клиента
+  - name: Reviews
+    description: Отзывы по посещённым броням
+  - name: Push
+    description: Регистрация нативного устройства
+security:
+  - bearerAuth: []
 paths:
-  /push-tokens:
-    post:
-      summary: Зарегистрировать нативный push-токен текущего клиента
-      description: После регистрации backend отправляет отмену класса в формате ClassCancellationPush.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [token, platform]
-              properties:
-                token: { type: string, minLength: 1 }
-                platform: { type: string, enum: [android, ios] }
-      responses:
-        '204': { description: Токен зарегистрирован }
-  /classes/{classId}:
-    get:
-      summary: Карточка класса, включая архивный или отменённый слот
-      parameters:
-        - in: path
-          name: classId
-          required: true
-          schema: { type: string, format: uuid }
-      responses:
-        '200':
-          description: Класс найден
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/CookingClass' }
-        '404': { description: Класс не найден }
   /classes:
     get:
-      summary: Список кулинарных классов
+      tags: [Classes]
+      operationId: listClasses
+      summary: Получить классы за период
+      description: Даты передаются как ISO 8601 с offset; сервер интерпретирует бизнес-время в Europe/Moscow.
       parameters:
-        - in: query
-          name: from
-          required: true
-          schema: { type: string, format: date-time }
-        - in: query
-          name: to
-          required: true
-          schema: { type: string, format: date-time }
+        - $ref: '#/components/parameters/FromDateTime'
+        - $ref: '#/components/parameters/ToDateTime'
         - in: query
           name: level
-          schema: { $ref: '#/components/schemas/Level' }
+          description: Не передавать, чтобы получить оба уровня.
+          schema:
+            $ref: '#/components/schemas/Level'
       responses:
         '200':
-          description: Список слотов
+          description: Список классов; пустой массив является валидным результатом.
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/CookingClass' }
+                items:
+                  $ref: '#/components/schemas/CookingClass'
+              examples:
+                empty:
+                  value: []
+                oneClass:
+                  value:
+                    - id: 0f7058ba-14ad-4f1a-a969-86c4a0678e92
+                      title: Итальянский вечер
+                      eyebrow: Паста с нуля
+                      description: Готовим пасту и тирамису вместе с шефом.
+                      dishes: [Тальятелле, Тирамису]
+                      level: beginner
+                      chef:
+                        id: 9c693d6e-e7af-419a-88c7-4439fe2bd42c
+                        name: Анна Орлова
+                        role: Шеф итальянской кухни
+                        rating: 4.9
+                        initials: АО
+                      startsAt: '2026-10-03T18:00:00+03:00'
+                      durationMinutes: 180
+                      status: scheduled
+                      capacity: 12
+                      availableSeats: 3
+                      priceKopecks: 450000
+                      rentalPriceKopecks: 50000
+                      availableRentalKits: 2
+                      address: Москва, ул. Примерная, 7
+                      accent: '#C64F33'
+                      softAccent: '#F8DFD8'
+                      cancellationReason: null
+        '400':
+          description: Диапазон некорректен, например `from >= to`.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                status: 400
+                code: INVALID_DATE_RANGE
+                message: Начало периода должно быть раньше окончания.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /classes/{classId}:
+    get:
+      tags: [Classes]
+      operationId: getClass
+      summary: Получить класс, включая отменённый или завершённый
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+      responses:
+        '200':
+          description: Класс найден.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CookingClass'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Класс не найден.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                status: 404
+                code: CLASS_NOT_FOUND
+                message: Класс не найден.
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /bookings:
     get:
-      summary: Брони текущего клиента
+      tags: [Bookings]
+      operationId: listBookings
+      summary: Получить брони текущего клиента
       responses:
         '200':
-          description: Список броней
+          description: Все брони клиента; пустой массив является валидным результатом.
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Booking' }
+                items:
+                  $ref: '#/components/schemas/Booking'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
     post:
-      summary: Создать бронь
+      tags: [Bookings]
+      operationId: createBooking
+      summary: Создать бронь одного места
+      description: |
+        Сервер атомарно проверяет статус класса, свободное место, прокат и отсутствие активной
+        брони текущего клиента. Повтор с теми же Idempotency-Key и payload возвращает исходный
+        `201` без повторного изменения остатков. Тот же ключ с другим payload даёт `409`.
       parameters:
-        - in: header
-          name: Idempotency-Key
-          required: true
-          schema: { type: string, format: uuid }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/CreateBooking' }
-      responses:
-        '201':
-          description: Бронь создана
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Booking' }
-        '409':
-          description: Место недоступно
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Problem' }
-  /bookings/{bookingId}/cancel:
-    post:
-      summary: Отменить бронь клиентом
-      parameters:
-        - in: path
-          name: bookingId
-          required: true
-          schema: { type: string, format: uuid }
-      responses:
-        '200':
-          description: Бронь отменена
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Booking' }
-        '409':
-          description: Дедлайн отмены прошёл
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Problem' }
-  /bookings/{bookingId}/review:
-    post:
-      summary: Оценить шефа после посещения
-      parameters:
-        - in: path
-          name: bookingId
-          required: true
-          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [rating]
-              properties:
-                rating: { type: integer, minimum: 1, maximum: 5 }
-                comment: { type: string, maxLength: 500 }
+              $ref: '#/components/schemas/CreateBookingRequest'
+            example:
+              classId: 0f7058ba-14ad-4f1a-a969-86c4a0678e92
+              equipmentOption: rental
+              allergyNotes: Аллергия на арахис
       responses:
-        '201': { description: Отзыв сохранён }
-        '409':
-          description: Отзыв уже существует или класс не посещён
+        '201':
+          description: Бронь создана либо воспроизведён исходный успешный ответ.
+          headers:
+            Idempotency-Replayed:
+              description: "`true`, если возвращён сохранённый результат повтора."
+              schema:
+                type: boolean
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Problem' }
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Указанный класс не найден.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                status: 404
+                code: CLASS_NOT_FOUND
+                message: Класс не найден.
+        '409':
+          description: Конфликт места, проката, активной брони, статуса или ключа идемпотентности.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                slotFull:
+                  value:
+                    status: 409
+                    code: SLOT_FULL
+                    message: Место уже заняли. Обновите расписание.
+                rentalUnavailable:
+                  value:
+                    status: 409
+                    code: RENTAL_UNAVAILABLE
+                    message: Прокатные наборы закончились. Выберите свой набор.
+                duplicateBooking:
+                  value:
+                    status: 409
+                    code: DUPLICATE_BOOKING
+                    message: У вас уже есть активная бронь этого класса.
+                idempotencyConflict:
+                  value:
+                    status: 409
+                    code: IDEMPOTENCY_CONFLICT
+                    message: Этот ключ уже использован с другими данными.
+        '410':
+          description: Студия отменила класс; повторная запись запрещена.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                status: 410
+                code: SLOT_CANCELLED
+                message: Студия отменила этот класс. Выберите другой.
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /bookings/{bookingId}/cancel:
+    post:
+      tags: [Bookings]
+      operationId: cancelBooking
+      summary: Отменить бронь текущего клиента
+      description: Ровно за 12 часов до начала отмена разрешена; позже — отклоняется.
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      responses:
+        '200':
+          description: Бронь отменена; место и прокат возвращены ровно один раз.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Бронь текущего клиента не найдена.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                status: 404
+                code: BOOKING_NOT_FOUND
+                message: Бронь не найдена.
+        '409':
+          description: Отмена закрыта либо бронь больше не активна.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                deadline:
+                  value:
+                    status: 409
+                    code: CANCELLATION_CLOSED
+                    message: Онлайн-отмена закрывается за 12 часов до начала.
+                inactive:
+                  value:
+                    status: 409
+                    code: BOOKING_NOT_ACTIVE
+                    message: Статус брони уже изменился. Обновите список.
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /bookings/{bookingId}/review:
+    post:
+      tags: [Reviews]
+      operationId: createReview
+      summary: Оценить шефа после посещения
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+            example:
+              rating: 5
+              comment: Всё было отлично
+      responses:
+        '201':
+          description: Отзыв сохранён; возвращается обновлённая проекция брони.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Бронь текущего клиента не найдена.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                status: 404
+                code: BOOKING_NOT_FOUND
+                message: Бронь не найдена.
+        '409':
+          description: Класс не посещён либо отзыв уже существует.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                status: 409
+                code: REVIEW_NOT_ALLOWED
+                message: Эту запись нельзя оценить.
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /push-tokens:
+    post:
+      tags: [Push]
+      operationId: registerPushToken
+      summary: Зарегистрировать нативный push-токен текущего клиента
+      description: Повторная регистрация того же токена обновляет владельца, платформу и `updatedAt`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushTokenRequest'
+            example:
+              token: example-native-device-token
+              platform: android
+      responses:
+        '204':
+          description: Токен зарегистрирован или обновлён; тело отсутствует.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: DevToken
+      description: Документированный учебный токен seeded demo-клиента; production OTP вне MVP.
+  parameters:
+    FromDateTime:
+      in: query
+      name: from
+      required: true
+      description: Начало полуинтервала, включительно.
+      schema:
+        type: string
+        format: date-time
+      example: '2026-09-26T00:00:00+03:00'
+    ToDateTime:
+      in: query
+      name: to
+      required: true
+      description: Конец полуинтервала, не включительно.
+      schema:
+        type: string
+        format: date-time
+      example: '2026-10-03T00:00:00+03:00'
+    ClassId:
+      in: path
+      name: classId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    BookingId:
+      in: path
+      name: bookingId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      in: header
+      name: Idempotency-Key
+      required: true
+      description: UUID одной логической попытки; сохраняется клиентом для retry с тем же payload.
+      schema:
+        type: string
+        format: uuid
+  responses:
+    Unauthorized:
+      description: Bearer-токен отсутствует или невалиден.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            status: 401
+            code: UNAUTHORIZED
+            message: Требуется авторизация.
+    ValidationError:
+      description: Параметры или тело не прошли структурную валидацию.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            status: 422
+            code: VALIDATION_ERROR
+            message: Проверьте переданные данные.
+            fieldErrors:
+              - field: allergyNotes
+                message: Максимальная длина — 300 символов.
+    RateLimited:
+      description: Превышен лимит запросов.
+      headers:
+        Retry-After:
+          description: Через сколько секунд допустим повтор.
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            status: 429
+            code: RATE_LIMITED
+            message: Слишком много запросов. Повторите позже.
+    InternalError:
+      description: Непредвиденная серверная ошибка без раскрытия внутренних деталей.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            status: 500
+            code: INTERNAL_ERROR
+            message: Не удалось выполнить запрос. Повторите позже.
+    ServiceUnavailable:
+      description: Зависимость временно недоступна.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            status: 503
+            code: SERVICE_UNAVAILABLE
+            message: Сервис временно недоступен. Повторите позже.
   schemas:
     Level:
       type: string
       enum: [beginner, advanced]
-    CookingClass:
-      type: object
-      required: [id, title, eyebrow, description, dishes, level, chef, startsAt, durationMinutes, status, availableSeats, capacity, priceKopecks, rentalPriceKopecks, availableRentalKits, address, accent, softAccent]
-      properties:
-        id: { type: string, format: uuid }
-        title: { type: string }
-        eyebrow: { type: string }
-        description: { type: string }
-        dishes: { type: array, items: { type: string } }
-        level: { $ref: '#/components/schemas/Level' }
-        chef: { $ref: '#/components/schemas/Chef' }
-        startsAt: { type: string, format: date-time }
-        durationMinutes: { type: integer }
-        status: { type: string, enum: [scheduled, cancelled, completed] }
-        availableSeats: { type: integer, minimum: 0 }
-        capacity: { type: integer, minimum: 1 }
-        priceKopecks: { type: integer, minimum: 0 }
-        rentalPriceKopecks: { type: integer, minimum: 0 }
-        availableRentalKits: { type: integer, minimum: 0 }
-        address: { type: string }
-        accent: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
-        softAccent: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
-        cancellationReason: { type: [string, 'null'] }
+    ClassStatus:
+      type: string
+      enum: [scheduled, completed, cancelled]
+    BookingStatus:
+      type: string
+      enum: [confirmed, attended, cancelled_by_client, cancelled_by_studio]
+    EquipmentOption:
+      type: string
+      enum: [own, rental]
+    PushPlatform:
+      type: string
+      enum: [android, ios]
     Chef:
       type: object
+      additionalProperties: false
       required: [id, name, role, rating, initials]
       properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        role: { type: string }
-        rating: { type: number, minimum: 0, maximum: 5 }
-        initials: { type: string, minLength: 1, maxLength: 4 }
-    CreateBooking:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        role:
+          type: string
+          minLength: 1
+          maxLength: 100
+        rating:
+          type: number
+          minimum: 0
+          maximum: 5
+        initials:
+          type: string
+          minLength: 1
+          maxLength: 4
+    CookingClass:
       type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - eyebrow
+        - description
+        - dishes
+        - level
+        - chef
+        - startsAt
+        - durationMinutes
+        - status
+        - capacity
+        - availableSeats
+        - priceKopecks
+        - rentalPriceKopecks
+        - availableRentalKits
+        - address
+        - accent
+        - softAccent
+        - cancellationReason
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        eyebrow:
+          type: string
+          maxLength: 80
+        description:
+          type: string
+          maxLength: 2000
+        dishes:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+            maxLength: 160
+        level:
+          $ref: '#/components/schemas/Level'
+        chef:
+          $ref: '#/components/schemas/Chef'
+        startsAt:
+          type: string
+          format: date-time
+          description: ISO 8601 с обязательным offset.
+        durationMinutes:
+          type: integer
+          minimum: 1
+        status:
+          $ref: '#/components/schemas/ClassStatus'
+        capacity:
+          type: integer
+          minimum: 1
+        availableSeats:
+          type: integer
+          minimum: 0
+        priceKopecks:
+          type: integer
+          minimum: 0
+        rentalPriceKopecks:
+          type: integer
+          minimum: 0
+        availableRentalKits:
+          type: integer
+          minimum: 0
+        address:
+          type: string
+          minLength: 1
+          maxLength: 300
+        accent:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+        softAccent:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+        cancellationReason:
+          type: [string, 'null']
+          maxLength: 500
+          description: Обязательно для `cancelled`, иначе `null`.
+    CreateBookingRequest:
+      type: object
+      additionalProperties: false
       required: [classId, equipmentOption, allergyNotes]
       properties:
-        classId: { type: string, format: uuid }
-        equipmentOption: { type: string, enum: [own, rental] }
-        allergyNotes: { type: string, maxLength: 300 }
+        classId:
+          type: string
+          format: uuid
+        equipmentOption:
+          $ref: '#/components/schemas/EquipmentOption'
+        allergyNotes:
+          type: string
+          maxLength: 300
+          description: Пустая строка означает, что сведения не указаны. Значение нельзя логировать.
     Booking:
       type: object
-      required: [id, classId, status, equipmentOption, allergyNotes, totalPriceKopecks, createdAt]
+      additionalProperties: false
+      required:
+        - id
+        - classId
+        - status
+        - equipmentOption
+        - allergyNotes
+        - totalPriceKopecks
+        - createdAt
+        - studioCancellationReason
+        - rating
+        - reviewComment
       properties:
-        id: { type: string, format: uuid }
-        classId: { type: string, format: uuid }
-        status:
+        id:
           type: string
-          enum: [confirmed, attended, cancelled_by_client, cancelled_by_studio]
-        equipmentOption: { type: string, enum: [own, rental] }
-        allergyNotes: { type: string, maxLength: 300 }
-        totalPriceKopecks: { type: integer, minimum: 0 }
-        createdAt: { type: string, format: date-time }
-        studioCancellationReason: { type: [string, 'null'] }
-        rating: { type: [integer, 'null'], minimum: 1, maximum: 5 }
-        reviewComment: { type: [string, 'null'], maxLength: 500 }
+          format: uuid
+        classId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        equipmentOption:
+          $ref: '#/components/schemas/EquipmentOption'
+        allergyNotes:
+          type: string
+          maxLength: 300
+        totalPriceKopecks:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        studioCancellationReason:
+          type: [string, 'null']
+          maxLength: 500
+          description: Обязательно для `cancelled_by_studio`, иначе `null`.
+        rating:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 5
+        reviewComment:
+          type: [string, 'null']
+          maxLength: 500
+          description: "`null`, если отзыв отсутствует или оставлен без комментария."
+    CreateReviewRequest:
+      type: object
+      additionalProperties: false
+      required: [rating]
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          maxLength: 500
+    PushTokenRequest:
+      type: object
+      additionalProperties: false
+      required: [token, platform]
+      properties:
+        token:
+          type: string
+          minLength: 1
+          maxLength: 4096
+        platform:
+          $ref: '#/components/schemas/PushPlatform'
+    FieldError:
+      type: object
+      additionalProperties: false
+      required: [field, message]
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    ProblemCode:
+      type: string
+      enum:
+        - INVALID_DATE_RANGE
+        - VALIDATION_ERROR
+        - UNAUTHORIZED
+        - CLASS_NOT_FOUND
+        - BOOKING_NOT_FOUND
+        - SLOT_FULL
+        - SLOT_CANCELLED
+        - SLOT_NOT_BOOKABLE
+        - DUPLICATE_BOOKING
+        - RENTAL_UNAVAILABLE
+        - IDEMPOTENCY_CONFLICT
+        - CANCELLATION_CLOSED
+        - BOOKING_NOT_ACTIVE
+        - REVIEW_NOT_ALLOWED
+        - RATE_LIMITED
+        - INTERNAL_ERROR
+        - SERVICE_UNAVAILABLE
     Problem:
       type: object
-      required: [code, message]
+      additionalProperties: false
+      required: [status, code, message]
       properties:
-        code: { type: string, enum: [SLOT_FULL, SLOT_CANCELLED, DUPLICATE_BOOKING, RENTAL_UNAVAILABLE, CANCELLATION_CLOSED, REVIEW_NOT_ALLOWED] }
-        message: { type: string }
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        code:
+          $ref: '#/components/schemas/ProblemCode'
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+        traceId:
+          type: [string, 'null']
+          description: Идентификатор диагностики без PII.
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
     ClassCancellationPush:
       type: object
+      additionalProperties: false
       required: [type, bookingId, reason]
       properties:
-        type: { type: string, const: class_cancelled }
-        bookingId: { type: string, format: uuid }
-        reason: { type: string }
-
+        type:
+          type: string
+          const: class_cancelled
+        bookingId:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500

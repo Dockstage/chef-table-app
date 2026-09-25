@@ -1,18 +1,26 @@
 # Архитектурный план
 
-## Контекст
+## Контекст и статус
 
-Клиентское приложение «Шеф-стол» работает на Android, iOS и в web-режиме для демонстрации. Production-backend существует вне проекта. `createStudioApi` выбирает реальный `HttpStudioApi`, когда задан `EXPO_PUBLIC_API_BASE_URL`, иначе использует воспроизводимый `MockStudioApi`.
+Клиент «Шеф-стол» работает на Android/iOS и в web-preview. По ADR-001 проект расширен референсным FastAPI-backend и PostgreSQL, воспроизводящими контракт существующей инфраструктуры. Управляющие интерфейсы студии остаются внешними; клиент не меняет каталог и расписание.
+
+Сейчас Expo-клиент расположен в корне, а backend ещё не реализован. Целевая структура после отдельной задачи: `client/`, `backend/`, `docs/`, Docker Compose. `MockStudioApi` сохраняется только как demo/test fallback.
 
 ```mermaid
 flowchart LR
-    U[Клиент] --> UI[React Native UI]
-    UI --> VM[App state / actions]
-    VM --> P[Domain policies]
-    VM --> R[StudioRepository]
-    R --> API[Studio API]
-    API --> B[(Existing backend)]
-    API -. demo .-> M[(Mock fixtures)]
+    U[Клиент] --> UI[Expo / React Native UI]
+    UI --> APP[Application state/actions]
+    APP --> DOMAIN[Client domain policies]
+    APP --> PORT[StudioApi port]
+    PORT --> HTTP[HttpStudioApi]
+    PORT -. demo/test .-> MOCK[MockStudioApi]
+    HTTP --> API[FastAPI client API]
+    API --> AUTH[Dev Bearer identity]
+    API --> SERVICE[Application services]
+    SERVICE --> REPO[SQLAlchemy repositories]
+    REPO --> DB[(PostgreSQL)]
+    EXT[Внешняя система студии] -->|sync вне client API| SERVICE
+    SERVICE --> PUSH[APNs/FCM adapter]
 ```
 
 ## Слои
@@ -23,6 +31,8 @@ flowchart LR
 | Application | Состояние приложения и пользовательские действия | загрузка слотов, бронирование, отмена |
 | Domain | Чистые типы и бизнес-правила | цена, дедлайн отмены, фильтрация |
 | Data | Реализация API и преобразование DTO | `HttpStudioApi`, `MockStudioApi` |
+
+Backend использует слои `api` → `services` → `domain` → `repositories/db`; FastAPI handlers валидируют HTTP и делегируют транзакционную логику сервисам. Composition root находится в `backend/app/main.py`.
 
 Зависимости направлены внутрь: UI использует domain и интерфейс API; domain не зависит от React Native.
 
@@ -39,13 +49,17 @@ flowchart LR
 1. UI показывает последнее известное число мест.
 2. При подтверждении отправляется `POST /bookings` с `Idempotency-Key`.
 3. Backend повторно проверяет остаток атомарно.
-4. При `409` клиент показывает предметную причину и обновляет расписание.
-5. Клиентская проверка используется только для UX и не считается гарантией.
+4. `409` используется для конфликтов остатка, проката, повторной брони и ключа идемпотентности; `410 SLOT_CANCELLED` — отдельно.
+5. При предметном конфликте клиент сохраняет безопасный ввод, обновляет данные и не показывает ложный успех.
+6. Клиентская проверка используется только для UX и не считается гарантией.
 
 ## Решения для MVP
 
 - Expo + React Native + TypeScript: единая кодовая база и web-preview.
 - `HttpStudioApi` реализует OpenAPI-контракт; mock остаётся автономным demo fallback.
+- `docs/02-design/openapi.yaml` — источник истины; схема FastAPI проверяется на совместимость в CI.
+- Все endpoint клиентского API используют Bearer identity seeded demo-клиента; client ID не передаётся в body.
+- PostgreSQL, row locks, partial unique index и `IdempotencyRecord` обеспечивают конкурентную целостность.
 - Expo Notifications получает APNs/FCM-токен по явному согласию, регистрирует его в API и обновляет брони по `class_cancelled` при foreground-доставке, открытии уведомления и холодном запуске.
 - Один экран-контейнер без внешнего навигатора: меньше инфраструктуры, три явных раздела.
 - Чистые domain-функции тестируются без рендера UI.
@@ -59,3 +73,6 @@ flowchart LR
 - добавить offline-cache с политикой протухания;
 - настроить production-ключи APNs/FCM у существующего backend и deep links.
 
+## Границы текущей реализации
+
+До этапа разработки остаются известные разрывы: клиент создаёт новый `Idempotency-Key` внутри каждого вызова вместо хранения на логическую попытку, не обновляет слот после всех конфликтов, валидирует push только по `type`, а OpenAPI ещё не проверяется CI. Они перечислены в `docs/lecture-gap-checklists.md` и не считаются реализованными только из-за появления целевого дизайна.
