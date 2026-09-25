@@ -36,5 +36,4 @@
 
 ## Commit
 
-Будет указан после отдельного commit этой задачи.
-
+`595342e` — `docs: add screen registry and design briefs`.
