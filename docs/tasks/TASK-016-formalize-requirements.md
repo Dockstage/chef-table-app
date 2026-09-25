@@ -35,5 +35,4 @@
 
 ## Commit
 
-Будет указан после отдельного commit этой задачи.
-
+`a6dd292` — `docs: formalize business functional and quality requirements`.
