@@ -24,3 +24,11 @@ class BookingRepository(Protocol):
         booking_id: UUID,
         now: datetime,
     ) -> BookingDetails: ...
+
+    def create_review(
+        self,
+        client_id: UUID,
+        booking_id: UUID,
+        rating: int,
+        comment: str,
+    ) -> BookingDetails: ...

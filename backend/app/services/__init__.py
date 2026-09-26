@@ -2,5 +2,6 @@
 
 from app.services.bookings import BookingService
 from app.services.catalog import CatalogService
+from app.services.push_tokens import PushTokenService
 
-__all__ = ["BookingService", "CatalogService"]
+__all__ = ["BookingService", "CatalogService", "PushTokenService"]

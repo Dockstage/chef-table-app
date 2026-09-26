@@ -1,12 +1,3 @@
 {
-  "missingOperations": {
-    "createReview": {
-      "iteration": "BE-07",
-      "reason": "Создание отзыва ещё не реализовано."
-    },
-    "registerPushToken": {
-      "iteration": "BE-07",
-      "reason": "Регистрация push-токена ещё не реализована."
-    }
-  }
+  "missingOperations": {}
 }

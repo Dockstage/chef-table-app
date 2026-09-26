@@ -40,3 +40,7 @@ class CancellationClosedError(Exception):
 
 class BookingNotActiveError(Exception):
     """The booking is no longer confirmed."""
+
+
+class ReviewNotAllowedError(Exception):
+    """The booking is not attended or already has a review."""

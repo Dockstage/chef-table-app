@@ -17,6 +17,7 @@ from app.domain.errors import (
     IdempotencyConflictError,
     InvalidDateRangeError,
     RentalUnavailableError,
+    ReviewNotAllowedError,
     SlotCancelledError,
     SlotFullError,
     SlotNotBookableError,
@@ -166,6 +167,10 @@ def register_exception_handlers(application: FastAPI) -> None:
         BookingNotActiveError: (
             ProblemCode.BOOKING_NOT_ACTIVE,
             "Статус брони уже изменился. Обновите список.",
+        ),
+        ReviewNotAllowedError: (
+            ProblemCode.REVIEW_NOT_ALLOWED,
+            "Эту запись нельзя оценить.",
         ),
     }
     for exception_type, (code, message) in domain_conflicts.items():

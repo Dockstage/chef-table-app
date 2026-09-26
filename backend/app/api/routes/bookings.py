@@ -7,7 +7,7 @@ from fastapi import APIRouter, Header, Path, Response, status
 from app.api.auth import CurrentClientId
 from app.api.dependencies import BookingServiceDependency
 from app.api.responses import COMMON_ERROR_RESPONSES, problem_response
-from app.schemas.contracts import Booking, CreateBookingRequest
+from app.schemas.contracts import Booking, CreateBookingRequest, CreateReviewRequest
 
 router = APIRouter(prefix="/v1/bookings", tags=["Bookings"])
 LIST_ERROR_RESPONSES = {
@@ -85,3 +85,25 @@ def cancel_booking(
     service: BookingServiceDependency,
 ) -> Booking:
     return Booking.model_validate(asdict(service.cancel_booking(client_id, booking_id)))
+
+
+@router.post(
+    "/{bookingId}/review",
+    operation_id="createReview",
+    response_model=Booking,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        404: problem_response("Бронь не найдена."),
+        409: problem_response("Эту запись нельзя оценить."),
+        **COMMON_ERROR_RESPONSES,
+    },
+)
+def create_review(
+    booking_id: Annotated[UUID, Path(alias="bookingId")],
+    payload: CreateReviewRequest,
+    client_id: CurrentClientId,
+    service: BookingServiceDependency,
+) -> Booking:
+    return Booking.model_validate(
+        asdict(service.create_review(client_id, booking_id, payload.rating, payload.comment))
+    )

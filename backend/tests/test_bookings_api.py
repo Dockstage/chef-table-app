@@ -18,6 +18,7 @@ from app.domain.errors import (
     DuplicateBookingError,
     IdempotencyConflictError,
     RentalUnavailableError,
+    ReviewNotAllowedError,
     SlotCancelledError,
     SlotFullError,
     SlotNotBookableError,
@@ -54,10 +55,12 @@ class FakeBookingRepository:
         replayed: bool = False,
         error: Exception | None = None,
         cancel_error: Exception | None = None,
+        review_error: Exception | None = None,
     ) -> None:
         self.replayed = replayed
         self.error = error
         self.cancel_error = cancel_error
+        self.review_error = review_error
         self.last_client_id: UUID | None = None
         self.last_hash: str | None = None
 
@@ -96,6 +99,19 @@ class FakeBookingRepository:
         if self.cancel_error is not None:
             raise self.cancel_error
         return replace(booking(), status="cancelled_by_client")
+
+    def create_review(
+        self,
+        client_id: UUID,
+        booking_id: UUID,
+        rating: int,
+        comment: str,
+    ) -> BookingDetails:
+        self.last_client_id = client_id
+        assert booking_id == BOOKING_ID
+        if self.review_error is not None:
+            raise self.review_error
+        return replace(booking(), status="attended", rating=rating, review_comment=comment or None)
 
 
 def build_test_app(repository: FakeBookingRepository):
@@ -267,3 +283,69 @@ async def test_cancel_booking_maps_domain_errors(
 
     assert response.status_code == status
     assert response.json()["code"] == code
+
+
+@pytest.mark.anyio
+async def test_create_review_returns_updated_booking() -> None:
+    repository = FakeBookingRepository()
+    application = build_test_app(repository)
+    async with AsyncClient(
+        transport=ASGITransport(app=application), base_url="http://test"
+    ) as client:
+        response = await client.post(
+            f"/v1/bookings/{BOOKING_ID}/review",
+            headers=auth_headers(),
+            json={"rating": 5, "comment": "Отлично"},
+        )
+
+    assert response.status_code == 201
+    assert response.json()["rating"] == 5
+    assert response.json()["reviewComment"] == "Отлично"
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    ("error", "status", "code"),
+    [
+        (BookingNotFoundError(), 404, "BOOKING_NOT_FOUND"),
+        (ReviewNotAllowedError(), 409, "REVIEW_NOT_ALLOWED"),
+    ],
+)
+async def test_create_review_maps_domain_errors(
+    error: Exception,
+    status: int,
+    code: str,
+) -> None:
+    application = build_test_app(FakeBookingRepository(review_error=error))
+    async with AsyncClient(
+        transport=ASGITransport(app=application), base_url="http://test"
+    ) as client:
+        response = await client.post(
+            f"/v1/bookings/{BOOKING_ID}/review",
+            headers=auth_headers(),
+            json={"rating": 4, "comment": ""},
+        )
+
+    assert response.status_code == status
+    assert response.json()["code"] == code
+
+
+@pytest.mark.anyio
+async def test_create_review_validates_rating_and_comment() -> None:
+    application = build_test_app(FakeBookingRepository())
+    async with AsyncClient(
+        transport=ASGITransport(app=application), base_url="http://test"
+    ) as client:
+        invalid_rating = await client.post(
+            f"/v1/bookings/{BOOKING_ID}/review",
+            headers=auth_headers(),
+            json={"rating": 6, "comment": ""},
+        )
+        invalid_comment = await client.post(
+            f"/v1/bookings/{BOOKING_ID}/review",
+            headers=auth_headers(),
+            json={"rating": 5, "comment": "x" * 501},
+        )
+
+    assert invalid_rating.status_code == 422
+    assert invalid_comment.status_code == 422

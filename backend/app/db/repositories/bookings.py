@@ -18,6 +18,7 @@ from app.domain.errors import (
     DuplicateBookingError,
     IdempotencyConflictError,
     RentalUnavailableError,
+    ReviewNotAllowedError,
     SlotCancelledError,
     SlotFullError,
     SlotNotBookableError,
@@ -141,6 +142,41 @@ class SqlAlchemyBookingRepository:
                 cooking_class.available_rental_kits += 1
             self._session.flush()
             details = self._to_details(booking, None)
+
+        return details
+
+    def create_review(
+        self,
+        client_id: UUID,
+        booking_id: UUID,
+        rating: int,
+        comment: str,
+    ) -> BookingDetails:
+        with self._session.begin():
+            booking = self._session.execute(
+                select(Booking)
+                .where(Booking.id == booking_id, Booking.client_id == client_id)
+                .with_for_update()
+            ).scalar_one_or_none()
+            if booking is None:
+                raise BookingNotFoundError
+            if booking.status != "attended":
+                raise ReviewNotAllowedError
+
+            existing_review = self._session.scalar(
+                select(Review.id).where(Review.booking_id == booking.id)
+            )
+            if existing_review is not None:
+                raise ReviewNotAllowedError
+
+            review = Review(
+                booking_id=booking.id,
+                rating=rating,
+                comment=comment or None,
+            )
+            self._session.add(review)
+            self._session.flush()
+            details = self._to_details(booking, review)
 
         return details
 

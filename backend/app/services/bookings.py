@@ -46,3 +46,12 @@ class BookingService:
 
     def cancel_booking(self, client_id: UUID, booking_id: UUID) -> BookingDetails:
         return self._repository.cancel_booking(client_id, booking_id, self._clock())
+
+    def create_review(
+        self,
+        client_id: UUID,
+        booking_id: UUID,
+        rating: int,
+        comment: str,
+    ) -> BookingDetails:
+        return self._repository.create_review(client_id, booking_id, rating, comment)

@@ -12,8 +12,8 @@
 | BR-002 Корректные остатки и уникальность | US-03; UC-01 | FR-005–FR-008; NFR-004, NFR-006–NFR-008, NFR-011 | BS-001; LOGIC-002, LOGIC-003 | TC-005–TC-010, TC-017, TC-018 | Частично: стабильный retry и конкурентный backend ещё не реализованы |
 | BR-003 Управление записью и история | US-04, US-06; UC-02, UC-04 | FR-009–FR-011, FR-014; NFR-005, NFR-007 | SCR-002; CMP-002; DLG-001; LOGIC-004–LOGIC-007 | TC-011–TC-013, TC-016, TC-018, TC-022 | Частично: refresh failure отделён не во всех мутациях |
 | BR-004 Уведомление об отмене | US-06; UC-04 | FR-011, FR-013, FR-014; NFR-005, NFR-009 | SCR-003, SCR-002; CMP-002; LOGIC-006, LOGIC-007 | TC-016, TC-021, TC-022 | Частично: native-сценарии описаны и unit-tested, но не подтверждены на Android/iOS |
-| BR-005 Обратная связь | US-05; UC-03 | FR-009, FR-012, FR-015; NFR-005 | SCR-002; CMP-002; MDL-001; LOGIC-005, LOGIC-007 | TC-014, TC-015, TC-020 | Полностью для mock-клиента; auth/backend остаются целевыми |
-| BR-006 Граница учебного MVP | US-01–US-06; UC-01–UC-04 | FR-015, FR-016; NFR-011 | SCR-001–SCR-003 и overlays | TC-024 | Частично: client/dev-auth соблюдены, пять backend-операций защищены |
+| BR-005 Обратная связь | US-05; UC-03 | FR-009, FR-012, FR-015; NFR-005 | SCR-002; CMP-002; MDL-001; LOGIC-005, LOGIC-007 | TC-014, TC-015, TC-020; backend review tests | Полностью |
+| BR-006 Граница учебного MVP | US-01–US-06; UC-01–UC-04 | FR-015, FR-016; NFR-011 | SCR-001–SCR-003 и overlays | TC-024; backend auth tests | Полностью для принятой dev-auth границы |
 
 ## Функциональное покрытие
 
@@ -30,8 +30,8 @@
 | FR-009 Предстоящие и история | US-04, US-05; UC-02, UC-03 | SCR-002; CMP-002; LOGIC-005 | `listBookings` | `filterBookings`, `BookingsScreen`, booking repository | TC-011, TC-016; backend booking tests | `ef12f07`; TASK-033 | Полностью |
 | FR-010 Отмена до дедлайна | US-04; UC-02 | SCR-002; DLG-001; LOGIC-004 | `cancelBooking` | client policy, `BookingService`, booking repository | TC-012, TC-013, TC-018; backend cancellation tests | `69ebdbd`, `ac64757`; TASK-034 | Полностью |
 | FR-011 Отмена студией | US-04, US-06; UC-02, UC-04 | SCR-002; CMP-002; LOGIC-005, LOGIC-006 | `listBookings` | fixtures, `filterBookings`, push refresh | TC-016, TC-022 | `ef12f07`, `1edf78b` | Частично: внешняя серверная операция вне клиентского API |
-| FR-012 Отзыв | US-05; UC-03 | SCR-002; MDL-001; LOGIC-005 | `createReview` | `ReviewModal`, `handleReview`, adapters | TC-014, TC-015, TC-020 | `d8dfe4a` | Полностью для mock; backend впереди |
-| FR-013 Регистрация push | US-06; UC-04 | SCR-003; LOGIC-006 | `registerPushToken` | `registerForPushNotifications`, adapters | TC-021 | `1edf78b` | Частично: нет подтверждённого native e2e |
+| FR-012 Отзыв | US-05; UC-03 | SCR-002; MDL-001; LOGIC-005 | `createReview` | `ReviewModal`, `BookingService`, booking repository | TC-014, TC-015, TC-020; backend review tests | `d8dfe4a`; TASK-035 | Полностью |
+| FR-013 Регистрация push | US-06; UC-04 | SCR-003; LOGIC-006 | `registerPushToken` | notification adapter, push service/repository | TC-021; backend push tests | `1edf78b`; TASK-035 | Частично: backend готов, native e2e не подтверждён |
 | FR-014 Обработка push | US-06; UC-04 | SCR-003, SCR-002; LOGIC-006 | `listBookings` | `pushPayload`, subscriptions, `refresh` | TC-022 | `c8423d3`, `386bd6b` | Частично: unit есть, native e2e нет |
 | FR-015 Dev-идентификация | US-01–US-06; UC-01–UC-04 | Все сетевые сценарии | Все 7 operationId | `HttpStudioApi.getAccessToken`; FastAPI dev-auth | backend auth/Problem tests | `a3c5ae1`; TASK-030 | Частично: backend и `401` покрыты, provider клиента пока опционален |
 | FR-016 Только клиентские возможности | — | SCR-001–SCR-003 | — | `App`, `BottomNav` | TC-024 | `69ebdbd` | Полностью |
@@ -50,7 +50,7 @@
 | NFR-008 OpenAPI compatibility в CI | BR-002; US-03; UC-01 | OpenAPI 1.2 + DTO/runtime contract gate | backend contract tests | `60dae24`; TASK-031 | Частично: локальный gate готов, CI и TypeScript-сверка ещё отсутствуют |
 | NFR-009 Android/iOS, web-preview | BR-001, BR-004; US-01, US-06; SCR-003 | Platform branch и пояснение web-push | TC-021–TC-023 | `1edf78b`, `7420444` | Частично: нет прогона на двух native-платформах |
 | NFR-010 Сквозная проверяемость Must | Все Must | Эта матрица и канонические ссылки в `test-cases.md` | TC-001–TC-025 | TASK-021 | Частично: связи созданы, но часть Must пока без теста |
-| NFR-011 Граница учебной auth | BR-006; US-01–US-06; UC-01–UC-04 | Bearer dependency, env-secret, `401` Problem | backend auth, catalog/booking API и log-safety tests | `a3c5ae1`, `0a4ef79`; TASK-030, TASK-032–TASK-034 | Частично: пять операций защищены, две ещё не реализованы |
+| NFR-011 Граница учебной auth | BR-006; US-01–US-06; UC-01–UC-04 | Bearer dependency, env-secret, `401` Problem | auth, все семь API и log-safety tests | `a3c5ae1`, `0a4ef79`; TASK-030, TASK-032–TASK-035 | Полностью для учебной dev-auth |
 | NFR-012 Путь ≤ 5 действий | BR-001; US-03; UC-01; BS-001 | Целевой поток и правило подсчёта описаны | TC-025 | TASK-022 | Частично: есть ручной кейс, требуется фактический прогон после UI-доработки |
 
 ## Обратный индекс проверок
