@@ -32,4 +32,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации реализации.
+`ad1e10f` — `feat: implement booking creation and listing`.
