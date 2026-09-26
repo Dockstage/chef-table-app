@@ -31,4 +31,4 @@
 
 ## Commit
 
-Будет указан после фиксации реализации.
+`d24c81f` — `fix: enforce push cancellation contract`.
