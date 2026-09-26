@@ -25,6 +25,7 @@ import {
   replaceCookingClass,
   upsertBooking,
 } from './src/features/booking/bookingFlow';
+import { loadStudioSnapshot } from './src/features/schedule/loadStudioSnapshot';
 import {
   registerForPushNotifications,
   subscribeToStudioCancellations,
@@ -48,6 +49,13 @@ import {
   Level,
   StudioApiError,
 } from './src/domain/types';
+import {
+  beginLoad,
+  completeLoad,
+  failLoad,
+  isInitialLoad,
+  LoadState,
+} from './src/shared/loadState';
 
 const api = createStudioApi();
 
@@ -218,15 +226,52 @@ function EmptyState({ title, text }: { title: string; text: string }) {
   );
 }
 
+function ErrorState({ title, text, onRetry }: { title: string; text: string; onRetry: () => void }) {
+  return (
+    <View accessibilityRole="alert" style={styles.emptyState}>
+      <View style={[styles.emptyIcon, styles.errorIcon]}>
+        <Text style={styles.emptyIconText}>!</Text>
+      </View>
+      <Text style={styles.emptyTitle}>{title}</Text>
+      <Text style={styles.emptyText}>{text}</Text>
+      <Pressable accessibilityRole="button" onPress={onRetry} style={styles.retryButton}>
+        <Text style={styles.retryButtonText}>Повторить</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+function RefreshNotice({ stale, onRetry }: { stale: boolean; onRetry: () => void }) {
+  return (
+    <View accessibilityRole={stale ? 'alert' : undefined} style={styles.refreshNotice}>
+      {stale ? (
+        <>
+          <Text style={styles.refreshNoticeText}>Показаны сохранённые данные.</Text>
+          <Pressable accessibilityRole="button" onPress={onRetry}>
+            <Text style={styles.refreshNoticeAction}>Повторить</Text>
+          </Pressable>
+        </>
+      ) : (
+        <>
+          <ActivityIndicator color={palette.tomato} size="small" />
+          <Text style={styles.refreshNoticeText}>Обновляем данные…</Text>
+        </>
+      )}
+    </View>
+  );
+}
+
 function DiscoverScreen({
   classes,
-  loading,
+  loadState,
+  onRetry,
   onSelect,
   horizonDays,
   onHorizonChange,
 }: {
   classes: CookingClass[];
-  loading: boolean;
+  loadState: LoadState;
+  onRetry: () => void;
   onSelect: (item: CookingClass) => void;
   horizonDays: number;
   onHorizonChange: (days: number) => void;
@@ -311,19 +356,32 @@ function DiscoverScreen({
         onChange={setLevel}
       />
 
-      {loading ? (
+      {isInitialLoad(loadState) ? (
         <ActivityIndicator color={palette.tomato} style={styles.loader} />
-      ) : visibleClasses.length === 0 ? (
-        <EmptyState
-          title="Пока нет доступных классов"
-          text="Попробуйте другой день или измените уровень."
+      ) : loadState === 'error' ? (
+        <ErrorState
+          title="Не удалось загрузить расписание"
+          text="Проверьте подключение и попробуйте ещё раз."
+          onRetry={onRetry}
         />
       ) : (
-        <View style={styles.cardsList}>
-          {visibleClasses.map((item) => (
-            <ClassCard key={item.id} item={item} onPress={() => onSelect(item)} />
-          ))}
-        </View>
+        <>
+          {(loadState === 'refreshing' || loadState === 'stale') && (
+            <RefreshNotice stale={loadState === 'stale'} onRetry={onRetry} />
+          )}
+          {visibleClasses.length === 0 ? (
+            <EmptyState
+              title="Пока нет доступных классов"
+              text="Попробуйте другой день или измените уровень."
+            />
+          ) : (
+            <View style={styles.cardsList}>
+              {visibleClasses.map((item) => (
+                <ClassCard key={item.id} item={item} onPress={() => onSelect(item)} />
+              ))}
+            </View>
+          )}
+        </>
       )}
     </ScrollView>
   );
@@ -352,14 +410,33 @@ function BookingStatusPill({ status }: { status: Booking['status'] }) {
   );
 }
 
+function UnavailableBookingCard({ booking }: { booking: Booking }) {
+  return (
+    <View style={styles.bookingCard}>
+      <View style={styles.bookingTopRow}>
+        <BookingStatusPill status={booking.status} />
+        <Text style={styles.bookingPrice}>{formatMoney(booking.totalPriceKopecks)}</Text>
+      </View>
+      <Text style={styles.bookingTitle}>Данные класса недоступны</Text>
+      <Text style={styles.bookingDetail}>
+        Запись сохранена. Обновите данные позже, чтобы увидеть детали.
+      </Text>
+    </View>
+  );
+}
+
 function BookingsScreen({
   classes,
   bookings,
+  loadState,
+  onRetry,
   onCancel,
   onReview,
 }: {
   classes: CookingClass[];
   bookings: Booking[];
+  loadState: LoadState;
+  onRetry: () => void;
   onCancel: (booking: Booking) => void;
   onReview: (booking: Booking) => void;
 }) {
@@ -385,73 +462,97 @@ function BookingsScreen({
         onChange={setFilter}
       />
 
-      {visible.length === 0 ? (
-        <EmptyState title="Здесь пока пусто" text="Выберите класс в расписании — он появится здесь." />
+      {isInitialLoad(loadState) ? (
+        <ActivityIndicator color={palette.tomato} style={styles.loader} />
+      ) : loadState === 'error' ? (
+        <ErrorState
+          title="Не удалось загрузить записи"
+          text="Проверьте подключение и попробуйте ещё раз."
+          onRetry={onRetry}
+        />
       ) : (
-        <View style={styles.bookingList}>
-          {visible.map((booking) => {
-            const cookingClass = classById.get(booking.classId);
-            if (!cookingClass) return null;
-            const cancellable = canCancelBooking(booking, cookingClass);
-            return (
-              <View key={booking.id} style={styles.bookingCard}>
-                <View style={styles.bookingTopRow}>
-                  <BookingStatusPill status={booking.status} />
-                  <Text style={styles.bookingPrice}>{formatMoney(booking.totalPriceKopecks)}</Text>
-                </View>
-                <Text style={styles.bookingDate}>{formatLongDate(cookingClass.startsAt)}</Text>
-                <Text style={styles.bookingTitle}>{cookingClass.title}</Text>
-                <View style={styles.bookingDetails}>
-                  <Text style={styles.bookingDetail}>◷ {formatTime(cookingClass.startsAt)}</Text>
-                  <Text style={styles.bookingDetail}>· {cookingClass.chef.name}</Text>
-                </View>
-
-                {booking.status === 'cancelled_by_studio' && (
-                  <View style={styles.reasonBox}>
-                    <Text style={styles.reasonLabel}>Причина отмены</Text>
-                    <Text style={styles.reasonText}>{booking.studioCancellationReason}</Text>
-                  </View>
-                )}
-
-                {booking.status === 'confirmed' && (
-                  <View style={styles.bookingActionRow}>
-                    <View style={styles.countdown}>
-                      <Text style={styles.countdownLabel}>До встречи</Text>
-                      <Text style={styles.countdownValue}>
-                        {formatCountdown(cookingClass)}
+        <>
+          {(loadState === 'refreshing' || loadState === 'stale') && (
+            <RefreshNotice stale={loadState === 'stale'} onRetry={onRetry} />
+          )}
+          {visible.length === 0 ? (
+            <EmptyState
+              title="Здесь пока пусто"
+              text="Выберите класс в расписании — он появится здесь."
+            />
+          ) : (
+            <View style={styles.bookingList}>
+              {visible.map((booking) => {
+                const cookingClass = classById.get(booking.classId);
+                if (!cookingClass) {
+                  return <UnavailableBookingCard key={booking.id} booking={booking} />;
+                }
+                const cancellable = canCancelBooking(booking, cookingClass);
+                return (
+                  <View key={booking.id} style={styles.bookingCard}>
+                    <View style={styles.bookingTopRow}>
+                      <BookingStatusPill status={booking.status} />
+                      <Text style={styles.bookingPrice}>
+                        {formatMoney(booking.totalPriceKopecks)}
                       </Text>
                     </View>
-                    <Pressable
-                      disabled={!cancellable}
-                      onPress={() => onCancel(booking)}
-                      style={[styles.ghostButton, !cancellable && styles.buttonDisabled]}
-                    >
-                      <Text style={styles.ghostButtonText}>
-                        {cancellable ? 'Отменить запись' : 'Отмена закрыта'}
-                      </Text>
-                    </Pressable>
-                  </View>
-                )}
+                    <Text style={styles.bookingDate}>{formatLongDate(cookingClass.startsAt)}</Text>
+                    <Text style={styles.bookingTitle}>{cookingClass.title}</Text>
+                    <View style={styles.bookingDetails}>
+                      <Text style={styles.bookingDetail}>◷ {formatTime(cookingClass.startsAt)}</Text>
+                      <Text style={styles.bookingDetail}>· {cookingClass.chef.name}</Text>
+                    </View>
 
-                {canReview(booking) && (
-                  <Pressable onPress={() => onReview(booking)} style={styles.reviewButton}>
-                    <Text style={styles.reviewButtonStars}>★★★★★</Text>
-                    <Text style={styles.reviewButtonText}>Оценить шефа</Text>
-                  </Pressable>
-                )}
+                    {booking.status === 'cancelled_by_studio' && (
+                      <View style={styles.reasonBox}>
+                        <Text style={styles.reasonLabel}>Причина отмены</Text>
+                        <Text style={styles.reasonText}>{booking.studioCancellationReason}</Text>
+                      </View>
+                    )}
 
-                {booking.rating !== undefined && (
-                  <View>
-                    <Text style={styles.savedRating}>Ваша оценка: {'★'.repeat(booking.rating)}</Text>
-                    {booking.reviewComment && (
-                      <Text style={styles.savedReviewComment}>«{booking.reviewComment}»</Text>
+                    {booking.status === 'confirmed' && (
+                      <View style={styles.bookingActionRow}>
+                        <View style={styles.countdown}>
+                          <Text style={styles.countdownLabel}>До встречи</Text>
+                          <Text style={styles.countdownValue}>
+                            {formatCountdown(cookingClass)}
+                          </Text>
+                        </View>
+                        <Pressable
+                          disabled={!cancellable}
+                          onPress={() => onCancel(booking)}
+                          style={[styles.ghostButton, !cancellable && styles.buttonDisabled]}
+                        >
+                          <Text style={styles.ghostButtonText}>
+                            {cancellable ? 'Отменить запись' : 'Отмена закрыта'}
+                          </Text>
+                        </Pressable>
+                      </View>
+                    )}
+
+                    {canReview(booking) && (
+                      <Pressable onPress={() => onReview(booking)} style={styles.reviewButton}>
+                        <Text style={styles.reviewButtonStars}>★★★★★</Text>
+                        <Text style={styles.reviewButtonText}>Оценить шефа</Text>
+                      </Pressable>
+                    )}
+
+                    {booking.rating !== undefined && (
+                      <View>
+                        <Text style={styles.savedRating}>
+                          Ваша оценка: {'★'.repeat(booking.rating)}
+                        </Text>
+                        {booking.reviewComment && (
+                          <Text style={styles.savedReviewComment}>«{booking.reviewComment}»</Text>
+                        )}
+                      </View>
                     )}
                   </View>
-                )}
-              </View>
-            );
-          })}
-        </View>
+                );
+              })}
+            </View>
+          )}
+        </>
       )}
     </ScrollView>
   );
@@ -778,12 +879,17 @@ function BottomNav({ value, onChange }: { value: Tab; onChange: (tab: Tab) => vo
 
 export default function App() {
   const bookingAttemptRef = useRef<BookingAttempt | null>(null);
+  const scheduleSnapshotRef = useRef(false);
+  const bookingsSnapshotRef = useRef(false);
+  const refreshRequestRef = useRef(0);
   const [tab, setTab] = useState<Tab>('discover');
-  const [classes, setClasses] = useState<CookingClass[]>([]);
+  const [scheduleClasses, setScheduleClasses] = useState<CookingClass[]>([]);
+  const [bookingClasses, setBookingClasses] = useState<CookingClass[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [selectedClass, setSelectedClass] = useState<CookingClass | null>(null);
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [scheduleLoadState, setScheduleLoadState] = useState<LoadState>('initial');
+  const [bookingsLoadState, setBookingsLoadState] = useState<LoadState>('initial');
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [horizonDays, setHorizonDays] = useState(7);
@@ -791,27 +897,75 @@ export default function App() {
     Platform.OS === 'web' ? 'unsupported' : 'idle',
   );
 
+  const classes = useMemo(() => {
+    const byId = new Map(bookingClasses.map((item) => [item.id, item]));
+    scheduleClasses.forEach((item) => byId.set(item.id, item));
+    return [...byId.values()];
+  }, [bookingClasses, scheduleClasses]);
+
   const refresh = async (days = horizonDays) => {
-    const [scheduleClasses, nextBookings] = await Promise.all([
-      api.getClasses(getScheduleQuery(days)),
-      api.getBookings(),
-    ]);
-    const scheduledIds = new Set(scheduleClasses.map((item) => item.id));
-    const missingClassIds = [
-      ...new Set(nextBookings.map((item) => item.classId).filter((id) => !scheduledIds.has(id))),
-    ];
-    const bookingClasses = await Promise.all(
-      missingClassIds.map((classId) => api.getClass(classId)),
+    const requestId = ++refreshRequestRef.current;
+    const isLatestRequest = () => requestId === refreshRequestRef.current;
+    setScheduleLoadState(beginLoad(scheduleSnapshotRef.current));
+    setBookingsLoadState(beginLoad(bookingsSnapshotRef.current));
+
+    const { scheduleResult, bookingsResult, detailResults } = await loadStudioSnapshot(
+      api,
+      getScheduleQuery(days),
+      classes,
     );
-    setClasses([...scheduleClasses, ...bookingClasses]);
-    setBookings(nextBookings);
+
+    if (isLatestRequest()) {
+      if (scheduleResult.status === 'fulfilled') {
+        setScheduleClasses(scheduleResult.value);
+        scheduleSnapshotRef.current = true;
+        setScheduleLoadState(completeLoad(scheduleResult.value.length));
+      } else {
+        setScheduleLoadState(failLoad(scheduleSnapshotRef.current));
+      }
+    }
+
+    let classDetailsFailed = false;
+    if (bookingsResult.status === 'fulfilled') {
+      const nextBookings = bookingsResult.value;
+      classDetailsFailed = detailResults.some((result) => result.status === 'rejected');
+
+      if (isLatestRequest()) {
+        const wantedClassIds = new Set(nextBookings.map((item) => item.classId));
+        const loadedClasses = detailResults.flatMap((result) =>
+          result.status === 'fulfilled' ? [result.value] : [],
+        );
+        setBookingClasses((current) => {
+          const byId = new Map(
+            current
+              .filter((item) => wantedClassIds.has(item.id))
+              .map((item) => [item.id, item]),
+          );
+          loadedClasses.forEach((item) => byId.set(item.id, item));
+          return [...byId.values()];
+        });
+        setBookings(nextBookings);
+        bookingsSnapshotRef.current = true;
+        setBookingsLoadState(
+          classDetailsFailed ? 'stale' : completeLoad(nextBookings.length),
+        );
+      }
+    } else if (isLatestRequest()) {
+      setBookingsLoadState(failLoad(bookingsSnapshotRef.current));
+    }
+
+    if (
+      scheduleResult.status === 'rejected' ||
+      bookingsResult.status === 'rejected' ||
+      classDetailsFailed
+    ) {
+      throw new Error('Не все данные удалось обновить.');
+    }
   };
 
   useEffect(() => {
-    setLoading(true);
     refresh(horizonDays)
-      .catch(() => setToast('Не удалось загрузить данные. Попробуйте ещё раз.'))
-      .finally(() => setLoading(false));
+      .catch(() => setToast('Не все данные удалось обновить. Доступен повтор.'));
   }, [horizonDays]);
 
   useEffect(() => {
@@ -882,7 +1036,8 @@ export default function App() {
         }
         const latestClass = result.latestClass;
         if (latestClass) {
-          setClasses((current) => replaceCookingClass(current, latestClass));
+          setScheduleClasses((current) => replaceCookingClass(current, latestClass));
+          setBookingClasses((current) => replaceCookingClass(current, latestClass));
           setSelectedClass(latestClass);
         }
         setToast(
@@ -1004,8 +1159,9 @@ export default function App() {
         <View style={styles.page}>
           {tab === 'discover' && (
             <DiscoverScreen
-              classes={classes}
-              loading={loading}
+              classes={scheduleClasses}
+              loadState={scheduleLoadState}
+              onRetry={() => void refresh(horizonDays).catch(() => undefined)}
               onSelect={setSelectedClass}
               horizonDays={horizonDays}
               onHorizonChange={setHorizonDays}
@@ -1015,6 +1171,8 @@ export default function App() {
             <BookingsScreen
               classes={classes}
               bookings={bookings}
+              loadState={bookingsLoadState}
+              onRetry={() => void refresh(horizonDays).catch(() => undefined)}
               onCancel={handleCancel}
               onReview={setReviewBooking}
             />
@@ -1239,8 +1397,32 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyIconText: { fontSize: 30, color: palette.muted },
+  errorIcon: { backgroundColor: palette.dangerSoft },
   emptyTitle: { fontSize: 18, fontWeight: '800', color: palette.ink, marginBottom: 7 },
   emptyText: { color: palette.muted, lineHeight: 20, textAlign: 'center', fontSize: 13 },
+  retryButton: {
+    minHeight: 44,
+    marginTop: 18,
+    paddingHorizontal: 22,
+    borderRadius: 14,
+    backgroundColor: palette.tomato,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  retryButtonText: { color: '#FFFFFF', fontSize: 13, fontWeight: '900' },
+  refreshNotice: {
+    minHeight: 44,
+    marginTop: 14,
+    marginBottom: 4,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    backgroundColor: palette.warningSoft,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  refreshNoticeText: { color: palette.warning, fontSize: 12, flex: 1 },
+  refreshNoticeAction: { color: palette.tomatoDark, fontSize: 12, fontWeight: '900' },
   bookingList: { gap: 14, marginTop: 2 },
   bookingCard: {
     backgroundColor: palette.paper,
