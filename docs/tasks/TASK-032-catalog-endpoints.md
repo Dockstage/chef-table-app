@@ -35,4 +35,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации реализации.
+`67a5b5f` — `feat: implement cooking class catalog endpoints`.
