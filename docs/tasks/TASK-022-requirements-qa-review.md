@@ -34,4 +34,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации изменений.
+`2e127d7` — `docs: review requirements for QA gaps`.
