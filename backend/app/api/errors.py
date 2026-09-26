@@ -5,8 +5,10 @@ from uuid import uuid4
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.domain.errors import CookingClassNotFoundError, InvalidDateRangeError
 from app.schemas.problem import FieldError, Problem, ProblemCode
 
 PROBLEM_HTTP_STATUS: Final[Mapping[ProblemCode, int]] = {
@@ -99,6 +101,29 @@ def _validation_field_errors(exception: RequestValidationError) -> list[FieldErr
 
 
 def register_exception_handlers(application: FastAPI) -> None:
+    @application.exception_handler(InvalidDateRangeError)
+    async def handle_invalid_date_range(
+        request: Request,
+        _exception: InvalidDateRangeError,
+    ) -> JSONResponse:
+        return _problem_response(
+            request,
+            ApiProblem(
+                ProblemCode.INVALID_DATE_RANGE,
+                "Начало периода должно быть раньше окончания.",
+            ),
+        )
+
+    @application.exception_handler(CookingClassNotFoundError)
+    async def handle_class_not_found(
+        request: Request,
+        _exception: CookingClassNotFoundError,
+    ) -> JSONResponse:
+        return _problem_response(
+            request,
+            ApiProblem(ProblemCode.CLASS_NOT_FOUND, "Класс не найден."),
+        )
+
     @application.exception_handler(ApiProblem)
     async def handle_api_problem(request: Request, exception: ApiProblem) -> JSONResponse:
         return _problem_response(request, exception)
@@ -133,6 +158,13 @@ def register_exception_handlers(application: FastAPI) -> None:
         else:
             problem = ApiProblem(ProblemCode.INTERNAL_ERROR)
         return _problem_response(request, problem)
+
+    @application.exception_handler(OperationalError)
+    async def handle_database_unavailable(
+        request: Request,
+        _exception: OperationalError,
+    ) -> JSONResponse:
+        return _problem_response(request, ApiProblem(ProblemCode.SERVICE_UNAVAILABLE))
 
     @application.exception_handler(Exception)
     async def handle_unexpected_error(request: Request, _exception: Exception) -> JSONResponse:

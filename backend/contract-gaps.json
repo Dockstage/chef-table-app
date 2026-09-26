@@ -1,13 +1,5 @@
 {
   "missingOperations": {
-    "listClasses": {
-      "iteration": "BE-04",
-      "reason": "Каталог классов ещё не подключён к repository/service слоям."
-    },
-    "getClass": {
-      "iteration": "BE-04",
-      "reason": "Карточка класса будет реализована вместе с каталогом."
-    },
     "listBookings": {
       "iteration": "BE-05",
       "reason": "Чтение броней текущего клиента ещё не реализовано."

@@ -45,8 +45,8 @@ docker compose ps
 
 `migrate` applies Alembic revisions; `seed` safely upserts deterministic demo data and may be repeated. Stop containers without deleting the database volume with `docker compose stop`.
 
-The API is available at `http://127.0.0.1:8000`; health check: `GET /health`. Protected `/v1` operations require `Authorization: Bearer <DEV_BEARER_TOKEN>`. Business endpoints are implemented in later BE iterations.
+The API is available at `http://127.0.0.1:8000`; health check: `GET /health`. Protected `/v1` operations require `Authorization: Bearer <DEV_BEARER_TOKEN>`. The catalog is available through `GET /v1/classes?from=<ISO-8601>&to=<ISO-8601>&level=<optional>` and `GET /v1/classes/{classId}`. Booking, cancellation, review and push-token operations remain for later BE iterations.
 
 ## Contract workflow
 
-`docs/02-design/openapi.yaml` is the source of truth. Change it only after recording impact on requirements, client, backend and tests; then update Pydantic DTO/routes and run the contract command above. `contract-gaps.json` temporarily lists the seven planned operations: remove an entry in the same change that implements its endpoint. The check fails on DTO drift, undeclared/stale gaps, unexpected operations, or differences in transport signatures.
+`docs/02-design/openapi.yaml` is the source of truth. Change it only after recording impact on requirements, client, backend and tests; then update Pydantic DTO/routes and run the contract command above. `contract-gaps.json` temporarily lists the five remaining operations: remove an entry in the same change that implements its endpoint. The check fails on DTO drift, undeclared/stale gaps, unexpected operations, or differences in transport signatures.

@@ -15,7 +15,7 @@
 - loading, empty, success и предметные error states;
 - доступные подписи и состояния интерактивных элементов.
 
-Без настройки приложение использует асинхронный `MockStudioApi`. Для подключения API скопируйте `client/.env.example` в `client/.env` и задайте `EXPO_PUBLIC_API_BASE_URL`: фабрика автоматически выберет `HttpStudioApi`. У собственного FastAPI backend уже есть PostgreSQL-схема и инфраструктура; клиентские бизнес-endpoint реализуются следующими итерациями.
+Без настройки приложение использует асинхронный `MockStudioApi`. Для подключения API скопируйте `client/.env.example` в `client/.env` и задайте `EXPO_PUBLIC_API_BASE_URL`: фабрика автоматически выберет `HttpStudioApi`. Собственный FastAPI backend уже предоставляет каталог занятий из PostgreSQL; бронирования, отмена, отзывы и push-токены добавляются следующими итерациями.
 
 ## Технологии
 
@@ -79,7 +79,7 @@ python -m venv .venv
 .\.venv\Scripts\python -m uvicorn app.main:app --reload
 ```
 
-Проверки и остальные команды описаны в [`backend/README.md`](backend/README.md). Contract gate сравнивает 15 Pydantic-схем и runtime-операции FastAPI с каноническим OpenAPI; пока семь плановых endpoint явно зарегистрированы в `backend/contract-gaps.json`.
+Проверки и остальные команды описаны в [`backend/README.md`](backend/README.md). Contract gate сравнивает 15 Pydantic-схем и runtime-операции FastAPI с каноническим OpenAPI; две операции каталога реализованы, пять плановых endpoint явно зарегистрированы в `backend/contract-gaps.json`.
 
 ## Проверки
 
@@ -123,7 +123,7 @@ npm run export:web
 
 ## Границы MVP
 
-В продукте реализуется только роль клиента. Админка, интерфейс шефа, формирование расписания, онлайн-оплата и лояльность находятся вне скоупа. Собственный FastAPI backend и PostgreSQL приняты как учебное расширение. Каркас, схема, миграции, seed и Docker реализованы; клиентские бизнес-endpoint ещё впереди. Production-доставка APNs/FCM остаётся вне скоупа.
+В продукте реализуется только роль клиента. Админка, интерфейс шефа, формирование расписания, онлайн-оплата и лояльность находятся вне скоупа. Собственный FastAPI backend и PostgreSQL приняты как учебное расширение. Каркас, схема, миграции, seed, Docker и endpoint каталога реализованы; остальные клиентские операции ещё впереди. Production-доставка APNs/FCM остаётся вне скоупа.
 
 ## Структура
 

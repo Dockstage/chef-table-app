@@ -13,18 +13,18 @@
 | BR-003 Управление записью и история | US-04, US-06; UC-02, UC-04 | FR-009–FR-011, FR-014; NFR-005, NFR-007 | SCR-002; CMP-002; DLG-001; LOGIC-004–LOGIC-007 | TC-011–TC-013, TC-016, TC-018, TC-022 | Частично: refresh failure отделён не во всех мутациях |
 | BR-004 Уведомление об отмене | US-06; UC-04 | FR-011, FR-013, FR-014; NFR-005, NFR-009 | SCR-003, SCR-002; CMP-002; LOGIC-006, LOGIC-007 | TC-016, TC-021, TC-022 | Частично: native-сценарии описаны и unit-tested, но не подтверждены на Android/iOS |
 | BR-005 Обратная связь | US-05; UC-03 | FR-009, FR-012, FR-015; NFR-005 | SCR-002; CMP-002; MDL-001; LOGIC-005, LOGIC-007 | TC-014, TC-015, TC-020 | Полностью для mock-клиента; auth/backend остаются целевыми |
-| BR-006 Граница учебного MVP | US-01–US-06; UC-01–UC-04 | FR-015, FR-016; NFR-011 | SCR-001–SCR-003 и overlays | TC-024 | Частично: клиентская граница соблюдена, защищённый FastAPI ещё отсутствует |
+| BR-006 Граница учебного MVP | US-01–US-06; UC-01–UC-04 | FR-015, FR-016; NFR-011 | SCR-001–SCR-003 и overlays | TC-024 | Частично: клиентская граница и dev-auth соблюдены, backend пока покрывает каталог |
 
 ## Функциональное покрытие
 
 | Требование | US / UC | SCR / LOGIC | API | Код | TC | Основной commit | Статус |
 |---|---|---|---|---|---|---|---|
-| FR-001 Периоды 7/14/30 | US-01 | SCR-001; LOGIC-001 | `listClasses` | `getScheduleQuery`, `DiscoverScreen`, adapters | TC-001, TC-019 | `2f4b617` | Полностью |
-| FR-002 Фильтры | US-01 | SCR-001; CMP-001; LOGIC-001 | `listClasses` | `filterClasses`, `DiscoverScreen` | TC-002 | `69ebdbd` | Полностью |
-| FR-003 Детали класса | US-02 | CMP-001; BS-001 | `listClasses`, `getClass` | `ClassCard`, `ClassModal`, adapters | TC-004 | `69ebdbd` | Полностью |
+| FR-001 Периоды 7/14/30 | US-01 | SCR-001; LOGIC-001 | `listClasses` | `getScheduleQuery`, `DiscoverScreen`, `CatalogService` | TC-001, TC-019; backend catalog tests | `2f4b617`; TASK-032 | Полностью |
+| FR-002 Фильтры | US-01 | SCR-001; CMP-001; LOGIC-001 | `listClasses` | `filterClasses`, `DiscoverScreen`, `SqlAlchemyCatalogRepository` | TC-002; backend catalog tests | `69ebdbd`; TASK-032 | Полностью |
+| FR-003 Детали класса | US-02 | CMP-001; BS-001 | `listClasses`, `getClass` | `ClassCard`, `ClassModal`, catalog routes/repository | TC-004; backend catalog tests | `69ebdbd`; TASK-032 | Полностью |
 | FR-004 Состояния чтения | US-01 | SCR-001; LOGIC-007 | `listClasses` | `refresh`, `DiscoverScreen` | TC-003 | `69ebdbd` | Частично: нет отдельного постоянного Error state и TC на retry |
 | FR-005 Данные брони | US-03; UC-01 | BS-001; LOGIC-002, LOGIC-003 | `createBooking` | `ClassModal`, `handleBook`, adapters | TC-005–TC-007 | `4d8a1b4` | Полностью для текущей формы |
-| FR-006 Цена и прокат | US-02, US-03; UC-01 | BS-001; LOGIC-002, LOGIC-003 | `getClass`, `createBooking` | `getBookingTotal`, `MockStudioApi` | TC-005, TC-017, TC-018 | `ac64757` | Полностью для mock; backend впереди |
+| FR-006 Цена и прокат | US-02, US-03; UC-01 | BS-001; LOGIC-002, LOGIC-003 | `getClass`, `createBooking` | `getBookingTotal`, catalog repository, `MockStudioApi` | TC-005, TC-017, TC-018; backend catalog tests | `ac64757`; TASK-032 | Частично: чтение из backend готово, создание брони ещё впереди |
 | FR-007 Атомарность и идемпотентность | US-03; UC-01 | BS-001; LOGIC-003 | `createBooking` | `HttpStudioApi`, `MockStudioApi` | TC-007, TC-009, TC-018 | `dcf5ff8`, `a3c5ae1` | Частично: ключ создаётся заново при каждом вызове; нет replay/concurrency test |
 | FR-008 Различимые ошибки | US-03; UC-01 | BS-001; LOGIC-003 | `createBooking` | `ApiErrorCode`, adapters, `handleBook` | TC-008–TC-010, TC-017 | `f070a38`, `ac64757` | Частично: не все OpenAPI-коды типизированы, после конфликта нет refresh |
 | FR-009 Предстоящие и история | US-04, US-05; UC-02, UC-03 | SCR-002; CMP-002; LOGIC-005 | `listBookings` | `filterBookings`, `BookingsScreen` | TC-011, TC-016 | `ef12f07` | Полностью |
@@ -50,7 +50,7 @@
 | NFR-008 OpenAPI compatibility в CI | BR-002; US-03; UC-01 | OpenAPI 1.2 + DTO/runtime contract gate | backend contract tests | `60dae24`; TASK-031 | Частично: локальный gate готов, CI и TypeScript-сверка ещё отсутствуют |
 | NFR-009 Android/iOS, web-preview | BR-001, BR-004; US-01, US-06; SCR-003 | Platform branch и пояснение web-push | TC-021–TC-023 | `1edf78b`, `7420444` | Частично: нет прогона на двух native-платформах |
 | NFR-010 Сквозная проверяемость Must | Все Must | Эта матрица и канонические ссылки в `test-cases.md` | TC-001–TC-025 | TASK-021 | Частично: связи созданы, но часть Must пока без теста |
-| NFR-011 Граница учебной auth | BR-006; US-01–US-06; UC-01–UC-04 | Bearer dependency, env-secret, `401` Problem | backend auth и log-safety tests | `a3c5ae1`, `0a4ef79`; TASK-030 | Частично: инфраструктура готова, доменные endpoints ещё не подключены |
+| NFR-011 Граница учебной auth | BR-006; US-01–US-06; UC-01–UC-04 | Bearer dependency, env-secret, `401` Problem | backend auth, catalog API и log-safety tests | `a3c5ae1`, `0a4ef79`; TASK-030, TASK-032 | Частично: каталог защищён, остальные доменные endpoints ещё не подключены |
 | NFR-012 Путь ≤ 5 действий | BR-001; US-03; UC-01; BS-001 | Целевой поток и правило подсчёта описаны | TC-025 | TASK-022 | Частично: есть ручной кейс, требуется фактический прогон после UI-доработки |
 
 ## Обратный индекс проверок
