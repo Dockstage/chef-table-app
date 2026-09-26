@@ -34,4 +34,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации изменений.
+`981fc20` — `docs: close analysis reaudit gaps`.
