@@ -33,4 +33,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации изменений.
+`cee8a99` — `docs: align project with lecture materials`.
