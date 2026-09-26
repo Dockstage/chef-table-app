@@ -32,12 +32,14 @@
 
 ### BE-01 — PostgreSQL, Docker, миграции и seed
 
-- [ ] Добавить корневой `compose.yaml`, `backend/Dockerfile`, `.env.example` и healthchecks.
-- [ ] Создать Alembic-миграцию всех сущностей, FK, unique/check constraints и индексов.
-- [ ] Добавить отдельный идемпотентный seed с demo-клиентом и всеми UI-состояниями.
-- [ ] До реализации endpoint поднять контейнеры, применить миграции и seed, как требует лекционный порядок.
+- [x] Добавить корневой `compose.yaml`, `backend/Dockerfile`, `.env.example` и healthchecks.
+- [x] Создать Alembic-миграцию всех сущностей, FK, unique/check constraints и индексов.
+- [x] Добавить отдельный идемпотентный seed с demo-клиентом и всеми UI-состояниями.
+- [x] До реализации endpoint поднять контейнеры, применить миграции и seed, как требует лекционный порядок.
 
 Готово, когда upgrade работает на пустой БД, повторный seed безопасен, а последняя миграция проходит downgrade/upgrade.
+
+Результат: Docker Compose поднимает healthy PostgreSQL 16 и FastAPI; миграция создаёт восемь доменных таблиц, FK, индексы и ограничения. Проверены `downgrade → upgrade`, отсутствие autogenerate diff, повторный seed с неизменными количествами (9 классов, 5 броней) и отклонение отрицательного остатка/дубликата активной брони.
 
 ### BE-02 — Общая HTTP-инфраструктура и dev-auth
 

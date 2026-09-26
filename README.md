@@ -15,7 +15,7 @@
 - loading, empty, success и предметные error states;
 - доступные подписи и состояния интерактивных элементов.
 
-Без настройки приложение использует асинхронный `MockStudioApi`. Для подключения API скопируйте `client/.env.example` в `client/.env` и задайте `EXPO_PUBLIC_API_BASE_URL`: фабрика автоматически выберет `HttpStudioApi`. Собственный FastAPI backend находится на следующем этапе реализации.
+Без настройки приложение использует асинхронный `MockStudioApi`. Для подключения API скопируйте `client/.env.example` в `client/.env` и задайте `EXPO_PUBLIC_API_BASE_URL`: фабрика автоматически выберет `HttpStudioApi`. У собственного FastAPI backend уже есть PostgreSQL-схема и инфраструктура; клиентские бизнес-endpoint реализуются следующими итерациями.
 
 ## Технологии
 
@@ -57,9 +57,18 @@ npm start
 
 Затем отсканировать QR-код из терминала. Для нативной сборки и удалённых push потребуется настроенный Expo/EAS аккаунт; web fallback и обработка push-событий проверяются без устройства.
 
-## Backend-каркас
+## Backend и база данных
 
-Служебный FastAPI-каркас уже находится в `backend/`; PostgreSQL, миграции и бизнес-endpoint добавляются в следующей итерации.
+FastAPI и PostgreSQL запускаются из корня репозитория. Миграции и seed выполняются отдельными командами и не входят в production startup.
+
+```powershell
+docker compose up -d db
+docker compose run --rm migrate
+docker compose run --rm seed
+docker compose up -d backend
+```
+
+API доступен на `http://127.0.0.1:8000`; `GET /health` проверяет состояние сервиса. Для запуска backend без Docker:
 
 ```powershell
 cd backend
@@ -112,7 +121,7 @@ npm run export:web
 
 ## Границы MVP
 
-В продукте реализуется только роль клиента. Админка, интерфейс шефа, формирование расписания, онлайн-оплата и лояльность находятся вне скоупа. Собственный FastAPI backend и PostgreSQL приняты как учебное расширение. Каркас и health endpoint реализованы; база и клиентские endpoint ещё впереди. Production-доставка APNs/FCM остаётся вне скоупа.
+В продукте реализуется только роль клиента. Админка, интерфейс шефа, формирование расписания, онлайн-оплата и лояльность находятся вне скоупа. Собственный FastAPI backend и PostgreSQL приняты как учебное расширение. Каркас, схема, миграции, seed и Docker реализованы; клиентские бизнес-endpoint ещё впереди. Production-доставка APNs/FCM остаётся вне скоупа.
 
 ## Структура
 
@@ -122,8 +131,10 @@ client/src/domain/              типы и чистые бизнес-прави
 client/src/data/                HTTP-адаптер, mock fallback и demo-данные
 client/src/notifications/       регистрация и обработка push
 client/tests/                   автоматические тесты
-backend/app/                    слоистый каркас FastAPI
+backend/app/                    FastAPI, SQLAlchemy-модели и seed
+backend/migrations/             Alembic-миграции PostgreSQL
 backend/tests/                  backend pytest-тесты
+compose.yaml                    локальные PostgreSQL и FastAPI
 docs/                           аналитика, проектирование и отчёты
 ```
 

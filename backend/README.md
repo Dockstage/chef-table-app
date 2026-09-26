@@ -22,4 +22,20 @@ Run from `backend/`:
 .\.venv\Scripts\python -m pytest
 ```
 
-The API is available at `http://127.0.0.1:8000`; health check: `GET /health`. Database, migrations, seed data and Docker are introduced in BE-01.
+For local PostgreSQL, set `DATABASE_URL` from `.env.example`, then use `python -m alembic upgrade head` and `python -m app.db.seed`.
+
+## Docker stack
+
+Run from the repository root:
+
+```powershell
+docker compose up -d db
+docker compose run --rm migrate
+docker compose run --rm seed
+docker compose up -d backend
+docker compose ps
+```
+
+`migrate` applies Alembic revisions; `seed` safely upserts deterministic demo data and may be repeated. Stop containers without deleting the database volume with `docker compose stop`.
+
+The API is available at `http://127.0.0.1:8000`; health check: `GET /health`. Business endpoints are implemented in later BE iterations.

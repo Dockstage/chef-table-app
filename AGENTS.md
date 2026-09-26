@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-The Expo/React Native client lives in `client/`: `App.tsx` is its entry point, modules are in `client/src/`, and tests are in `client/tests/`. The FastAPI backend lives in `backend/`, with packages under `backend/app/` and tests under `backend/tests/`. Shared documentation stays in numbered `docs/` directories; root `compose.yaml` will define the local stack.
+The Expo/React Native client lives in `client/`: `App.tsx` is its entry point, modules are in `client/src/`, and tests are in `client/tests/`. The FastAPI backend lives in `backend/`, with packages under `backend/app/`, Alembic revisions under `backend/migrations/`, and tests under `backend/tests/`. Shared documentation stays in numbered `docs/` directories; root `compose.yaml` defines the local PostgreSQL and backend stack.
 
 ## Build, Test, and Development Commands
 
@@ -13,7 +13,7 @@ Run client commands from `client/`:
 - `npm test` — run the Vitest suite once.
 - `npm run export:web` — produce the web bundle in `dist/`.
 
-Run backend commands documented in `backend/README.md`. Document Docker commands when they are introduced.
+Run backend and Docker commands documented in `backend/README.md`. Apply migrations explicitly with `docker compose run --rm migrate`; run seed data separately with `docker compose run --rm seed`.
 
 ## Coding Style & Architecture
 
