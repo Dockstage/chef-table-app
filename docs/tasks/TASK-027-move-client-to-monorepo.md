@@ -40,4 +40,4 @@
 
 ## Commit
 
-Будет указан после фиксации изменения.
+`021a693` — `refactor: move Expo client into monorepo directory`.
