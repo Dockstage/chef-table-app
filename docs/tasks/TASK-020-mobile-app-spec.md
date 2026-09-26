@@ -37,5 +37,4 @@
 
 ## Commit
 
-Будет указан после отдельного commit этой задачи.
-
+`0bfe5a2` — `docs: add mobile application specifications`.
