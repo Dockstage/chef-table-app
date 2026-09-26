@@ -30,4 +30,4 @@
 
 ## Commit
 
-Будет указан после фиксации реализации.
+`c803ceb` — `fix: separate booking result from refresh`.
