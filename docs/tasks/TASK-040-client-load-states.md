@@ -32,4 +32,4 @@
 
 ## Commit
 
-Будет указан после фиксации реализации.
+`60f08a0` — `feat: add resilient client load states`.
