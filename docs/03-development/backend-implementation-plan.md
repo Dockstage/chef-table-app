@@ -43,11 +43,13 @@
 
 ### BE-02 — Общая HTTP-инфраструктура и dev-auth
 
-- [ ] Добавить settings, CORS, request ID и безопасное логирование.
-- [ ] Реализовать единый problem envelope и сопоставление предметных кодов статусам HTTP.
-- [ ] Реализовать документированный Bearer token seeded demo-клиента; production OTP не добавлять.
+- [x] Добавить settings, CORS, request ID и безопасное логирование.
+- [x] Реализовать единый problem envelope и сопоставление предметных кодов статусам HTTP.
+- [x] Реализовать документированный Bearer token seeded demo-клиента; production OTP не добавлять.
 
 Готово, когда `401`, validation errors и неизвестные ресурсы возвращаются в контрактном формате.
+
+Результат: DSN/CORS/log level/dev-token валидируются через Pydantic Settings; каждый запрос получает `X-Request-ID` и безопасную JSON-запись без headers/body. Добавлены централизованные `Problem`, маппинг всех предметных кодов, `401/404/422/500` handlers и constant-time dev Bearer-проверка, возвращающая ID seeded demo-клиента. Девять backend-тестов проходят.
 
 ### BE-03 — Контрактный контроль
 

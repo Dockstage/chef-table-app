@@ -33,7 +33,7 @@
 | FR-012 Отзыв | US-05; UC-03 | SCR-002; MDL-001; LOGIC-005 | `createReview` | `ReviewModal`, `handleReview`, adapters | TC-014, TC-015, TC-020 | `d8dfe4a` | Полностью для mock; backend впереди |
 | FR-013 Регистрация push | US-06; UC-04 | SCR-003; LOGIC-006 | `registerPushToken` | `registerForPushNotifications`, adapters | TC-021 | `1edf78b` | Частично: нет подтверждённого native e2e |
 | FR-014 Обработка push | US-06; UC-04 | SCR-003, SCR-002; LOGIC-006 | `listBookings` | `pushPayload`, subscriptions, `refresh` | TC-022 | `c8423d3`, `386bd6b` | Частично: unit есть, native e2e нет |
-| FR-015 Dev-идентификация | US-01–US-06; UC-01–UC-04 | Все сетевые сценарии | Все 7 operationId | `HttpStudioApi.getAccessToken` | — | `a3c5ae1` | Не покрыто: provider опционален, нет проверки `401` и backend |
+| FR-015 Dev-идентификация | US-01–US-06; UC-01–UC-04 | Все сетевые сценарии | Все 7 operationId | `HttpStudioApi.getAccessToken`; FastAPI dev-auth | backend auth/Problem tests | `a3c5ae1`; TASK-030 | Частично: backend и `401` покрыты, provider клиента пока опционален |
 | FR-016 Только клиентские возможности | — | SCR-001–SCR-003 | — | `App`, `BottomNav` | TC-024 | `69ebdbd` | Полностью |
 
 ## Покрытие качественных требований
@@ -47,10 +47,10 @@
 | NFR-005 Данные при read failure | BR-003–BR-005; US-04–US-06; LOGIC-007 | Целевое состояние описано | — | `0bfe5a2` | Не покрыто: нет component/scenario test; refresh смешан с мутацией |
 | NFR-006 Нет аллергий/токенов в логах | BR-002; US-03; UC-01 | Логирование PII в коде не добавлено | — | `a6dd292` | Не покрыто: отсутствует тест-перехватчик логов |
 | NFR-007 Однозначные деньги и время | BR-001, BR-003; US-02–US-04; LOGIC-001, LOGIC-002, LOGIC-004 | Копейки, ISO 8601, domain policies | TC-005, TC-012, TC-013, TC-019 | `ed714fc` | Частично: timezone backend ещё не проверен |
-| NFR-008 OpenAPI compatibility в CI | BR-002; US-03; UC-01 | OpenAPI 1.1 подготовлен | — | `60dae24` | Не покрыто: FastAPI и schema-check в CI отсутствуют |
+| NFR-008 OpenAPI compatibility в CI | BR-002; US-03; UC-01 | OpenAPI 1.2 подготовлен | — | `60dae24`; TASK-030 | Не покрыто: schema-check FastAPI в CI отсутствует |
 | NFR-009 Android/iOS, web-preview | BR-001, BR-004; US-01, US-06; SCR-003 | Platform branch и пояснение web-push | TC-021–TC-023 | `1edf78b`, `7420444` | Частично: нет прогона на двух native-платформах |
 | NFR-010 Сквозная проверяемость Must | Все Must | Эта матрица и канонические ссылки в `test-cases.md` | TC-001–TC-025 | TASK-021 | Частично: связи созданы, но часть Must пока без теста |
-| NFR-011 Граница учебной auth | BR-006; US-01–US-06; UC-01–UC-04 | Bearer header поддержан; `.env` исключён | — | `a3c5ae1`, `0a4ef79` | Не покрыто: нет обязательного токена, `401`-теста и backend |
+| NFR-011 Граница учебной auth | BR-006; US-01–US-06; UC-01–UC-04 | Bearer dependency, env-secret, `401` Problem | backend auth и log-safety tests | `a3c5ae1`, `0a4ef79`; TASK-030 | Частично: инфраструктура готова, доменные endpoints ещё не подключены |
 | NFR-012 Путь ≤ 5 действий | BR-001; US-03; UC-01; BS-001 | Целевой поток и правило подсчёта описаны | TC-025 | TASK-022 | Частично: есть ручной кейс, требуется фактический прогон после UI-доработки |
 
 ## Обратный индекс проверок

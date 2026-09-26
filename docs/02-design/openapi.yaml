@@ -2,7 +2,7 @@ openapi: 3.1.0
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Chef Table Client API
-  version: 1.1.0
+  version: 1.2.0
   description: |
     Канонический контракт клиентского приложения «Шеф-стол» с референсным FastAPI-backend.
     Все операции выполняются от имени seeded demo-клиента из Bearer-токена. Каталог доступен
@@ -707,6 +707,8 @@ components:
         - INVALID_DATE_RANGE
         - VALIDATION_ERROR
         - UNAUTHORIZED
+        - NOT_FOUND
+        - METHOD_NOT_ALLOWED
         - CLASS_NOT_FOUND
         - BOOKING_NOT_FOUND
         - SLOT_FULL

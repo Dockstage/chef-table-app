@@ -24,7 +24,7 @@ Baseline фиксирует согласованный аналитически�
 | Нефункциональные требования | [`non-functional-requirements.md`](non-functional-requirements.md) | NFR-001–NFR-012 |
 | Пользовательские требования | [`user-stories.md`](user-stories.md), [`use-cases.md`](use-cases.md) | US-01–US-06, UC-01–UC-04 |
 | Интерфейс | [`03-design-brief/README.md`](03-design-brief/README.md), [`05-mobile-app-spec/README.md`](05-mobile-app-spec/README.md) | 3 SCR, 2 CMP, BS, MDL, DLG, LOGIC-001–007 |
-| Технический дизайн | [`../02-design/`](../02-design/) | Архитектура, data model, sequences, OpenAPI 1.1 |
+| Технический дизайн | [`../02-design/`](../02-design/) | Архитектура, data model, sequences, OpenAPI 1.2 |
 | Проверяемость | [`traceability-matrix.md`](traceability-matrix.md), [`requirements-qa-review.md`](requirements-qa-review.md) | Трассировка и QA-ревью |
 
 ## Gate передачи в разработку

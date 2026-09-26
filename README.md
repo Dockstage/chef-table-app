@@ -62,13 +62,15 @@ npm start
 FastAPI и PostgreSQL запускаются из корня репозитория. Миграции и seed выполняются отдельными командами и не входят в production startup.
 
 ```powershell
+Copy-Item backend/.env.example backend/.env
+# замените DEV_BEARER_TOKEN в backend/.env на локальное значение
 docker compose up -d db
 docker compose run --rm migrate
 docker compose run --rm seed
 docker compose up -d backend
 ```
 
-API доступен на `http://127.0.0.1:8000`; `GET /health` проверяет состояние сервиса. Для запуска backend без Docker:
+API доступен на `http://127.0.0.1:8000`; `GET /health` проверяет состояние сервиса. Защищённые `/v1`-операции используют локальный `DEV_BEARER_TOKEN`; файл `backend/.env` не коммитится. Для запуска backend без Docker:
 
 ```powershell
 cd backend

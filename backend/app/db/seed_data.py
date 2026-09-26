@@ -5,9 +5,11 @@ from decimal import Decimal
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
+from app.domain.identity import DEMO_CLIENT_ID
+
 STUDIO_TIMEZONE = ZoneInfo("Europe/Moscow")
 
-CLIENT_ID = UUID("00000000-0000-4000-8000-000000000001")
+CLIENT_ID = DEMO_CLIENT_ID
 
 CHEF_IDS = [UUID(f"10000000-0000-4000-8000-{index:012d}") for index in range(1, 4)]
 PROGRAM_IDS = [UUID(f"15000000-0000-4000-8000-{index:012d}") for index in range(1, 9)]
