@@ -30,4 +30,4 @@
 
 ## Commit
 
-Будет указан после фиксации реализации.
+`b1a3b69` — `fix: validate client API boundary`.
