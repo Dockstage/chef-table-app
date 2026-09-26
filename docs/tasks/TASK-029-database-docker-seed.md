@@ -34,4 +34,4 @@
 
 ## Commit
 
-Будет указан после фиксации изменений.
+`d2a1908` — `feat: add PostgreSQL migrations and seed`.
