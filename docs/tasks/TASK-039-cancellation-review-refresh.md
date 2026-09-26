@@ -28,4 +28,4 @@
 
 ## Commit
 
-Будет указан после фиксации реализации.
+`c2cabdd` — `fix: preserve cancellation and review results`.
