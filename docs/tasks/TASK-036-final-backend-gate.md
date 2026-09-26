@@ -32,4 +32,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации реализации.
+`37c398a` — `test: add final backend verification gate`.
