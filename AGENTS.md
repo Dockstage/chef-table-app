@@ -2,23 +2,30 @@
 
 ## Project Structure & Module Organization
 
-This repository is currently an empty scaffold. Place production code in `src/`, tests in `tests/`, and non-code resources in `assets/`. Group modules by feature, and exclude generated directories such as `dist/` or `build/` from version control.
+The repository contains an Expo/React Native client and a planned FastAPI backend. Before the monorepo move, the client entry point is `App.tsx`, modules are in `src/`, and tests are in `tests/`. The target layout is `client/`, `backend/`, shared `docs/`, and root `compose.yaml`. Keep analysis, design, and implementation plans in their numbered `docs/` directories.
 
 ## Build, Test, and Development Commands
 
-No build system, dependency manifest, or test runner is configured. When adding tooling, expose and document standard commands for development, testing, linting, and production builds through `package.json`, `pyproject.toml`, or a `Makefile`. Update this section with the actual commands in the same change.
+Run the current client commands from the repository root; after the monorepo move, run them from `client/`:
 
-## Coding Style & Naming Conventions
+- `npm run web` — start the Expo web development server.
+- `npm run typecheck` — check strict TypeScript without emitting files.
+- `npm test` — run the Vitest suite once.
+- `npm run export:web` — produce the web bundle in `dist/`.
 
-Commit the standard formatter and linter configuration for the chosen language. Use spaces unless the formatter requires tabs. Prefer `PascalCase` for types and components, `camelCase` for functions and variables, and lowercase hyphenated names for documentation and assets. Keep modules focused.
+Document backend and Docker commands when they are introduced.
+
+## Coding Style & Architecture
+
+Use TypeScript strict mode, two-space indentation, `PascalCase` for components/types, and `camelCase` for functions/variables. Python follows Ruff. Organize by feature and direct dependencies toward domain logic. Do not build monoliths: split screens, handlers, services, repositories, schemas, UI, and configuration into focused modules. `App.tsx` and `backend/app/main.py` are composition roots, not business-logic containers.
 
 ## Testing Guidelines
 
-Add deterministic, independent tests with every behavior change or bug fix. Mirror source paths beneath `tests/` and follow framework conventions such as `user_service_test.py` or `user-service.test.ts`. Keep the full suite runnable with one documented command and define a coverage target when selecting a framework.
+Add deterministic tests with behavior changes and bug fixes. Use `*.test.ts` and `test_*.py`. Backend integration tests use PostgreSQL with real Alembic migrations, not SQLite. Keep client and backend suites independently runnable.
 
 ## Commit & Pull Request Guidelines
 
-There is no commit history from which to infer conventions. Use concise, imperative subjects, optionally with Conventional Commit prefixes such as `feat:` or `fix:`. Pull requests should explain the problem and solution, list verification steps, and link issues. Include screenshots for UI changes and call out migrations or configuration changes.
+Use concise Conventional Commit subjects. Each task or bug requires a Markdown card, prompt, verification notes, and focused commit. Pull requests describe the problem, solution, checks, linked requirements, and UI screenshots when applicable.
 
 ## Режим работы
 
@@ -31,8 +38,8 @@ There is no commit history from which to infer conventions. Use concise, imperat
 - Сначала изучай только файлы, необходимые для текущей задачи.
 - Не сканируй весь репозиторий без необходимости.
 - Не повторяй уже полученную информацию и не перечитывай неизменённые файлы.
-- Не выполняй широкие исследования, поиск в интернете или объёмные проверки, если этого не требует задача или пользователь.
+- Не выполняй широкие исследования, поиск в интернете или объёмные проверки без необходимости.
 - Предпочитай короткие, точные изменения массовым переписываниям.
 - Перед долгими или ресурсоёмкими операциями кратко объясняй их необходимость.
-- Не запускай тесты, сборку или линтер повторно без изменений, способных повлиять на результат.
-- В итоговом ответе кратко указывай, что изменено, как это проверено и что осталось сделать.
+- Не запускай проверки повторно без изменений, способных повлиять на результат.
+- В итоге кратко указывай, что изменено, как проверено и что осталось сделать.
