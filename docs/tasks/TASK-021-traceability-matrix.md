@@ -34,4 +34,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации изменений.
+`3709bcd` — `docs: add requirements traceability matrix`.
