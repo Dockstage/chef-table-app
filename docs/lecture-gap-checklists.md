@@ -47,17 +47,17 @@
 - [x] Реализованы domain policies, mock и HTTP-адаптер, push-модуль и восемь пользовательских возможностей.
 - [x] Деньги хранятся в копейках, даты передаются как ISO 8601, предметные ошибки представлены кодами.
 - [x] Все ссылки на указанные в задачах commits существуют; история логично разделена на docs/feat/test/fix.
-- [x] `npm run typecheck`, `npm test` и `npm run export:web` проходят на текущем checkout.
+- [x] Из `client/` проходят `npm run typecheck`, `npm test` и `npm run export:web`.
 
 ### Что переделать или добавить
 
-- [ ] **P0 — сделать retry бронирования идемпотентным.** `HttpStudioApi.createBooking()` создаёт новый ключ при каждом вызове (`src/data/httpStudioApi.ts`), поэтому потерянный ответ и повтор из формы могут создать две брони. Генерировать ключ на одну попытку пользователя и повторно использовать его для того же payload до однозначного результата.
+- [ ] **P0 — сделать retry бронирования идемпотентным.** `HttpStudioApi.createBooking()` создаёт новый ключ при каждом вызове (`client/src/data/httpStudioApi.ts`), поэтому потерянный ответ и повтор из формы могут создать две брони. Генерировать ключ на одну попытку пользователя и повторно использовать его для того же payload до однозначного результата.
 - [ ] **P0 — обновлять данные после конфликта.** `handleBook` показывает текст ошибки, но вопреки UC-01 и архитектуре не обновляет расписание после `SLOT_FULL`, `SLOT_CANCELLED` или `RENTAL_UNAVAILABLE`. Сохранить заполненную форму, обновить слот и показать актуальное состояние.
 - [ ] **P0 — разделить успех мутации и сбой refresh.** Сейчас успешная бронь/отмена с последующей ошибкой `refresh()` попадает в общий `catch` и выглядит как неуспешная операция. Это провоцирует повтор. Сначала зафиксировать результат мутации, затем отдельно обрабатывать устаревание данных.
 - [ ] **P0 — реализовать настоящий Error State.** После ошибки начальной загрузки остаётся toast, а пустой массив превращается в «Пока нет доступных классов». Ввести состояния `initial/loading/content/empty/error/refreshing`, постоянное сообщение и кнопку «Повторить».
 - [ ] **P0 — проверить push payload по контракту.** `isStudioCancellationNotification` проверяет только `type`, хотя OpenAPI требует `bookingId` и `reason`; текущий тест ошибочно признаёт payload без причины валидным. Валидировать все обязательные поля и использовать `bookingId` для адресного обновления/навигации.
-- [ ] **P1 — декомпозировать `App.tsx` (1290 строк).** Вынести screens, modals, reusable UI, theme и application orchestration в feature-модули (`schedule`, `booking`, `bookings`, `review`, `profile`, `notifications`). Оставить в `App.tsx` composition root и навигацию. Обновить архитектурный документ под фактические модули.
-- [ ] **P0 — перестроить репозиторий в monorepo.** Перенести текущее Expo-приложение в `client/`, создать `backend/`, оставить общие `docs/` и корневой `compose.yaml`. После переноса обновить команды, относительные ссылки, CI и инструкции, не смешивая зависимости Node.js и Python.
+- [ ] **P1 — декомпозировать `client/App.tsx` (1290 строк).** Вынести screens, modals, reusable UI, theme и application orchestration в feature-модули (`schedule`, `booking`, `bookings`, `review`, `profile`, `notifications`). Оставить в `App.tsx` composition root и навигацию. Обновить архитектурный документ под фактические модули.
+- [ ] **P0 — завершить перестройку репозитория в monorepo.** Expo-приложение уже перенесено в `client/`; остаётся создать `backend/` и корневой `compose.yaml`. Общие `docs/` сохранены, зависимости Node.js и будущего Python backend не смешиваются.
 - [x] **P1 — добавить два плана реализации.** Созданы `docs/03-development/client-implementation-plan.md` и `backend-implementation-plan.md` со scope, модулями/сущностями, инструментами, этапами, зависимостями и критериями готовности.
 - [ ] **P0 — зафиксировать backend-стек.** Python 3.12+, FastAPI, Pydantic, SQLAlchemy 2, Alembic, PostgreSQL, Uvicorn, pytest и httpx. Версии закрепить в `backend/pyproject.toml`; инструменты форматирования и анализа выбрать до начала реализации.
 - [ ] **P1 — создать слоистую структуру backend.** Использовать `backend/app/api`, `domain`, `services`, `repositories`, `schemas`, `db` и composition root `main.py`. HTTP handlers не должны содержать транзакционную бизнес-логику.
@@ -97,7 +97,7 @@
 - [ ] **P1 — разделить три набора:** layout-проверки, component/functional-проверки и законченные UC-сценарии. Не смешивать внешний вид, единичное правило и пользовательский flow в одном кейсе.
 - [ ] **P1 — ввести `json_schema.yml` и валидные JSON-массивы.** Для каждого TestCase хранить `labels`, конкретный `summary`, `priority`, `estimate`, `testRepositoryPath`, `description/source` и шаги `action/data/result`. Markdown оставить как читаемый индекс/план.
 - [ ] **P1 — создать layout-набор.** Проверить 360 px, длинные тексты, font scaling, клавиатуру, модальные окна, scroll, safe areas, контраст, touch targets и состояния Loading/Empty/Error. Привязать каждый кейс к design baseline/screenshot или Figma frame.
-- [ ] **P0 — добавить UI component-тесты.** Проверить фильтры без сброса даты, форму и лимиты, disabled rental, error/retry, успешную навигацию, историю отмены, одноразовый review и доступные роли. Текущие Vitest-тесты не рендерят `App.tsx`.
+- [ ] **P0 — добавить UI component-тесты.** Проверить фильтры без сброса даты, форму и лимиты, disabled rental, error/retry, успешную навигацию, историю отмены, одноразовый review и доступные роли. Текущие Vitest-тесты не рендерят `client/App.tsx`.
 - [ ] **P0 — покрыть сетевой retry.** Воспроизвести «backend создал бронь, ответ потерян» и доказать повтор с тем же idempotency key; проверить, что UI не предлагает создать вторую бронь после успешной мутации и неуспешного refresh.
 - [ ] **P0 — покрыть Error против Empty.** Добавить проверки initial failure, retry, refresh поверх старого контента, частичный `getClass` failure, timeout/offline и восстановление сети.
 - [ ] **P1 — расширить contract-тесты всех endpoints.** Проверить методы, headers, body, `200/201/204`, `400/401/404/409/410/422/429/5xx`, пустой/невалидный JSON, nullable/missing fields и отображение каждого error code в UI.
@@ -121,7 +121,7 @@
 3. Поднять FastAPI + PostgreSQL через Docker, применить Alembic migrations и seed.
 4. Реализовать и протестировать backend endpoints, транзакции, конкурентность и идемпотентность.
 5. Исправить P0 клиента: устойчивый retry, refresh после конфликтов, error state, push payload и разделение mutation/refresh.
-6. Декомпозировать `App.tsx`, затем добавить UI- и сквозные интеграционные тесты.
+6. Декомпозировать `client/App.tsx`, затем добавить UI- и сквозные интеграционные тесты.
 7. Собрать двунаправленную матрицу трассировки и QA-ревью, затем привести код и тестовый пайплайн к согласованному ТЗ.
 8. Обновить TASK/BUG/prompts, ручные доказательства, README и итоговый отчёт; выполнить один финальный прогон и отдельные commits.
 

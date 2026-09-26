@@ -15,7 +15,7 @@
 - loading, empty, success и предметные error states;
 - доступные подписи и состояния интерактивных элементов.
 
-Без настройки приложение использует асинхронный `MockStudioApi`. Для подключения существующего backend скопируйте `.env.example` в `.env` и задайте `EXPO_PUBLIC_API_BASE_URL`: фабрика автоматически выберет `HttpStudioApi`. HTTP-адаптер реализует диапазоны расписания, загрузку класса, бронирование с `Idempotency-Key`, отмену, отзывы и предметные ошибки API.
+Без настройки приложение использует асинхронный `MockStudioApi`. Для подключения API скопируйте `client/.env.example` в `client/.env` и задайте `EXPO_PUBLIC_API_BASE_URL`: фабрика автоматически выберет `HttpStudioApi`. Собственный FastAPI backend находится на следующем этапе реализации.
 
 ## Технологии
 
@@ -33,6 +33,7 @@
 Требования: Node.js 22.13 или новее и npm.
 
 ```bash
+cd client
 npm install
 npm run web
 ```
@@ -58,6 +59,7 @@ npm start
 ## Проверки
 
 ```bash
+cd client
 npm run typecheck
 npm test
 npm run export:web
@@ -67,7 +69,7 @@ npm run export:web
 
 - TypeScript — без ошибок;
 - 24 автоматических теста — успешно;
-- web bundle — создаётся в `dist/`.
+- web bundle — создаётся в `client/dist/`.
 
 ## Демонстрационные сценарии
 
@@ -96,17 +98,18 @@ npm run export:web
 
 ## Границы MVP
 
-В репозитории реализована только роль клиента. Админка, интерфейс шефа, формирование расписания, реальная база, онлайн-оплата и лояльность находятся вне скоупа. Клиентская регистрация токена и обработка push реализованы; серверный провайдер доставки и production-ключи APNs/FCM относятся к существующей инфраструктуре. В production `MockStudioApi` заменяется HTTP-адаптером к этой инфраструктуре.
+В продукте реализуется только роль клиента. Админка, интерфейс шефа, формирование расписания, онлайн-оплата и лояльность находятся вне скоупа. Собственный FastAPI backend и PostgreSQL приняты как учебное расширение, но пока не реализованы. Production-доставка APNs/FCM остаётся вне скоупа.
 
 ## Структура
 
 ```text
-App.tsx                  интерфейс и application state
-src/domain/              типы и чистые бизнес-правила
-src/data/                HTTP-адаптер, mock fallback и demo-данные
-src/notifications/       регистрация и обработка push
-tests/                   автоматические тесты
-docs/                    аналитика, проектирование и отчёты
+client/App.tsx                  интерфейс и application state
+client/src/domain/              типы и чистые бизнес-правила
+client/src/data/                HTTP-адаптер, mock fallback и demo-данные
+client/src/notifications/       регистрация и обработка push
+client/tests/                   автоматические тесты
+backend/                        FastAPI backend — следующий этап
+docs/                           аналитика, проектирование и отчёты
 ```
 
 ## Найденные и исправленные баги

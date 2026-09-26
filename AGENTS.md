@@ -2,11 +2,11 @@
 
 ## Project Structure & Module Organization
 
-The repository contains an Expo/React Native client and a planned FastAPI backend. Before the monorepo move, the client entry point is `App.tsx`, modules are in `src/`, and tests are in `tests/`. The target layout is `client/`, `backend/`, shared `docs/`, and root `compose.yaml`. Keep analysis, design, and implementation plans in their numbered `docs/` directories.
+The Expo/React Native client lives in `client/`: `App.tsx` is its entry point, modules are in `client/src/`, and tests are in `client/tests/`. The FastAPI backend will live in `backend/`; shared documentation stays in numbered `docs/` directories, with root `compose.yaml` for the local stack.
 
 ## Build, Test, and Development Commands
 
-Run the current client commands from the repository root; after the monorepo move, run them from `client/`:
+Run client commands from `client/`:
 
 - `npm run web` — start the Expo web development server.
 - `npm run typecheck` — check strict TypeScript without emitting files.

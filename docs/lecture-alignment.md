@@ -25,12 +25,12 @@
 |---|---|---|
 | Декомпозировать работу и сохранять промпты | TASK/BUG-карточки, хронологический реестр промптов и отдельные commits | Выполнено |
 | Реализовать клиентские функции | Expo/React Native-клиент, mock и HTTP adapter; реализовано более трёх функций | Выполнено для текущего client baseline |
-| Разделить client и backend | Решения D-001–D-003: целевой monorepo `client/`, `backend/`, `docs/` | Запланировано; физического переноса ещё нет |
+| Разделить client и backend | Expo-клиент физически перенесён в `client/`; `docs/` остаётся общим, `backend/` создаётся следующей итерацией | Частично: client отделён, backend ещё не создан |
 | Реализовать собственный backend | Согласованы FastAPI, PostgreSQL, SQLAlchemy, Alembic и контракт | Запланировано; backend-кода ещё нет |
 | Обеспечить воспроизводимый запуск | Сейчас документированы npm-команды; Docker Compose относится к следующему этапу | Частично |
 | Соблюдать целевой контракт | OpenAPI готов, но retry, DTO, auth wiring и push validation клиента требуют доработки | Частично |
 
-Текущая структура не выдаётся за итоговую: Expo-приложение пока находится в корне, `App.tsx` требует декомпозиции, а `MockStudioApi` остаётся demo/test fallback.
+Expo-приложение отделено в `client/`, но структура ещё не итоговая: `client/App.tsx` требует декомпозиции, backend не создан, а `MockStudioApi` остаётся demo/test fallback.
 
 ## Тестирование
 
@@ -43,7 +43,7 @@
 | Разделить layout/component/scenario-наборы | Требуемая структура определена в чек-листе | Не выполнено |
 | Проверить backend, БД и конкурентность | Сценарии и требования описаны | Не выполнено до появления backend |
 
-Артефакты: [`test-cases.md`](test-cases.md), [`manual-test-report.md`](manual-test-report.md), `tests/`, [`evidence/`](evidence/) и `tasks/BUG-*`.
+Артефакты: [`test-cases.md`](test-cases.md), [`manual-test-report.md`](manual-test-report.md), `../client/tests/`, [`evidence/`](evidence/) и `tasks/BUG-*`.
 
 ## Осознанные отличия от примера
 

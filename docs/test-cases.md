@@ -32,4 +32,4 @@
 
 ## Регрессионный минимум
 
-Перед каждым релизом выполнить TC-001, TC-005, TC-007, TC-009, TC-010, TC-012, TC-013 и TC-014, затем `npm run typecheck`, `npm test`, `npm run export:web`.
+Перед каждым релизом выполнить TC-001, TC-005, TC-007, TC-009, TC-010, TC-012, TC-013 и TC-014, затем из `client/`: `npm run typecheck`, `npm test`, `npm run export:web`.

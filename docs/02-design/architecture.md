@@ -4,7 +4,7 @@
 
 Клиент «Шеф-стол» работает на Android/iOS и в web-preview. По ADR-001 проект расширен референсным FastAPI-backend и PostgreSQL, воспроизводящими контракт существующей инфраструктуры. Управляющие интерфейсы студии остаются внешними; клиент не меняет каталог и расписание.
 
-Сейчас Expo-клиент расположен в корне, а backend ещё не реализован. Целевая структура после отдельной задачи: `client/`, `backend/`, `docs/`, Docker Compose. `MockStudioApi` сохраняется только как demo/test fallback.
+Expo-клиент расположен в `client/`, а backend ещё не реализован. Следующие структурные шаги — создать `backend/` и корневой Docker Compose. `MockStudioApi` сохраняется только как demo/test fallback.
 
 ```mermaid
 flowchart LR

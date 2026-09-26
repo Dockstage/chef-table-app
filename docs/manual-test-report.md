@@ -29,9 +29,9 @@
 
 ## Автоматический регресс
 
-- `npm run typecheck` — успешно;
-- `npm test` — 24/24 теста успешно;
-- `npm run export:web` — успешно;
+- из `client/` `npm run typecheck` — успешно;
+- из `client/` `npm test` — 24/24 теста успешно;
+- из `client/` `npm run export:web` — успешно;
 - HTTP-адаптер проверен без сети через подменённый `fetch`;
 - push payload, регистрация токена, foreground, открытие уведомления и холодный запуск покрыты unit/contract-тестами.
 
