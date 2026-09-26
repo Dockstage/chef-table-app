@@ -2,6 +2,7 @@
 
 Канонические требования разделены по уровню:
 
+- [`requirements-baseline.md`](requirements-baseline.md) — версия, состав и правила изменения аналитического комплекта;
 - [`business-requirements.md`](business-requirements.md) — бизнес-цели `BR-*`;
 - [`functional-requirements.md`](functional-requirements.md) — наблюдаемое поведение `FR-*`;
 - [`non-functional-requirements.md`](non-functional-requirements.md) — измеримые ограничения качества `NFR-*`.

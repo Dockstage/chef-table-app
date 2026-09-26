@@ -14,8 +14,10 @@
 | Подготовить дизайн-постановки и ТЗ приложения | Реестр SCR/CMP/BS/MDL/DLG, foundations и 7 `LOGIC-*` | Выполнено |
 | Спроектировать данные и взаимодействия | ER-модель, инварианты, sequence diagrams и OpenAPI 1.1 | Выполнено |
 | Проверить полноту и противоречия | Матрица трассировки и отдельное QA-ревью требований | Выполнено |
+| Управлять версиями и изменениями | Baseline `AN-MVP-1.0`, стабильные ID, decision log, impact analysis и Git | Выполнено |
+| Провести внешнюю валидацию | Отдельного заказчика нет; по D-011 вымышленная приёмка не создаётся | Не применяется |
 
-Канонические артефакты: [`01-analysis/`](01-analysis/), [`02-design/`](02-design/), [`TASK-014`](tasks/TASK-014-scope-expansion.md)–[`TASK-022`](tasks/TASK-022-requirements-qa-review.md).
+Канонические артефакты: [`requirements-baseline.md`](01-analysis/requirements-baseline.md), [`01-analysis/`](01-analysis/), [`02-design/`](02-design/), [`TASK-014`](tasks/TASK-014-scope-expansion.md)–[`TASK-025`](tasks/TASK-025-analysis-reaudit-remediation.md).
 
 ## Разработка
 

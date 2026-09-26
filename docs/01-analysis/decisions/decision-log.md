@@ -14,6 +14,7 @@
 | D-008 | 26.09.2026 | Использовать текущий UI и screenshots как временный design baseline | Принято | отсутствие Figma | design briefs, layout tests |
 | D-009 | 26.09.2026 | В учебном MVP хранить `IdempotencyRecord` до сброса БД; `requestHash` считать как SHA-256 канонического валидированного payload | Принято | QA-003 | backend, database, contract tests |
 | D-010 | 26.09.2026 | Лимиты пользовательского текста считать в Unicode code points; backend остаётся источником окончательной валидации | Принято | QA-012 | requirements, client validation, backend, tests |
+| D-011 | 26.09.2026 | Не имитировать внешнюю валидацию заказчиком: в учебном проекте заказчика нет; gate заменяют закрытые MVP-вопросы, трассировка, QA-ревью и baseline | Принято | решение пользователя | analysis process, handoff |
 
 ## Правила ведения
 
