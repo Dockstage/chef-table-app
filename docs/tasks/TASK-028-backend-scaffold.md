@@ -35,4 +35,4 @@
 
 ## Commit
 
-Будет указан после фиксации изменения.
+`bdad433` — `feat: scaffold FastAPI backend`.
