@@ -1,13 +1,5 @@
 {
   "missingOperations": {
-    "listBookings": {
-      "iteration": "BE-05",
-      "reason": "Чтение броней текущего клиента ещё не реализовано."
-    },
-    "createBooking": {
-      "iteration": "BE-05",
-      "reason": "Транзакционное создание брони и идемпотентность ещё не реализованы."
-    },
     "cancelBooking": {
       "iteration": "BE-06",
       "reason": "Транзакционная отмена брони ещё не реализована."

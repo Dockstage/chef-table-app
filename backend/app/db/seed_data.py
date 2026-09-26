@@ -392,6 +392,10 @@ def build_seed_data() -> dict[str, list[dict[str, object]]]:
                     **replay_payload,
                     "status": "confirmed",
                     "totalPriceKopecks": 490_000,
+                    "createdAt": _at_day(-1, 14).isoformat(),
+                    "studioCancellationReason": None,
+                    "rating": None,
+                    "reviewComment": None,
                 },
                 "created_at": _at_day(-1, 14),
             }

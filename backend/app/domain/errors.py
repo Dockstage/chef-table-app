@@ -4,3 +4,27 @@ class InvalidDateRangeError(Exception):
 
 class CookingClassNotFoundError(Exception):
     """The requested cooking class does not exist."""
+
+
+class SlotFullError(Exception):
+    """The cooking class has no seats left."""
+
+
+class SlotCancelledError(Exception):
+    """The studio cancelled the cooking class."""
+
+
+class SlotNotBookableError(Exception):
+    """The cooking class cannot accept new bookings."""
+
+
+class DuplicateBookingError(Exception):
+    """The client already has an active booking for the class."""
+
+
+class RentalUnavailableError(Exception):
+    """The cooking class has no rental kits left."""
+
+
+class IdempotencyConflictError(Exception):
+    """The idempotency key was used with a different payload."""

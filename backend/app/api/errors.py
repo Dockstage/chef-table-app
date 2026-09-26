@@ -8,7 +8,16 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.domain.errors import CookingClassNotFoundError, InvalidDateRangeError
+from app.domain.errors import (
+    CookingClassNotFoundError,
+    DuplicateBookingError,
+    IdempotencyConflictError,
+    InvalidDateRangeError,
+    RentalUnavailableError,
+    SlotCancelledError,
+    SlotFullError,
+    SlotNotBookableError,
+)
 from app.schemas.problem import FieldError, Problem, ProblemCode
 
 PROBLEM_HTTP_STATUS: Final[Mapping[ProblemCode, int]] = {
@@ -122,6 +131,38 @@ def register_exception_handlers(application: FastAPI) -> None:
         return _problem_response(
             request,
             ApiProblem(ProblemCode.CLASS_NOT_FOUND, "Класс не найден."),
+        )
+
+    domain_conflicts = {
+        SlotFullError: (ProblemCode.SLOT_FULL, "Место уже заняли. Обновите расписание."),
+        SlotCancelledError: (
+            ProblemCode.SLOT_CANCELLED,
+            "Студия отменила этот класс. Выберите другой.",
+        ),
+        SlotNotBookableError: (
+            ProblemCode.SLOT_NOT_BOOKABLE,
+            "Этот класс уже нельзя забронировать.",
+        ),
+        DuplicateBookingError: (
+            ProblemCode.DUPLICATE_BOOKING,
+            "У вас уже есть активная бронь этого класса.",
+        ),
+        RentalUnavailableError: (
+            ProblemCode.RENTAL_UNAVAILABLE,
+            "Прокатные наборы закончились. Выберите свой набор.",
+        ),
+        IdempotencyConflictError: (
+            ProblemCode.IDEMPOTENCY_CONFLICT,
+            "Этот ключ уже использован с другими данными.",
+        ),
+    }
+    for exception_type, (code, message) in domain_conflicts.items():
+        application.add_exception_handler(
+            exception_type,
+            lambda request, _exception, code=code, message=message: _problem_response(
+                request,
+                ApiProblem(code, message),
+            ),
         )
 
     @application.exception_handler(ApiProblem)
