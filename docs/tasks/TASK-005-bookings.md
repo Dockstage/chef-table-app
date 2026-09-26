@@ -8,9 +8,10 @@
 
 R-007–R-009; US-04; UC-02.
 
-## Промпт
+## Промпты
 
-`docs/prompts/003-implementation.md`.
+- `docs/prompts/003-implementation.md` — первоначальная реализация.
+- `docs/prompts/011-accessibility-and-ux.md` — итерация предстоящей записи.
 
 ## Реализовано
 

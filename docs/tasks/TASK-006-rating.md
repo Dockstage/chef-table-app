@@ -8,9 +8,11 @@
 
 R-010; US-05; UC-03.
 
-## Промпт
+## Промпты
 
-`docs/prompts/003-implementation.md`.
+- `docs/prompts/003-implementation.md` — первоначальная реализация.
+- `docs/prompts/008-review-comment.md` — комментарий к отзыву.
+- `docs/prompts/011-accessibility-and-ux.md` — accessibility оценки.
 
 ## Реализовано
 

@@ -1,32 +1,51 @@
 # Реестр промптов
 
-Реестр охватывает все продуктовые запросы и промпты, которые привели к требованиям, коду, тестам, исправлениям или документации.
+Реестр хранит запросы, которые повлияли на требования, дизайн, код, тесты, исправления и документацию. Нумерация отражает порядок появления работ, а TASK/BUG-карточка указывает использованный файл.
 
-| Файл | Назначение |
-|---|---|
-| `000-user-request-log.md` | исходное задание, выбор брифа и требования аудита |
-| `001-requirements.md` | требования MVP |
-| `002-architecture.md` | архитектура, данные и API |
-| `003-implementation.md` | первоначальная реализация клиента |
-| `004-testing.md` | тест-дизайн и автоматизация |
-| `005-rental-inventory.md` | прокатный фонд |
-| `006-extended-schedule.md` | периоды 7/14/30 дней |
-| `007-cancelled-booking-history.md` | исправление истории отмен |
-| `008-review-comment.md` | комментарий к оценке |
-| `009-http-adapter.md` | реальный HTTP-адаптер |
-| `010-push-cancellations.md` | push об отмене студией |
-| `011-accessibility-and-ux.md` | отдельные UX/accessibility-итерации |
-| `012-compliance-remediation.md` | финальное устранение расхождений |
-| `013-final-contract-audit.md` | согласование контракта и финального комплекта |
-| `014-scope-expansion.md` | фиксация собственного FastAPI/backend как учебного расширения скоупа |
-| `015-elicitation-and-domain.md` | вопросы заказчику, допущения и описание домена |
-| `016-formalize-requirements.md` | разделение бизнес-, функциональных и нефункциональных требований |
-| `017-user-stories-and-use-cases.md` | усиление User Stories, INVEST и полных Use Cases |
-| `018-screen-registry-and-design-briefs.md` | реестр экранов, foundations и постановки дизайнеру |
-| `019-technical-design-and-openapi.md` | ER-модель, API sequences и канонический OpenAPI 1.1 |
-| `020-mobile-app-spec.md` | полные экранные ТЗ и переиспользуемые `LOGIC-*` |
-| `021-traceability-matrix.md` | сквозные связи требований, интерфейса, API, кода, тестов и commits |
-| `022-requirements-qa-review.md` | независимое ревью требований, impact analysis и platform differences |
-| `023-lecture-alignment.md` | фактическая сверка проекта с материалами трёх лекционных разделов |
+## Правила происхождения текста
 
-Промпты двух первоначальных дефектов также приведены непосредственно в `docs/tasks/BUG-001-duplicate-booking.md` и `docs/tasks/BUG-002-cancelled-class-error.md`, рядом с симптомом и проверкой.
+- **Запрос пользователя** — дословная цитата сообщения; она не исправляется задним числом.
+- **Рабочий промпт** — точная постановка, по которой выполнялась конкретная работа.
+- **Паттерн из лекции** — отдельно помеченная выдержка, не выдаваемая за слова пользователя.
+- `000-user-request-log.md` хранит исходные пользовательские сообщения раннего этапа; `001`–`012` сохраняют рабочие промпты этого этапа без ретроспективного сочинения отдельных цитат.
+- Начиная с `013`, в каждом новом файле отдельно приведены доступная дословная реплика пользователя и рабочий промпт.
+
+## Хронологический индекс
+
+| ID | Файл | Тип | Связанные карточки |
+|---:|---|---|---|
+| 000 | [`000-user-request-log.md`](000-user-request-log.md) | Дословные исходные сообщения и критерии готовности | Контекст TASK-001–TASK-013 |
+| 001 | [`001-requirements.md`](001-requirements.md) | Рабочий промпт требований | TASK-001 |
+| 002 | [`002-architecture.md`](002-architecture.md) | Рабочий промпт архитектуры | TASK-002 |
+| 003 | [`003-implementation.md`](003-implementation.md) | Рабочий промпт первого client baseline | TASK-003–TASK-006 |
+| 004 | [`004-testing.md`](004-testing.md) | Рабочий промпт тест-дизайна | TASK-007 |
+| 005 | [`005-rental-inventory.md`](005-rental-inventory.md) | Рабочий промпт проката | TASK-009 |
+| 006 | [`006-extended-schedule.md`](006-extended-schedule.md) | Рабочий промпт периода 7/14/30 | TASK-008 |
+| 007 | [`007-cancelled-booking-history.md`](007-cancelled-booking-history.md) | Рабочий промпт исправления истории | BUG-003 |
+| 008 | [`008-review-comment.md`](008-review-comment.md) | Рабочий промпт комментария к отзыву | TASK-006 |
+| 009 | [`009-http-adapter.md`](009-http-adapter.md) | Рабочий промпт HTTP adapter | TASK-010 |
+| 010 | [`010-push-cancellations.md`](010-push-cancellations.md) | Рабочий промпт push | TASK-011 |
+| 011 | [`011-accessibility-and-ux.md`](011-accessibility-and-ux.md) | Четыре рабочих UX/accessibility-промпта | TASK-003–TASK-006 |
+| 012 | [`012-compliance-remediation.md`](012-compliance-remediation.md) | Рабочий промпт устранения расхождений | TASK-012 |
+| 013 | [`013-final-contract-audit.md`](013-final-contract-audit.md) | Запрос пользователя + рабочий промпт | TASK-013 |
+| 014 | [`014-scope-expansion.md`](014-scope-expansion.md) | Решения пользователя + рабочий промпт | TASK-014 |
+| 015 | [`015-elicitation-and-domain.md`](015-elicitation-and-domain.md) | Запрос пользователя + рабочий промпт | TASK-015 |
+| 016 | [`016-formalize-requirements.md`](016-formalize-requirements.md) | Запрос пользователя + рабочий промпт | TASK-016 |
+| 017 | [`017-user-stories-and-use-cases.md`](017-user-stories-and-use-cases.md) | Запрос пользователя + рабочий промпт | TASK-017 |
+| 018 | [`018-screen-registry-and-design-briefs.md`](018-screen-registry-and-design-briefs.md) | Запрос, лекционный паттерн и рабочий промпт | TASK-018 |
+| 019 | [`019-technical-design-and-openapi.md`](019-technical-design-and-openapi.md) | Запрос, лекционные паттерны и рабочий промпт | TASK-019 |
+| 020 | [`020-mobile-app-spec.md`](020-mobile-app-spec.md) | Запрос, лекционный паттерн и рабочий промпт | TASK-020 |
+| 021 | [`021-traceability-matrix.md`](021-traceability-matrix.md) | Запрос пользователя + рабочий промпт | TASK-021 |
+| 022 | [`022-requirements-qa-review.md`](022-requirements-qa-review.md) | Запрос пользователя + рабочий промпт | TASK-022 |
+| 023 | [`023-lecture-alignment.md`](023-lecture-alignment.md) | Запрос пользователя + рабочий промпт | TASK-023 |
+| 024 | [`024-prompt-registry-audit.md`](024-prompt-registry-audit.md) | Запрос пользователя + рабочий промпт | TASK-024 |
+
+## Промпты дефектов
+
+- BUG-001 и BUG-002 содержат свои рабочие промпты непосредственно в карточках рядом с симптомом и проверкой.
+- BUG-003 ссылается на `007-cancelled-booking-history.md`.
+- Встраивание первых двух промптов сохранено намеренно: перенос не даёт дополнительной трассируемости и исказил бы историческую структуру.
+
+## Результат аудита
+
+Проверено 26.09.2026: последовательность `000`–`024` непрерывна; каждый PROMPT `001`–`024` связан минимум с одной TASK/BUG-карточкой; каждая TASK `001`–`024` и каждый BUG имеют промпт; ссылки существуют. При новом запросе номер не переиспользуется, а карточка и индекс обновляются в том же изменении.

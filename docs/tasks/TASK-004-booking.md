@@ -8,9 +8,10 @@
 
 R-004–R-006; US-03; UC-01.
 
-## Промпт
+## Промпты
 
-`docs/prompts/003-implementation.md`.
+- `docs/prompts/003-implementation.md` — первоначальная реализация.
+- `docs/prompts/011-accessibility-and-ux.md` — итерация формы бронирования.
 
 ## Реализовано
 

@@ -8,9 +8,10 @@
 
 R-001, R-002, R-003, R-011, R-012; US-01 и US-02.
 
-## Промпт
+## Промпты
 
-`docs/prompts/003-implementation.md`.
+- `docs/prompts/003-implementation.md` — первоначальная реализация.
+- `docs/prompts/011-accessibility-and-ux.md` — итерация расписания и доступности.
 
 ## Реализовано
 
