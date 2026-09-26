@@ -19,6 +19,12 @@ import {
   getOrCreateBookingAttempt,
 } from './src/features/booking/bookingAttempt';
 import {
+  executeBooking,
+  finalizeBookingCreation,
+  replaceCookingClass,
+  upsertBooking,
+} from './src/features/booking/bookingFlow';
+import {
   registerForPushNotifications,
   subscribeToStudioCancellations,
 } from './src/notifications/pushNotifications';
@@ -539,7 +545,7 @@ function ClassModal({
       setEquipment('own');
       setAllergies('');
     }
-  }, [cookingClass]);
+  }, [cookingClass?.id]);
 
   if (!cookingClass) return null;
   const total =
@@ -867,21 +873,44 @@ export default function App() {
     bookingAttemptRef.current = attempt;
     setBusy(true);
     try {
-      await api.createBooking(input, attempt.idempotencyKey);
+      const result = await executeBooking(api, input, attempt.idempotencyKey);
+      if (result.kind === 'rejected') {
+        const { error } = result;
+        if (!(error instanceof StudioApiError && error.code === 'NETWORK_ERROR')) {
+          bookingAttemptRef.current = null;
+        }
+        const latestClass = result.latestClass;
+        if (latestClass) {
+          setClasses((current) => replaceCookingClass(current, latestClass));
+          setSelectedClass(latestClass);
+        }
+        setToast(
+          error instanceof StudioApiError
+            ? error.message
+            : 'Не удалось оформить запись. Попробуйте ещё раз.',
+        );
+        return;
+      }
+
       bookingAttemptRef.current = null;
-      await refresh();
-      setSelectedClass(null);
-      setTab('bookings');
-      setToast('Готово! Класс добавлен в ваши планы.');
-    } catch (error) {
-      if (!(error instanceof StudioApiError && error.code === 'NETWORK_ERROR')) {
+      const refreshStatus = await finalizeBookingCreation(
+        result.booking,
+        (booking) => {
+          setBookings((current) => upsertBooking(current, booking));
+          setSelectedClass(null);
+          setTab('bookings');
+          setToast('Готово! Класс добавлен в ваши планы.');
+        },
+        () => refresh(),
+      );
+      if (refreshStatus === 'stale') {
+        setToast('Запись оформлена, но обновить остальные данные не удалось. Повторите позже.');
+      }
+    } catch {
+      if (bookingAttemptRef.current?.idempotencyKey === attempt.idempotencyKey) {
         bookingAttemptRef.current = null;
       }
-      setToast(
-        error instanceof StudioApiError
-          ? error.message
-          : 'Не удалось оформить запись. Попробуйте ещё раз.',
-      );
+      setToast('Не удалось обработать результат записи. Обновите данные и проверьте «Мои записи».');
     } finally {
       setBusy(false);
     }
