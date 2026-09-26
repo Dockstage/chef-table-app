@@ -60,7 +60,7 @@ Backend использует слои `api` → `services` → `domain` → `rep
 - `docs/02-design/openapi.yaml` — источник истины; локальный contract gate сравнивает Pydantic DTO и runtime FastAPI, а следующим усилением остаётся запуск в CI и сверка TypeScript.
 - Все endpoint клиентского API используют Bearer identity seeded demo-клиента; client ID не передаётся в body.
 - PostgreSQL, row locks, partial unique index и `IdempotencyRecord` обеспечивают конкурентную целостность.
-- Expo Notifications получает APNs/FCM-токен по явному согласию, регистрирует его в API и обновляет брони по `class_cancelled` при foreground-доставке, открытии уведомления и холодном запуске.
+- Expo Notifications только на Android/iOS получает нативный APNs/FCM-токен по явному согласию; web остаётся `unsupported`. Payload `class_cancelled` строго валидируется, foreground сохраняет вкладку, а tap/cold start открывает историю и перечитывает по `bookingId` серверную бронь.
 - Один экран-контейнер без внешнего навигатора: меньше инфраструктуры, три явных раздела.
 - Чистые domain-функции тестируются без рендера UI.
 - Деньги хранятся в копейках.
@@ -75,4 +75,4 @@ Backend использует слои `api` → `services` → `domain` → `rep
 
 ## Границы текущей реализации
 
-Остаются известные разрывы: клиент создаёт новый `Idempotency-Key` внутри каждого вызова вместо хранения на логическую попытку, не обновляет слот после всех конфликтов и валидирует push только по `type`. OpenAPI уже проверяется локальным backend gate, но ещё не включён в CI и не сверяется автоматически с TypeScript. Разрывы перечислены в `docs/lecture-gap-checklists.md`.
+Остаются известные разрывы: входящие API DTO пока не проходят полную runtime-валидацию, `App.tsx` требует декомпозиции, а OpenAPI gate ещё не включён в CI и не сверяется автоматически с TypeScript. Нативная доставка не подтверждена на реальных Android/iOS-устройствах. Разрывы перечислены в `docs/lecture-gap-checklists.md`.

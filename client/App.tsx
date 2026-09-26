@@ -26,6 +26,7 @@ import {
   upsertBooking,
 } from './src/features/booking/bookingFlow';
 import { loadStudioSnapshot } from './src/features/schedule/loadStudioSnapshot';
+import { findCancelledBooking } from './src/notifications/cancellationRouting';
 import {
   registerForPushNotifications,
   subscribeToStudioCancellations,
@@ -428,6 +429,8 @@ function UnavailableBookingCard({ booking }: { booking: Booking }) {
 function BookingsScreen({
   classes,
   bookings,
+  filter,
+  onFilterChange,
   loadState,
   onRetry,
   onCancel,
@@ -435,12 +438,13 @@ function BookingsScreen({
 }: {
   classes: CookingClass[];
   bookings: Booking[];
+  filter: BookingFilter;
+  onFilterChange: (filter: BookingFilter) => void;
   loadState: LoadState;
   onRetry: () => void;
   onCancel: (booking: Booking) => void;
   onReview: (booking: Booking) => void;
 }) {
-  const [filter, setFilter] = useState<BookingFilter>('upcoming');
   const classById = useMemo(
     () => new Map(classes.map((item) => [item.id, item])),
     [classes],
@@ -459,7 +463,7 @@ function BookingsScreen({
           { value: 'upcoming', label: 'Предстоящие' },
           { value: 'history', label: 'История' },
         ]}
-        onChange={setFilter}
+        onChange={onFilterChange}
       />
 
       {isInitialLoad(loadState) ? (
@@ -883,6 +887,7 @@ export default function App() {
   const bookingsSnapshotRef = useRef(false);
   const refreshRequestRef = useRef(0);
   const [tab, setTab] = useState<Tab>('discover');
+  const [bookingFilter, setBookingFilter] = useState<BookingFilter>('upcoming');
   const [scheduleClasses, setScheduleClasses] = useState<CookingClass[]>([]);
   const [bookingClasses, setBookingClasses] = useState<CookingClass[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -977,12 +982,26 @@ export default function App() {
   useEffect(() => {
     let disposed = false;
     let unsubscribe: () => void = () => undefined;
-    void subscribeToStudioCancellations(() => {
-      void refresh(horizonDays).catch(() =>
-        setToast('Получили отмену, но не смогли обновить записи. Повторите позже.'),
-      );
-      setTab('bookings');
-      setToast('Студия отменила класс. Причина сохранена в истории.');
+    void subscribeToStudioCancellations(async (payload, interaction) => {
+      if (interaction === 'opened') {
+        setBookingFilter('history');
+        setTab('bookings');
+      }
+
+      setBookingsLoadState(beginLoad(bookingsSnapshotRef.current));
+      try {
+        const latestBookings = await api.getBookings();
+        const cancelledBooking = findCancelledBooking(latestBookings, payload);
+        if (!cancelledBooking) throw new Error('Cancellation is not available yet.');
+
+        setBookings((current) => upsertBooking(current, cancelledBooking));
+        bookingsSnapshotRef.current = true;
+        setBookingsLoadState('content');
+        setToast('Студия отменила класс. Причина сохранена в истории.');
+      } catch {
+        setBookingsLoadState(failLoad(bookingsSnapshotRef.current));
+        setToast('Получили отмену, но не смогли обновить запись. Повторите позже.');
+      }
     }).then((cleanup) => {
       if (disposed) cleanup();
       else unsubscribe = cleanup;
@@ -993,7 +1012,7 @@ export default function App() {
       disposed = true;
       unsubscribe();
     };
-  }, [horizonDays]);
+  }, []);
 
   const handleEnablePush = async () => {
     setPushStatus('enabling');
@@ -1171,6 +1190,8 @@ export default function App() {
             <BookingsScreen
               classes={classes}
               bookings={bookings}
+              filter={bookingFilter}
+              onFilterChange={setBookingFilter}
               loadState={bookingsLoadState}
               onRetry={() => void refresh(horizonDays).catch(() => undefined)}
               onCancel={handleCancel}

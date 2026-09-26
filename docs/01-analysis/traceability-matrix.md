@@ -32,7 +32,7 @@
 | FR-011 Отмена студией | US-04, US-06; UC-02, UC-04 | SCR-002; CMP-002; LOGIC-005, LOGIC-006 | `listBookings` | fixtures, `filterBookings`, push refresh | TC-016, TC-022 | `ef12f07`, `1edf78b` | Частично: внешняя серверная операция вне клиентского API |
 | FR-012 Отзыв | US-05; UC-03 | SCR-002; MDL-001; LOGIC-005 | `createReview` | `ReviewModal`, mutation flow, `BookingService`, booking repository | TC-014, TC-015, TC-020; boundary/mutation and backend review tests | `d8dfe4a`, `c2cabdd`; TASK-035, TASK-039 | Полностью |
 | FR-013 Регистрация push | US-06; UC-04 | SCR-003; LOGIC-006 | `registerPushToken` | notification adapter, push service/repository | TC-021; backend push tests | `1edf78b`; TASK-035 | Частично: backend готов, native e2e не подтверждён |
-| FR-014 Обработка push | US-06; UC-04 | SCR-003, SCR-002; LOGIC-006 | `listBookings` | `pushPayload`, subscriptions, `refresh` | TC-022 | `c8423d3`, `386bd6b` | Частично: unit есть, native e2e нет |
+| FR-014 Обработка push | US-06; UC-04 | SCR-003, SCR-002; LOGIC-006 | `listBookings` | strict payload parser, interaction-aware subscriptions, addressed booking update | TC-022; push routing/subscription tests | `c8423d3`, `386bd6b`; TASK-041 | Частично: контракт и маршрутизация покрыты, native e2e нет |
 | FR-015 Dev-идентификация | US-01–US-06; UC-01–UC-04 | Все сетевые сценарии | Все 7 operationId | `HttpStudioApi.getAccessToken`; FastAPI dev-auth | backend auth/Problem tests | `a3c5ae1`; TASK-030 | Частично: backend и `401` покрыты, provider клиента пока опционален |
 | FR-016 Только клиентские возможности | — | SCR-001–SCR-003 | — | `App`, `BottomNav` | TC-024 | `69ebdbd` | Полностью |
 

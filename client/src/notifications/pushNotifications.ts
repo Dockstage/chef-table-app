@@ -1,11 +1,16 @@
 import { Platform } from 'react-native';
 
 import { PushPlatform } from '../domain/types';
-import { isStudioCancellationNotification } from './pushPayload';
+import {
+  parseStudioCancellationNotification,
+  StudioCancellationNotification,
+} from './pushPayload';
 
 export type PushRegistrationResult =
   | { status: 'enabled'; token: string; platform: PushPlatform }
   | { status: 'denied' | 'unsupported' };
+
+export type CancellationInteraction = 'received' | 'opened';
 
 export async function registerForPushNotifications(): Promise<PushRegistrationResult> {
   if (Platform.OS !== 'android' && Platform.OS !== 'ios') return { status: 'unsupported' };
@@ -30,13 +35,17 @@ export async function registerForPushNotifications(): Promise<PushRegistrationRe
 }
 
 export async function subscribeToStudioCancellations(
-  onCancellation: () => void,
+  onCancellation: (
+    payload: StudioCancellationNotification,
+    interaction: CancellationInteraction,
+  ) => void | Promise<void>,
 ): Promise<() => void> {
   if (Platform.OS === 'web') return () => undefined;
   const Notifications = await import('expo-notifications');
   let active = true;
-  const handlePayload = (data: unknown) => {
-    if (active && isStudioCancellationNotification(data)) onCancellation();
+  const handlePayload = async (data: unknown, interaction: CancellationInteraction) => {
+    const payload = parseStudioCancellationNotification(data);
+    if (active && payload) await onCancellation(payload, interaction);
   };
 
   Notifications.setNotificationHandler({
@@ -49,19 +58,21 @@ export async function subscribeToStudioCancellations(
   });
 
   const receivedSubscription = Notifications.addNotificationReceivedListener((notification) => {
-    handlePayload(notification.request.content.data);
+    void handlePayload(notification.request.content.data, 'received');
   });
   const responseSubscription = Notifications.addNotificationResponseReceivedListener((response) => {
-    handlePayload(response.notification.request.content.data);
+    void handlePayload(response.notification.request.content.data, 'opened');
   });
 
   const lastResponse = await Notifications.getLastNotificationResponseAsync();
-  if (
-    lastResponse &&
-    isStudioCancellationNotification(lastResponse.notification.request.content.data)
-  ) {
-    handlePayload(lastResponse.notification.request.content.data);
-    await Notifications.clearLastNotificationResponseAsync();
+  if (lastResponse) {
+    const payload = parseStudioCancellationNotification(
+      lastResponse.notification.request.content.data,
+    );
+    if (payload) {
+      await handlePayload(payload, 'opened');
+      await Notifications.clearLastNotificationResponseAsync();
+    }
   }
 
   return () => {
