@@ -11,3 +11,11 @@ coverage/
 *.log
 .DS_Store
 
+# Python backend
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+

@@ -22,11 +22,13 @@
 
 ### BE-00 — Каркас и инструменты
 
-- [ ] Создать `backend/pyproject.toml`, зафиксировать версии Python и зависимостей.
-- [ ] Создать `app/api`, `domain`, `services`, `repositories`, `schemas`, `db` и `main.py`.
-- [ ] Добавить команды запуска, format, lint и test; реализовать `GET /health`.
+- [x] Создать `backend/pyproject.toml`, зафиксировать версии Python и зависимостей.
+- [x] Создать `app/api`, `domain`, `services`, `repositories`, `schemas`, `db` и `main.py`.
+- [x] Добавить команды запуска, format, lint и test; реализовать `GET /health`.
 
 Готово, когда чистое окружение устанавливается, FastAPI стартует, Ruff и pytest проходят.
+
+Результат: зависимости установлены в чистое `.venv` под Python 3.12.10; Ruff format/lint и pytest проходят, Uvicorn запускается, `GET /health` возвращает `200` и `{"status":"ok"}`.
 
 ### BE-01 — PostgreSQL, Docker, миграции и seed
 

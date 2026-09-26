@@ -23,6 +23,7 @@
 - React Native 0.86 и React 19;
 - TypeScript в strict-режиме;
 - Vitest;
+- Python 3.12, FastAPI, Pydantic и pytest для backend;
 - OpenAPI 3.1;
 - Mermaid для архитектурных схем.
 
@@ -55,6 +56,19 @@ npm start
 ```
 
 Затем отсканировать QR-код из терминала. Для нативной сборки и удалённых push потребуется настроенный Expo/EAS аккаунт; web fallback и обработка push-событий проверяются без устройства.
+
+## Backend-каркас
+
+Служебный FastAPI-каркас уже находится в `backend/`; PostgreSQL, миграции и бизнес-endpoint добавляются в следующей итерации.
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\python -m pip install -e ".[dev]"
+.\.venv\Scripts\python -m uvicorn app.main:app --reload
+```
+
+Проверки и остальные команды описаны в [`backend/README.md`](backend/README.md).
 
 ## Проверки
 
@@ -98,7 +112,7 @@ npm run export:web
 
 ## Границы MVP
 
-В продукте реализуется только роль клиента. Админка, интерфейс шефа, формирование расписания, онлайн-оплата и лояльность находятся вне скоупа. Собственный FastAPI backend и PostgreSQL приняты как учебное расширение, но пока не реализованы. Production-доставка APNs/FCM остаётся вне скоупа.
+В продукте реализуется только роль клиента. Админка, интерфейс шефа, формирование расписания, онлайн-оплата и лояльность находятся вне скоупа. Собственный FastAPI backend и PostgreSQL приняты как учебное расширение. Каркас и health endpoint реализованы; база и клиентские endpoint ещё впереди. Production-доставка APNs/FCM остаётся вне скоупа.
 
 ## Структура
 
@@ -108,7 +122,8 @@ client/src/domain/              типы и чистые бизнес-прави
 client/src/data/                HTTP-адаптер, mock fallback и demo-данные
 client/src/notifications/       регистрация и обработка push
 client/tests/                   автоматические тесты
-backend/                        FastAPI backend — следующий этап
+backend/app/                    слоистый каркас FastAPI
+backend/tests/                  backend pytest-тесты
 docs/                           аналитика, проектирование и отчёты
 ```
 
