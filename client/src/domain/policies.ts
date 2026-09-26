@@ -59,7 +59,7 @@ export function filterClasses(
 }
 
 export function canReview(booking: Booking): boolean {
-  return booking.status === 'attended' && booking.rating === undefined;
+  return booking.status === 'attended' && booking.rating === null;
 }
 
 export function filterBookings(
@@ -93,4 +93,3 @@ export function formatLongDate(iso: string): string {
     weekday: 'long',
   }).format(new Date(iso));
 }
-

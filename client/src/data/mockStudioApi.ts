@@ -10,6 +10,13 @@ import {
   StudioApiError,
 } from '../domain/types';
 import { initialBookings, initialClasses } from './fixtures';
+import {
+  validateCreateBookingInput,
+  validatePushTokenInput,
+  validateReviewInput,
+  validateScheduleQuery,
+  validateUuid,
+} from './apiValidation';
 
 const wait = (milliseconds = 260) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
@@ -29,6 +36,7 @@ export class MockStudioApi implements StudioApi {
 
   async getClasses(query?: ScheduleQuery): Promise<CookingClass[]> {
     await wait();
+    if (query) validateScheduleQuery(query);
     const classes = query
       ? this.classes.filter((item) => {
           const timestamp = new Date(item.startsAt).getTime();
@@ -44,6 +52,7 @@ export class MockStudioApi implements StudioApi {
 
   async getClass(classId: string): Promise<CookingClass> {
     await wait(80);
+    validateUuid(classId, 'classId');
     const cookingClass = this.classes.find((item) => item.id === classId);
     if (!cookingClass) throw new Error('Class not found');
     return structuredClone(cookingClass);
@@ -56,6 +65,7 @@ export class MockStudioApi implements StudioApi {
 
   async createBooking(input: CreateBookingInput, _idempotencyKey: string): Promise<Booking> {
     await wait(420);
+    validateCreateBookingInput(input);
     const cookingClass = this.classes.find((item) => item.id === input.classId);
     if (!cookingClass) {
       throw new StudioApiError('SLOT_FULL', 'Класс больше не доступен.');
@@ -94,6 +104,9 @@ export class MockStudioApi implements StudioApi {
       allergyNotes: input.allergyNotes.trim() || 'Нет аллергий',
       totalPriceKopecks: getBookingTotal(cookingClass, input.equipmentOption),
       createdAt: new Date().toISOString(),
+      studioCancellationReason: null,
+      rating: null,
+      reviewComment: null,
     };
     this.bookings.unshift(booking);
     cookingClass.availableSeats -= 1;
@@ -103,6 +116,7 @@ export class MockStudioApi implements StudioApi {
 
   async cancelBooking(bookingId: string): Promise<Booking> {
     await wait();
+    validateUuid(bookingId, 'bookingId');
     const booking = this.bookings.find((item) => item.id === bookingId);
     if (!booking) throw new Error('Booking not found');
     const cookingClass = this.classes.find((item) => item.id === booking.classId);
@@ -128,25 +142,23 @@ export class MockStudioApi implements StudioApi {
 
   async submitReview(input: ReviewInput): Promise<Booking> {
     await wait();
+    validateReviewInput(input);
     const booking = this.bookings.find((item) => item.id === input.bookingId);
     if (
       !booking ||
       booking.status !== 'attended' ||
-      booking.rating !== undefined ||
-      !Number.isInteger(input.rating) ||
-      input.rating < 1 ||
-      input.rating > 5 ||
-      (input.comment?.length ?? 0) > 500
+      booking.rating !== null
     ) {
       throw new StudioApiError('REVIEW_NOT_ALLOWED', 'Эту запись нельзя оценить.');
     }
     booking.rating = input.rating;
-    booking.reviewComment = input.comment?.trim() || undefined;
+    booking.reviewComment = input.comment?.trim() || null;
     return structuredClone(booking);
   }
 
   async registerPushToken(input: PushTokenInput): Promise<void> {
     await wait(80);
+    validatePushTokenInput(input);
     if (!this.pushTokens.some((item) => item.token === input.token)) {
       this.pushTokens.push(structuredClone(input));
     }

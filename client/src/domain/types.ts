@@ -35,7 +35,7 @@ export type CookingClass = {
   address: string;
   accent: string;
   softAccent: string;
-  cancellationReason?: string;
+  cancellationReason: string | null;
 };
 
 export type Booking = {
@@ -46,9 +46,9 @@ export type Booking = {
   allergyNotes: string;
   totalPriceKopecks: number;
   createdAt: string;
-  studioCancellationReason?: string;
-  rating?: number;
-  reviewComment?: string;
+  studioCancellationReason: string | null;
+  rating: number | null;
+  reviewComment: string | null;
 };
 
 export type ScheduleQuery = {
@@ -74,20 +74,34 @@ export type PushTokenInput = {
   platform: PushPlatform;
 };
 
-export type ApiErrorCode =
+export type ProblemCode =
+  | 'INVALID_DATE_RANGE'
+  | 'VALIDATION_ERROR'
+  | 'UNAUTHORIZED'
+  | 'NOT_FOUND'
+  | 'METHOD_NOT_ALLOWED'
+  | 'CLASS_NOT_FOUND'
+  | 'BOOKING_NOT_FOUND'
   | 'SLOT_FULL'
   | 'SLOT_CANCELLED'
+  | 'SLOT_NOT_BOOKABLE'
   | 'DUPLICATE_BOOKING'
   | 'RENTAL_UNAVAILABLE'
+  | 'IDEMPOTENCY_CONFLICT'
   | 'CANCELLATION_CLOSED'
   | 'BOOKING_NOT_ACTIVE'
   | 'REVIEW_NOT_ALLOWED'
-  | 'NETWORK_ERROR';
+  | 'RATE_LIMITED'
+  | 'INTERNAL_ERROR'
+  | 'SERVICE_UNAVAILABLE';
+
+export type ApiErrorCode = ProblemCode | 'NETWORK_ERROR' | 'INVALID_RESPONSE';
 
 export class StudioApiError extends Error {
   constructor(
     public readonly code: ApiErrorCode,
     message: string,
+    public readonly status?: number,
   ) {
     super(message);
     this.name = 'StudioApiError';

@@ -1,5 +1,4 @@
 import {
-  ApiErrorCode,
   Booking,
   CookingClass,
   CreateBookingInput,
@@ -10,8 +9,18 @@ import {
   StudioApiError,
 } from '../domain/types';
 import { getScheduleQuery } from '../domain/policies';
-
-type ErrorPayload = { code?: ApiErrorCode; message?: string };
+import {
+  parseBooking,
+  parseBookings,
+  parseCookingClass,
+  parseCookingClasses,
+  parseProblem,
+  validateCreateBookingInput,
+  validatePushTokenInput,
+  validateReviewInput,
+  validateScheduleQuery,
+  validateUuid,
+} from './apiValidation';
 
 export class HttpStudioApi implements StudioApi {
   private readonly baseUrl: string;
@@ -24,7 +33,11 @@ export class HttpStudioApi implements StudioApi {
     this.baseUrl = baseUrl.replace(/\/$/, '');
   }
 
-  private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  private async request<T>(
+    path: string,
+    init: RequestInit = {},
+    parseResponse?: (value: unknown) => T,
+  ): Promise<T> {
     try {
       const token = await this.getAccessToken?.();
       const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
@@ -37,14 +50,30 @@ export class HttpStudioApi implements StudioApi {
         },
       });
       if (!response.ok) {
-        const problem = (await response.json().catch(() => ({}))) as ErrorPayload;
-        throw new StudioApiError(
-          problem.code ?? 'NETWORK_ERROR',
-          problem.message ?? `Сервер вернул ошибку ${response.status}.`,
-        );
+        try {
+          const problem = parseProblem(await response.json(), response.status);
+          throw new StudioApiError(problem.code, problem.message, problem.status);
+        } catch (error) {
+          if (error instanceof StudioApiError) throw error;
+          throw new StudioApiError(
+            'INVALID_RESPONSE',
+            `Сервер вернул некорректное описание ошибки ${response.status}.`,
+            response.status,
+          );
+        }
       }
       if (response.status === 204) return undefined as T;
-      return (await response.json()) as T;
+      try {
+        const payload: unknown = await response.json();
+        return parseResponse ? parseResponse(payload) : (payload as T);
+      } catch (error) {
+        if (error instanceof StudioApiError) throw error;
+        throw new StudioApiError(
+          'INVALID_RESPONSE',
+          'Сервер вернул данные, не соответствующие API-контракту.',
+          response.status,
+        );
+      }
     } catch (error) {
       if (error instanceof StudioApiError) throw error;
       throw new StudioApiError(
@@ -54,44 +83,61 @@ export class HttpStudioApi implements StudioApi {
     }
   }
 
-  getClasses(query: ScheduleQuery = getScheduleQuery(7)): Promise<CookingClass[]> {
+  async getClasses(query: ScheduleQuery = getScheduleQuery(7)): Promise<CookingClass[]> {
+    validateScheduleQuery(query);
     const params = new URLSearchParams({ from: query.from, to: query.to });
     if (query.level) params.set('level', query.level);
-    return this.request(`/classes?${params.toString()}`);
+    return await this.request(`/classes?${params.toString()}`, {}, parseCookingClasses);
   }
 
-  getClass(classId: string): Promise<CookingClass> {
-    return this.request(`/classes/${encodeURIComponent(classId)}`);
+  async getClass(classId: string): Promise<CookingClass> {
+    validateUuid(classId, 'classId');
+    return await this.request(`/classes/${encodeURIComponent(classId)}`, {}, parseCookingClass);
   }
 
-  getBookings(): Promise<Booking[]> {
-    return this.request('/bookings');
+  async getBookings(): Promise<Booking[]> {
+    return await this.request('/bookings', {}, parseBookings);
   }
 
-  createBooking(input: CreateBookingInput, idempotencyKey: string): Promise<Booking> {
-    return this.request('/bookings', {
-      method: 'POST',
-      headers: { 'Idempotency-Key': idempotencyKey },
-      body: JSON.stringify(input),
-    });
+  async createBooking(input: CreateBookingInput, idempotencyKey: string): Promise<Booking> {
+    validateCreateBookingInput(input);
+    validateUuid(idempotencyKey, 'Idempotency-Key');
+    return await this.request(
+      '/bookings',
+      {
+        method: 'POST',
+        headers: { 'Idempotency-Key': idempotencyKey },
+        body: JSON.stringify(input),
+      },
+      parseBooking,
+    );
   }
 
-  cancelBooking(bookingId: string): Promise<Booking> {
-    return this.request(`/bookings/${encodeURIComponent(bookingId)}/cancel`, {
-      method: 'POST',
-    });
+  async cancelBooking(bookingId: string): Promise<Booking> {
+    validateUuid(bookingId, 'bookingId');
+    return await this.request(
+      `/bookings/${encodeURIComponent(bookingId)}/cancel`,
+      { method: 'POST' },
+      parseBooking,
+    );
   }
 
-  submitReview(input: ReviewInput): Promise<Booking> {
+  async submitReview(input: ReviewInput): Promise<Booking> {
+    validateReviewInput(input);
     const { bookingId, ...body } = input;
-    return this.request(`/bookings/${encodeURIComponent(bookingId)}/review`, {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
+    return await this.request(
+      `/bookings/${encodeURIComponent(bookingId)}/review`,
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+      },
+      parseBooking,
+    );
   }
 
-  registerPushToken(input: PushTokenInput): Promise<void> {
-    return this.request('/push-tokens', {
+  async registerPushToken(input: PushTokenInput): Promise<void> {
+    validatePushTokenInput(input);
+    return await this.request('/push-tokens', {
       method: 'POST',
       body: JSON.stringify(input),
     });

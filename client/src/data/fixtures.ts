@@ -52,6 +52,7 @@ export const initialClasses: CookingClass[] = [
     address: 'Лофт «Шеф-стол», ул. Заводская, 12',
     accent: '#C64F33',
     softAccent: '#F7DDD3',
+    cancellationReason: null,
   },
   {
     id: '20000000-0000-4000-8000-000000000002',
@@ -73,6 +74,7 @@ export const initialClasses: CookingClass[] = [
     address: 'Лофт «Шеф-стол», ул. Заводская, 12',
     accent: '#AA743F',
     softAccent: '#F4E4C9',
+    cancellationReason: null,
   },
   {
     id: '20000000-0000-4000-8000-000000000003',
@@ -94,6 +96,7 @@ export const initialClasses: CookingClass[] = [
     address: 'Лофт «Шеф-стол», ул. Заводская, 12',
     accent: '#355C50',
     softAccent: '#DCE9E3',
+    cancellationReason: null,
   },
   {
     id: '20000000-0000-4000-8000-000000000004',
@@ -115,6 +118,7 @@ export const initialClasses: CookingClass[] = [
     address: 'Лофт «Шеф-стол», ул. Заводская, 12',
     accent: '#765672',
     softAccent: '#EAE0E8',
+    cancellationReason: null,
   },
   {
     id: '20000000-0000-4000-8000-000000000005',
@@ -135,6 +139,7 @@ export const initialClasses: CookingClass[] = [
     address: 'Лофт «Шеф-стол», ул. Заводская, 12',
     accent: '#C64F33',
     softAccent: '#F7DDD3',
+    cancellationReason: null,
   },
   {
     id: '20000000-0000-4000-8000-000000000006',
@@ -176,6 +181,7 @@ export const initialClasses: CookingClass[] = [
     address: 'Лофт «Шеф-стол», ул. Заводская, 12',
     accent: '#C64F33',
     softAccent: '#F7DDD3',
+    cancellationReason: null,
   },
   {
     id: '20000000-0000-4000-8000-000000000008',
@@ -196,6 +202,7 @@ export const initialClasses: CookingClass[] = [
     address: 'Лофт «Шеф-стол», ул. Заводская, 12',
     accent: '#AA743F',
     softAccent: '#F4E4C9',
+    cancellationReason: null,
   },
   {
     id: '20000000-0000-4000-8000-000000000009',
@@ -216,6 +223,7 @@ export const initialClasses: CookingClass[] = [
     address: 'Лофт «Шеф-стол», ул. Заводская, 12',
     accent: '#355C50',
     softAccent: '#DCE9E3',
+    cancellationReason: null,
   },
 ];
 
@@ -228,6 +236,9 @@ export const initialBookings: Booking[] = [
     allergyNotes: 'Нет аллергий',
     totalPriceKopecks: 490000,
     createdAt: atDay(-1, 14),
+    studioCancellationReason: null,
+    rating: null,
+    reviewComment: null,
   },
   {
     id: '30000000-0000-4000-8000-000000000002',
@@ -237,6 +248,9 @@ export const initialBookings: Booking[] = [
     allergyNotes: 'Аллергия на фундук',
     totalPriceKopecks: 430000,
     createdAt: atDay(-8, 11),
+    studioCancellationReason: null,
+    rating: null,
+    reviewComment: null,
   },
   {
     id: '30000000-0000-4000-8000-000000000003',
@@ -247,6 +261,7 @@ export const initialBookings: Booking[] = [
     totalPriceKopecks: 620000,
     createdAt: atDay(-2, 9),
     studioCancellationReason: 'Поставка сезонных продуктов задерживается',
+    rating: null,
+    reviewComment: null,
   },
 ];
-

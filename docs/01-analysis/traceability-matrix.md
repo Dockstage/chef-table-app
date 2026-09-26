@@ -26,7 +26,7 @@
 | FR-005 Данные брони | US-03; UC-01 | BS-001; LOGIC-002, LOGIC-003 | `createBooking` | `ClassModal`, `executeBooking`, `BookingService` | TC-005–TC-007; booking flow tests; backend booking tests | `4d8a1b4`, `c803ceb`; TASK-033, TASK-038 | Полностью |
 | FR-006 Цена и прокат | US-02, US-03; UC-01 | BS-001; LOGIC-002, LOGIC-003 | `getClass`, `createBooking` | catalog/booking repositories, client policies | TC-005, TC-017, TC-018; backend tests | `ac64757`; TASK-032, TASK-033 | Полностью |
 | FR-007 Атомарность и идемпотентность | US-03; UC-01 | BS-001; LOGIC-003 | `createBooking` | `SqlAlchemyBookingRepository`, `IdempotencyRecord`, `getOrCreateBookingAttempt`, adapters | TC-007, TC-009, TC-018; PostgreSQL concurrency check; client retry tests | `dcf5ff8`, `a3c5ae1`, `b6262b3`; TASK-033, TASK-037 | Полностью |
-| FR-008 Различимые ошибки | US-03; UC-01 | BS-001; LOGIC-003 | `createBooking` | `ApiErrorCode`, adapters, `executeBooking` | TC-008–TC-010, TC-017; booking flow tests | `f070a38`, `ac64757`, `c803ceb`; TASK-038 | Частично: конфликт обновляет класс, но не все OpenAPI-коды типизированы |
+| FR-008 Различимые ошибки | US-03; UC-01 | BS-001; LOGIC-003 | `createBooking` | полный `ProblemCode`, runtime DTO/Problem parsers, adapters, `executeBooking` | TC-008–TC-010, TC-017; HTTP/booking flow tests | `f070a38`, `ac64757`, `c803ceb`; TASK-038, TASK-042 | Полностью |
 | FR-009 Предстоящие и история | US-04, US-05; UC-02, UC-03 | SCR-002; CMP-002; LOGIC-005 | `listBookings` | `filterBookings`, `BookingsScreen`, booking repository | TC-011, TC-016; backend booking tests | `ef12f07`; TASK-033 | Полностью |
 | FR-010 Отмена до дедлайна | US-04; UC-02 | SCR-002; DLG-001; LOGIC-004 | `cancelBooking` | client policy, `executeCancellation`, `BookingService`, booking repository | TC-012, TC-013, TC-018; mutation flow and backend cancellation tests | `69ebdbd`, `ac64757`, `c2cabdd`; TASK-034, TASK-039 | Полностью |
 | FR-011 Отмена студией | US-04, US-06; UC-02, UC-04 | SCR-002; CMP-002; LOGIC-005, LOGIC-006 | `listBookings` | fixtures, `filterBookings`, push refresh | TC-016, TC-022 | `ef12f07`, `1edf78b` | Частично: внешняя серверная операция вне клиентского API |
@@ -47,7 +47,7 @@
 | NFR-005 Данные при read failure | BR-003–BR-005; US-04–US-06; LOGIC-007 | Независимые read states, сохранение snapshot, partial class fallback и mutation-before-refresh | load-state, snapshot и mutation flow tests | `0bfe5a2`, `c803ceb`, `c2cabdd`, `60f08a0`; TASK-038–TASK-040 | Полностью |
 | NFR-006 Нет аллергий/токенов в логах | BR-002; US-03; UC-01 | Безопасный JSON-log без headers/body | backend log-safety test | `a6dd292`; TASK-030 | Покрыто для backend-инфраструктуры; клиентские технические каналы проверяются отдельно |
 | NFR-007 Однозначные деньги и время | BR-001, BR-003; US-02–US-04; LOGIC-001, LOGIC-002, LOGIC-004 | Копейки, ISO 8601, domain policies | TC-005, TC-012, TC-013, TC-019 | `ed714fc` | Частично: timezone backend ещё не проверен |
-| NFR-008 OpenAPI compatibility в CI | BR-002; US-03; UC-01 | OpenAPI 1.2 + DTO/runtime contract gate | backend contract tests | `60dae24`; TASK-031 | Частично: локальный gate готов, CI и TypeScript-сверка ещё отсутствуют |
+| NFR-008 OpenAPI compatibility в CI | BR-002; US-03; UC-01 | OpenAPI 1.2, backend contract gate и client runtime DTO validation | backend contract + client HTTP tests | `60dae24`; TASK-031, TASK-042 | Частично: runtime-защита готова, CI и автоматическая OpenAPI→TypeScript-сверка отсутствуют |
 | NFR-009 Android/iOS, web-preview | BR-001, BR-004; US-01, US-06; SCR-003 | Platform branch и пояснение web-push | TC-021–TC-023 | `1edf78b`, `7420444` | Частично: нет прогона на двух native-платформах |
 | NFR-010 Сквозная проверяемость Must | Все Must | Эта матрица и канонические ссылки в `test-cases.md` | TC-001–TC-025 | TASK-021 | Частично: связи созданы, но часть Must пока без теста |
 | NFR-011 Граница учебной auth | BR-006; US-01–US-06; UC-01–UC-04 | Bearer dependency, env-secret, `401` Problem | auth, все семь API и log-safety tests | `a3c5ae1`, `0a4ef79`; TASK-030, TASK-032–TASK-035 | Полностью для учебной dev-auth |
@@ -68,6 +68,6 @@
 ## Выводы для следующих этапов
 
 1. Аналитические связи полны: все 6 BR и 16 FR имеют нисходящую цепочку; NFR привязаны к сценариям или общим границам.
-2. Критические пробелы реализации: FR-008, FR-015, NFR-008 и NFR-011.
+2. Критические пробелы реализации: FR-015, NFR-008 и NFR-011.
 3. Критические пробелы тестирования: NFR-001, NFR-003, NFR-005, NFR-006, NFR-008, NFR-011; частично покрыты NFR-002, NFR-004, NFR-007 и NFR-009.
 4. Эти пробелы не маскируются статусом документации и остаются открытыми в `docs/lecture-gap-checklists.md`.

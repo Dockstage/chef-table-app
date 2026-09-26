@@ -122,12 +122,20 @@ describe('MockStudioApi booking invariants', () => {
     const attended = initialBookings.find((item) => item.status === 'attended')!;
 
     await expect(api.submitReview({ bookingId: attended.id, rating })).rejects.toMatchObject({
-      code: 'REVIEW_NOT_ALLOWED',
+      code: 'VALIDATION_ERROR',
     });
   });
 
-  it('accepts a 500-character comment and rejects 501 characters', async () => {
+  it('accepts empty/500-character comments and rejects 501 characters', async () => {
     const attended = initialBookings.find((item) => item.status === 'attended')!;
+    const emptyCommentApi = new MockStudioApi(initialClasses, initialBookings);
+    const withoutComment = await emptyCommentApi.submitReview({
+      bookingId: attended.id,
+      rating: 5,
+      comment: '',
+    });
+    expect(withoutComment.reviewComment).toBeNull();
+
     const acceptedApi = new MockStudioApi(initialClasses, initialBookings);
     const updated = await acceptedApi.submitReview({
       bookingId: attended.id,
@@ -143,6 +151,32 @@ describe('MockStudioApi booking invariants', () => {
         rating: 5,
         comment: 'а'.repeat(501),
       }),
-    ).rejects.toMatchObject({ code: 'REVIEW_NOT_ALLOWED' });
+    ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+  });
+
+  it('accepts 300 allergy characters and rejects 301', async () => {
+    const acceptedApi = new MockStudioApi(initialClasses, []);
+    const accepted = await acceptedApi.createBooking(
+      {
+        classId: initialClasses[0]!.id,
+        equipmentOption: 'own',
+        allergyNotes: 'а'.repeat(300),
+      },
+      'attempt-allergy-limit-accepted',
+    );
+    expect(accepted.allergyNotes).toHaveLength(300);
+
+    const rejectedApi = new MockStudioApi(initialClasses, []);
+
+    await expect(
+      rejectedApi.createBooking(
+        {
+          classId: initialClasses[0]!.id,
+          equipmentOption: 'own',
+          allergyNotes: 'а'.repeat(301),
+        },
+        'attempt-allergy-limit',
+      ),
+    ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
   });
 });

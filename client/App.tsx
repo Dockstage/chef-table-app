@@ -541,7 +541,7 @@ function BookingsScreen({
                       </Pressable>
                     )}
 
-                    {booking.rating !== undefined && (
+                    {booking.rating !== null && (
                       <View>
                         <Text style={styles.savedRating}>
                           Ваша оценка: {'★'.repeat(booking.rating)}

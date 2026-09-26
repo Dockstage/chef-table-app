@@ -24,6 +24,9 @@ const booking: Booking = {
   allergyNotes: input.allergyNotes,
   totalPriceKopecks: 450000,
   createdAt: '2026-09-27T12:00:00.000Z',
+  studioCancellationReason: null,
+  rating: null,
+  reviewComment: null,
 };
 
 describe('booking flow', () => {
