@@ -34,4 +34,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации изменений.
+`021cd55` — `docs: audit prompt registry traceability`.
