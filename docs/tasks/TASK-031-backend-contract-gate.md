@@ -34,4 +34,4 @@
 
 ## Commit
 
-Будет указан после фиксации изменений.
+`79ed553` — `feat: add backend contract gate`.
