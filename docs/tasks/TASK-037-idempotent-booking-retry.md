@@ -29,4 +29,4 @@
 
 ## Commit
 
-Будет указан после фиксации реализации.
+`b6262b3` — `fix: make booking retries idempotent`.
