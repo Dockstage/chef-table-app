@@ -1,11 +1,8 @@
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
-
-def _to_camel(value: str) -> str:
-    head, *tail = value.split("_")
-    return head + "".join(part.capitalize() for part in tail)
+from app.schemas.base import ContractModel
 
 
 class ProblemCode(StrEnum):
@@ -30,26 +27,14 @@ class ProblemCode(StrEnum):
     SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE"
 
 
-class FieldError(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=lambda value: _to_camel(value),
-        populate_by_name=True,
-        extra="forbid",
-    )
-
+class FieldError(ContractModel):
     field: str
     message: str
 
 
-class Problem(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=lambda value: _to_camel(value),
-        populate_by_name=True,
-        extra="forbid",
-    )
-
+class Problem(ContractModel):
     status: int = Field(ge=400, le=599)
     code: ProblemCode
     message: str = Field(min_length=1, max_length=500)
     trace_id: str | None = None
-    field_errors: list[FieldError] | None = None
+    field_errors: list[FieldError] = Field(default_factory=list)

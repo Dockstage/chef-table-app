@@ -57,7 +57,7 @@ Backend использует слои `api` → `services` → `domain` → `rep
 
 - Expo + React Native + TypeScript: единая кодовая база и web-preview.
 - `HttpStudioApi` реализует OpenAPI-контракт; mock остаётся автономным demo fallback.
-- `docs/02-design/openapi.yaml` — источник истины; схема FastAPI проверяется на совместимость в CI.
+- `docs/02-design/openapi.yaml` — источник истины; локальный contract gate сравнивает Pydantic DTO и runtime FastAPI, а следующим усилением остаётся запуск в CI и сверка TypeScript.
 - Все endpoint клиентского API используют Bearer identity seeded demo-клиента; client ID не передаётся в body.
 - PostgreSQL, row locks, partial unique index и `IdempotencyRecord` обеспечивают конкурентную целостность.
 - Expo Notifications получает APNs/FCM-токен по явному согласию, регистрирует его в API и обновляет брони по `class_cancelled` при foreground-доставке, открытии уведомления и холодном запуске.
@@ -75,4 +75,4 @@ Backend использует слои `api` → `services` → `domain` → `rep
 
 ## Границы текущей реализации
 
-До этапа разработки остаются известные разрывы: клиент создаёт новый `Idempotency-Key` внутри каждого вызова вместо хранения на логическую попытку, не обновляет слот после всех конфликтов, валидирует push только по `type`, а OpenAPI ещё не проверяется CI. Они перечислены в `docs/lecture-gap-checklists.md` и не считаются реализованными только из-за появления целевого дизайна.
+Остаются известные разрывы: клиент создаёт новый `Idempotency-Key` внутри каждого вызова вместо хранения на логическую попытку, не обновляет слот после всех конфликтов и валидирует push только по `type`. OpenAPI уже проверяется локальным backend gate, но ещё не включён в CI и не сверяется автоматически с TypeScript. Разрывы перечислены в `docs/lecture-gap-checklists.md`.

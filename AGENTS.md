@@ -13,7 +13,7 @@ Run client commands from `client/`:
 - `npm test` — run the Vitest suite once.
 - `npm run export:web` — produce the web bundle in `dist/`.
 
-Run backend and Docker commands documented in `backend/README.md`. Apply migrations explicitly with `docker compose run --rm migrate`; run seed data separately with `docker compose run --rm seed`.
+Run backend and Docker commands documented in `backend/README.md`. Apply migrations explicitly with `docker compose run --rm migrate`; run seed data separately with `docker compose run --rm seed`. Treat `docs/02-design/openapi.yaml` as the API source of truth and run the documented contract check after DTO or route changes.
 
 ## Coding Style & Architecture
 

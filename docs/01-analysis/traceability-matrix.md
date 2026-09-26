@@ -45,9 +45,9 @@
 | NFR-003 Touch и WCAG AA | BR-001; US-01, US-02; все SCR/overlay | Accessibility-атрибуты и UX-правки | — | `afde6b` | Не покрыто: нет замеров областей и контраста |
 | NFR-004 Конкурентная целостность | BR-002; US-03; UC-01; LOGIC-003 | Проверки mock на место, дубль и прокат | TC-007–TC-009, TC-018 | `dcf5ff8`, `ac64757` | Частично: нет 20 параллельных запросов и replay |
 | NFR-005 Данные при read failure | BR-003–BR-005; US-04–US-06; LOGIC-007 | Целевое состояние описано | — | `0bfe5a2` | Не покрыто: нет component/scenario test; refresh смешан с мутацией |
-| NFR-006 Нет аллергий/токенов в логах | BR-002; US-03; UC-01 | Логирование PII в коде не добавлено | — | `a6dd292` | Не покрыто: отсутствует тест-перехватчик логов |
+| NFR-006 Нет аллергий/токенов в логах | BR-002; US-03; UC-01 | Безопасный JSON-log без headers/body | backend log-safety test | `a6dd292`; TASK-030 | Покрыто для backend-инфраструктуры; клиентские технические каналы проверяются отдельно |
 | NFR-007 Однозначные деньги и время | BR-001, BR-003; US-02–US-04; LOGIC-001, LOGIC-002, LOGIC-004 | Копейки, ISO 8601, domain policies | TC-005, TC-012, TC-013, TC-019 | `ed714fc` | Частично: timezone backend ещё не проверен |
-| NFR-008 OpenAPI compatibility в CI | BR-002; US-03; UC-01 | OpenAPI 1.2 подготовлен | — | `60dae24`; TASK-030 | Не покрыто: schema-check FastAPI в CI отсутствует |
+| NFR-008 OpenAPI compatibility в CI | BR-002; US-03; UC-01 | OpenAPI 1.2 + DTO/runtime contract gate | backend contract tests | `60dae24`; TASK-031 | Частично: локальный gate готов, CI и TypeScript-сверка ещё отсутствуют |
 | NFR-009 Android/iOS, web-preview | BR-001, BR-004; US-01, US-06; SCR-003 | Platform branch и пояснение web-push | TC-021–TC-023 | `1edf78b`, `7420444` | Частично: нет прогона на двух native-платформах |
 | NFR-010 Сквозная проверяемость Must | Все Must | Эта матрица и канонические ссылки в `test-cases.md` | TC-001–TC-025 | TASK-021 | Частично: связи созданы, но часть Must пока без теста |
 | NFR-011 Граница учебной auth | BR-006; US-01–US-06; UC-01–UC-04 | Bearer dependency, env-secret, `401` Problem | backend auth и log-safety tests | `a3c5ae1`, `0a4ef79`; TASK-030 | Частично: инфраструктура готова, доменные endpoints ещё не подключены |

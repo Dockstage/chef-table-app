@@ -24,6 +24,7 @@ Run from `backend/`:
 .\.venv\Scripts\python -m ruff format --check .
 .\.venv\Scripts\python -m ruff check .
 .\.venv\Scripts\python -m pytest
+.\.venv\Scripts\python -m app.contract_check --contract ..\docs\02-design\openapi.yaml --gaps contract-gaps.json
 ```
 
 For local PostgreSQL, set `DATABASE_URL` from `.env.example`, then use `python -m alembic upgrade head` and `python -m app.db.seed`.
@@ -45,3 +46,7 @@ docker compose ps
 `migrate` applies Alembic revisions; `seed` safely upserts deterministic demo data and may be repeated. Stop containers without deleting the database volume with `docker compose stop`.
 
 The API is available at `http://127.0.0.1:8000`; health check: `GET /health`. Protected `/v1` operations require `Authorization: Bearer <DEV_BEARER_TOKEN>`. Business endpoints are implemented in later BE iterations.
+
+## Contract workflow
+
+`docs/02-design/openapi.yaml` is the source of truth. Change it only after recording impact on requirements, client, backend and tests; then update Pydantic DTO/routes and run the contract command above. `contract-gaps.json` temporarily lists the seven planned operations: remove an entry in the same change that implements its endpoint. The check fails on DTO drift, undeclared/stale gaps, unexpected operations, or differences in transport signatures.

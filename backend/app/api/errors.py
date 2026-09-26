@@ -72,7 +72,7 @@ def _problem_response(
         code=problem.code,
         message=problem.message,
         trace_id=trace_id,
-        field_errors=problem.field_errors,
+        field_errors=problem.field_errors or [],
     )
     headers = {"X-Request-ID": trace_id, **problem.headers}
     return JSONResponse(

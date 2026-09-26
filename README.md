@@ -79,7 +79,7 @@ python -m venv .venv
 .\.venv\Scripts\python -m uvicorn app.main:app --reload
 ```
 
-Проверки и остальные команды описаны в [`backend/README.md`](backend/README.md).
+Проверки и остальные команды описаны в [`backend/README.md`](backend/README.md). Contract gate сравнивает 15 Pydantic-схем и runtime-операции FastAPI с каноническим OpenAPI; пока семь плановых endpoint явно зарегистрированы в `backend/contract-gaps.json`.
 
 ## Проверки
 
@@ -136,6 +136,7 @@ client/tests/                   автоматические тесты
 backend/app/                    FastAPI, SQLAlchemy-модели и seed
 backend/migrations/             Alembic-миграции PostgreSQL
 backend/tests/                  backend pytest-тесты
+backend/contract-gaps.json      временный реестр отсутствующих API-операций
 compose.yaml                    локальные PostgreSQL и FastAPI
 docs/                           аналитика, проектирование и отчёты
 ```
