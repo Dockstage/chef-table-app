@@ -31,4 +31,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации реализации.
+`3cd3674` — `feat: implement transactional booking cancellation`.
