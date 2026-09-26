@@ -34,4 +34,4 @@
 
 ## Commit
 
-Будет указан после фиксации изменения.
+`35cb6f2` — `docs: add development implementation plans`.
