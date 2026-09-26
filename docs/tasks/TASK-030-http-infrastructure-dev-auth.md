@@ -34,4 +34,4 @@
 
 ## Commit
 
-Будет указан после фиксации изменений.
+`06e1423` — `feat: add backend HTTP infrastructure and dev auth`.
