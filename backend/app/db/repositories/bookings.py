@@ -9,8 +9,11 @@ from sqlalchemy.orm import Session
 from app.db.models.booking import Booking, Review
 from app.db.models.catalog import CookingClass
 from app.db.models.idempotency import IdempotencyRecord
-from app.domain.bookings import BookingDetails, CreateBookingResult
+from app.domain.bookings import BookingDetails, CreateBookingResult, is_cancellation_allowed
 from app.domain.errors import (
+    BookingNotActiveError,
+    BookingNotFoundError,
+    CancellationClosedError,
     CookingClassNotFoundError,
     DuplicateBookingError,
     IdempotencyConflictError,
@@ -108,6 +111,38 @@ class SqlAlchemyBookingRepository:
             )
 
         return CreateBookingResult(booking=details, replayed=False)
+
+    def cancel_booking(
+        self,
+        client_id: UUID,
+        booking_id: UUID,
+        now: datetime,
+    ) -> BookingDetails:
+        with self._session.begin():
+            booking = self._session.execute(
+                select(Booking)
+                .where(Booking.id == booking_id, Booking.client_id == client_id)
+                .with_for_update()
+            ).scalar_one_or_none()
+            if booking is None:
+                raise BookingNotFoundError
+            if booking.status != "confirmed":
+                raise BookingNotActiveError
+
+            cooking_class = self._session.execute(
+                select(CookingClass).where(CookingClass.id == booking.class_id).with_for_update()
+            ).scalar_one()
+            if not is_cancellation_allowed(cooking_class.starts_at, now):
+                raise CancellationClosedError
+
+            booking.status = "cancelled_by_client"
+            cooking_class.available_seats += 1
+            if booking.equipment_option == "rental":
+                cooking_class.available_rental_kits += 1
+            self._session.flush()
+            details = self._to_details(booking, None)
+
+        return details
 
     def _lock_idempotency_key(self, client_id: UUID, idempotency_key: UUID) -> None:
         digest = hashlib.sha256(f"{client_id}:{idempotency_key}".encode()).digest()

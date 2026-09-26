@@ -1,5 +1,6 @@
 import hashlib
 import json
+from dataclasses import replace
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -8,8 +9,11 @@ from httpx import ASGITransport, AsyncClient
 
 from app.api.dependencies import get_booking_service
 from app.config import Settings
-from app.domain.bookings import BookingDetails, CreateBookingResult
+from app.domain.bookings import BookingDetails, CreateBookingResult, is_cancellation_allowed
 from app.domain.errors import (
+    BookingNotActiveError,
+    BookingNotFoundError,
+    CancellationClosedError,
     CookingClassNotFoundError,
     DuplicateBookingError,
     IdempotencyConflictError,
@@ -44,9 +48,16 @@ def booking() -> BookingDetails:
 
 
 class FakeBookingRepository:
-    def __init__(self, *, replayed: bool = False, error: Exception | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        replayed: bool = False,
+        error: Exception | None = None,
+        cancel_error: Exception | None = None,
+    ) -> None:
         self.replayed = replayed
         self.error = error
+        self.cancel_error = cancel_error
         self.last_client_id: UUID | None = None
         self.last_hash: str | None = None
 
@@ -72,6 +83,19 @@ class FakeBookingRepository:
         assert equipment_option == "rental"
         assert allergy_notes == "Без орехов"
         return CreateBookingResult(booking(), self.replayed)
+
+    def cancel_booking(
+        self,
+        client_id: UUID,
+        booking_id: UUID,
+        now: datetime,
+    ) -> BookingDetails:
+        self.last_client_id = client_id
+        assert booking_id == BOOKING_ID
+        assert now.tzinfo is not None
+        if self.cancel_error is not None:
+            raise self.cancel_error
+        return replace(booking(), status="cancelled_by_client")
 
 
 def build_test_app(repository: FakeBookingRepository):
@@ -193,3 +217,53 @@ async def test_create_booking_requires_auth_key_and_valid_body() -> None:
     assert unauthorized.status_code == 401
     assert missing_key.status_code == 422
     assert invalid_body.status_code == 422
+
+
+def test_cancellation_deadline_includes_exactly_twelve_hours() -> None:
+    now = datetime(2026, 10, 1, 6, tzinfo=UTC)
+    assert is_cancellation_allowed(datetime(2026, 10, 1, 18, tzinfo=UTC), now)
+    assert not is_cancellation_allowed(datetime(2026, 10, 1, 17, 59, 59, tzinfo=UTC), now)
+
+
+@pytest.mark.anyio
+async def test_cancel_booking_returns_updated_projection() -> None:
+    repository = FakeBookingRepository()
+    application = build_test_app(repository)
+    async with AsyncClient(
+        transport=ASGITransport(app=application), base_url="http://test"
+    ) as client:
+        response = await client.post(
+            f"/v1/bookings/{BOOKING_ID}/cancel",
+            headers=auth_headers(),
+        )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "cancelled_by_client"
+    assert repository.last_client_id == CLIENT_ID
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    ("error", "status", "code"),
+    [
+        (BookingNotFoundError(), 404, "BOOKING_NOT_FOUND"),
+        (CancellationClosedError(), 409, "CANCELLATION_CLOSED"),
+        (BookingNotActiveError(), 409, "BOOKING_NOT_ACTIVE"),
+    ],
+)
+async def test_cancel_booking_maps_domain_errors(
+    error: Exception,
+    status: int,
+    code: str,
+) -> None:
+    application = build_test_app(FakeBookingRepository(cancel_error=error))
+    async with AsyncClient(
+        transport=ASGITransport(app=application), base_url="http://test"
+    ) as client:
+        response = await client.post(
+            f"/v1/bookings/{BOOKING_ID}/cancel",
+            headers=auth_headers(),
+        )
+
+    assert response.status_code == status
+    assert response.json()["code"] == code

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import UUID
 
 
@@ -21,3 +21,10 @@ class BookingDetails:
 class CreateBookingResult:
     booking: BookingDetails
     replayed: bool
+
+
+CANCELLATION_DEADLINE = timedelta(hours=12)
+
+
+def is_cancellation_allowed(starts_at: datetime, now: datetime) -> bool:
+    return starts_at - now >= CANCELLATION_DEADLINE

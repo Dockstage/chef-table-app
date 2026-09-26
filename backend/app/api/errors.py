@@ -9,6 +9,9 @@ from sqlalchemy.exc import OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.domain.errors import (
+    BookingNotActiveError,
+    BookingNotFoundError,
+    CancellationClosedError,
     CookingClassNotFoundError,
     DuplicateBookingError,
     IdempotencyConflictError,
@@ -154,6 +157,15 @@ def register_exception_handlers(application: FastAPI) -> None:
         IdempotencyConflictError: (
             ProblemCode.IDEMPOTENCY_CONFLICT,
             "Этот ключ уже использован с другими данными.",
+        ),
+        BookingNotFoundError: (ProblemCode.BOOKING_NOT_FOUND, "Бронь не найдена."),
+        CancellationClosedError: (
+            ProblemCode.CANCELLATION_CLOSED,
+            "Онлайн-отмена закрывается за 12 часов до начала.",
+        ),
+        BookingNotActiveError: (
+            ProblemCode.BOOKING_NOT_ACTIVE,
+            "Статус брони уже изменился. Обновите список.",
         ),
     }
     for exception_type, (code, message) in domain_conflicts.items():

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Protocol
 from uuid import UUID
 
@@ -16,3 +17,10 @@ class BookingRepository(Protocol):
         equipment_option: str,
         allergy_notes: str,
     ) -> CreateBookingResult: ...
+
+    def cancel_booking(
+        self,
+        client_id: UUID,
+        booking_id: UUID,
+        now: datetime,
+    ) -> BookingDetails: ...

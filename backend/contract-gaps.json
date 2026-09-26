@@ -1,9 +1,5 @@
 {
   "missingOperations": {
-    "cancelBooking": {
-      "iteration": "BE-06",
-      "reason": "Транзакционная отмена брони ещё не реализована."
-    },
     "createReview": {
       "iteration": "BE-07",
       "reason": "Создание отзыва ещё не реализовано."

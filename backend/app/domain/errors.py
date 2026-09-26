@@ -28,3 +28,15 @@ class RentalUnavailableError(Exception):
 
 class IdempotencyConflictError(Exception):
     """The idempotency key was used with a different payload."""
+
+
+class BookingNotFoundError(Exception):
+    """The requested booking does not belong to the current client."""
+
+
+class CancellationClosedError(Exception):
+    """The online cancellation deadline has passed."""
+
+
+class BookingNotActiveError(Exception):
+    """The booking is no longer confirmed."""

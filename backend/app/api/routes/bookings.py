@@ -2,7 +2,7 @@ from dataclasses import asdict
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Header, Response, status
+from fastapi import APIRouter, Header, Path, Response, status
 
 from app.api.auth import CurrentClientId
 from app.api.dependencies import BookingServiceDependency
@@ -67,3 +67,21 @@ def create_booking(
     )
     response.headers["Idempotency-Replayed"] = str(result.replayed).lower()
     return Booking.model_validate(asdict(result.booking))
+
+
+@router.post(
+    "/{bookingId}/cancel",
+    operation_id="cancelBooking",
+    response_model=Booking,
+    responses={
+        404: problem_response("Бронь не найдена."),
+        409: problem_response("Отмена недоступна."),
+        **COMMON_ERROR_RESPONSES,
+    },
+)
+def cancel_booking(
+    booking_id: Annotated[UUID, Path(alias="bookingId")],
+    client_id: CurrentClientId,
+    service: BookingServiceDependency,
+) -> Booking:
+    return Booking.model_validate(asdict(service.cancel_booking(client_id, booking_id)))

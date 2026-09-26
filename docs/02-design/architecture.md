@@ -4,7 +4,7 @@
 
 Клиент «Шеф-стол» работает на Android/iOS и в web-preview. По ADR-001 проект расширен референсным FastAPI-backend и PostgreSQL, воспроизводящими контракт существующей инфраструктуры. Управляющие интерфейсы студии остаются внешними; клиент не меняет каталог и расписание.
 
-Expo-клиент расположен в `client/`. В `backend/` созданы слоистый FastAPI-каркас, SQLAlchemy-модели, Alembic-миграция, seed и health endpoint; PostgreSQL и сервис запускаются корневым Docker Compose. Каталог, список и создание броней реализованы через service/repository-слои; остальные доменные endpoint выполняются следующими итерациями. `MockStudioApi` сохраняется только как demo/test fallback.
+Expo-клиент расположен в `client/`. В `backend/` созданы слоистый FastAPI-каркас, SQLAlchemy-модели, Alembic-миграция, seed и health endpoint; PostgreSQL и сервис запускаются корневым Docker Compose. Каталог и полный цикл броней реализованы через service/repository-слои; отзывы и push-токены выполняются следующей итерацией. `MockStudioApi` сохраняется только как demo/test fallback.
 
 ```mermaid
 flowchart LR
