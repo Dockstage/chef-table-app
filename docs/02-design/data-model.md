@@ -121,7 +121,7 @@ erDiagram
 | Review | `rating` | integer 1–5 | Нет | CHECK |
 | Review | `comment` | string ≤ 500 | Да | Пустой ввод нормализуется в `null` |
 | PushToken | `platform` | `android`, `ios` | Нет | Web-токенов нет |
-| IdempotencyRecord | `requestHash` | SHA-256 canonical payload | Нет | Тот же ключ нельзя использовать с другим payload |
+| IdempotencyRecord | `requestHash` | SHA-256 canonical validated payload | Нет | UTF-8 JSON с фиксированным порядком `classId`, `equipmentOption`, `allergyNotes` |
 
 ## Инварианты и уровень обеспечения
 
@@ -143,6 +143,7 @@ erDiagram
 - `Booking` содержит `classId` и денормализованные `rating`/`reviewComment`; отсутствующий отзыв передаётся явными `null`.
 - Причины отмены передаются явным `null` либо строкой согласно статусу; missing и null не смешиваются.
 - `IdempotencyRecord`, внутренние FK и технические timestamps не раскрываются.
+- По D-009 `IdempotencyRecord` не протухает в учебном MVP и удаляется только со сбросом БД; production retention остаётся OQ-009.
 - Источником контрактных имён, required/nullability и ошибок остаётся `openapi.yaml`.
 
 ## Seed и миграции

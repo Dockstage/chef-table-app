@@ -25,7 +25,7 @@
 
 - `classId` — валидный UUID из выбранного класса.
 - `equipmentOption` — ровно `own` или `rental`; rental disabled при нуле.
-- `allergyNotes` — строка, максимум 300 Unicode-символов; empty допустим.
+- `allergyNotes` — строка, максимум 300 Unicode code points по D-010; empty допустим.
 - `status == scheduled`, `availableSeats > 0`, валидные неотрицательные цены — предварительные UI-условия; backend проверяет повторно.
 - CTA disabled при любой локальной ошибке и в `submitting`.
 
@@ -62,4 +62,4 @@ Content, Refreshing, Submitting, Conflict, Cancelled, Error/Stale. Первич�
 - **AC-BS001-03:** повтор после timeout использует прежний ключ и payload.
 - **AC-BS001-04:** `201` остаётся успехом при последующем refresh failure.
 - **AC-BS001-05:** allergyNotes отсутствуют в toast/error/log.
-
+- **AC-BS001-06:** от появления Content до отправки валидной формы требуется не более пяти действий по правилу NFR-012.

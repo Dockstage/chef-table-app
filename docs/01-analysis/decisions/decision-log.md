@@ -12,6 +12,8 @@
 | D-006 | 26.09.2026 | Возвращать `410/SLOT_CANCELLED` для отменённого студией класса; `409` оставить для конфликтов | Принято | лекция + `ADR-001` | requirements, OpenAPI, client, backend, tests |
 | D-007 | 26.09.2026 | Использовать `Europe/Moscow` как каноническую зону студии | Принято | проектное допущение | dates, API, UI, tests |
 | D-008 | 26.09.2026 | Использовать текущий UI и screenshots как временный design baseline | Принято | отсутствие Figma | design briefs, layout tests |
+| D-009 | 26.09.2026 | В учебном MVP хранить `IdempotencyRecord` до сброса БД; `requestHash` считать как SHA-256 канонического валидированного payload | Принято | QA-003 | backend, database, contract tests |
+| D-010 | 26.09.2026 | Лимиты пользовательского текста считать в Unicode code points; backend остаётся источником окончательной валидации | Принято | QA-012 | requirements, client validation, backend, tests |
 
 ## Правила ведения
 

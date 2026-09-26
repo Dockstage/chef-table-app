@@ -12,7 +12,7 @@
 |---|---|
 | Контекст | Имя шефа + класс, read-only |
 | Rating radio group | Обязательно, integer 1–5, каждая зона ≥44×44 dp |
-| Comment | Optional, максимум 500 символов, счётчик |
+| Comment | Optional, максимум 500 Unicode code points по D-010, счётчик |
 | Submit | Enabled только при rating 1–5 и not busy |
 | «Не сейчас» | Закрывает без mutation |
 
@@ -39,4 +39,3 @@ Initial (`rating=0`), Ready, Submitting, Error. Повторный tap при Su
 - **AC-MDL001-02:** comment >500 не попадает в запрос.
 - **AC-MDL001-03:** timeout сохраняет выбранные rating/comment.
 - **AC-MDL001-04:** после `201` повторный CTA исчезает, серверные значения видны в истории.
-

@@ -86,7 +86,7 @@ npm run export:web
 | [`docs/01-analysis`](docs/01-analysis) | вопросы, допущения, MVP, user stories и use cases |
 | [`docs/02-design`](docs/02-design) | архитектура, модель данных, sequence diagrams и OpenAPI |
 | [`docs/source`](docs/source) | полный исходный бриф заказчика |
-| [`docs/test-cases.md`](docs/test-cases.md) | 24 тест-кейса и регрессионный минимум |
+| [`docs/test-cases.md`](docs/test-cases.md) | 25 тест-кейсов и регрессионный минимум |
 | [`docs/manual-test-report.md`](docs/manual-test-report.md) | отчёт о ручной проверке |
 | [`docs/tasks`](docs/tasks) | отдельная карточка каждой задачи и каждого бага |
 | [`docs/prompts`](docs/prompts) | все промпты, использованные при работе с ИИ |
@@ -119,4 +119,3 @@ docs/                    аналитика, проектирование и о�
 ## Перед сдачей
 
 Репозиторий опубликован: [Dockstage/chef-table-app](https://github.com/Dockstage/chef-table-app). Перед отправкой формы пройти актуальный [`SUBMISSION_CHECKLIST.md`](SUBMISSION_CHECKLIST.md). Не коммитить `node_modules`, `.expo`, `.npm-cache` и `dist`.
-
