@@ -135,7 +135,8 @@ export class MockStudioApi implements StudioApi {
       booking.rating !== undefined ||
       !Number.isInteger(input.rating) ||
       input.rating < 1 ||
-      input.rating > 5
+      input.rating > 5 ||
+      (input.comment?.length ?? 0) > 500
     ) {
       throw new StudioApiError('REVIEW_NOT_ALLOWED', 'Эту запись нельзя оценить.');
     }

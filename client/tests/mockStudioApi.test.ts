@@ -116,4 +116,33 @@ describe('MockStudioApi booking invariants', () => {
       code: 'REVIEW_NOT_ALLOWED',
     });
   });
+
+  it.each([0, 6, 1.5])('rejects an out-of-range rating: %s', async (rating) => {
+    const api = new MockStudioApi(initialClasses, initialBookings);
+    const attended = initialBookings.find((item) => item.status === 'attended')!;
+
+    await expect(api.submitReview({ bookingId: attended.id, rating })).rejects.toMatchObject({
+      code: 'REVIEW_NOT_ALLOWED',
+    });
+  });
+
+  it('accepts a 500-character comment and rejects 501 characters', async () => {
+    const attended = initialBookings.find((item) => item.status === 'attended')!;
+    const acceptedApi = new MockStudioApi(initialClasses, initialBookings);
+    const updated = await acceptedApi.submitReview({
+      bookingId: attended.id,
+      rating: 1,
+      comment: 'а'.repeat(500),
+    });
+    expect(updated.reviewComment).toHaveLength(500);
+
+    const rejectedApi = new MockStudioApi(initialClasses, initialBookings);
+    await expect(
+      rejectedApi.submitReview({
+        bookingId: attended.id,
+        rating: 5,
+        comment: 'а'.repeat(501),
+      }),
+    ).rejects.toMatchObject({ code: 'REVIEW_NOT_ALLOWED' });
+  });
 });

@@ -20,7 +20,8 @@ import {
 } from './src/features/booking/bookingAttempt';
 import {
   executeBooking,
-  finalizeBookingCreation,
+  executeCancellation,
+  finalizeBookingMutation,
   replaceCookingClass,
   upsertBooking,
 } from './src/features/booking/bookingFlow';
@@ -893,7 +894,7 @@ export default function App() {
       }
 
       bookingAttemptRef.current = null;
-      const refreshStatus = await finalizeBookingCreation(
+      const refreshStatus = await finalizeBookingMutation(
         result.booking,
         (booking) => {
           setBookings((current) => upsertBooking(current, booking));
@@ -919,11 +920,33 @@ export default function App() {
   const performCancel = async (booking: Booking) => {
     setBusy(true);
     try {
-      await api.cancelBooking(booking.id);
-      await refresh();
-      setToast('Запись отменена, место вернулось в расписание.');
-    } catch (error) {
-      setToast(error instanceof Error ? error.message : 'Не удалось отменить запись.');
+      const result = await executeCancellation(api, booking.id);
+      if (result.kind === 'rejected') {
+        const latestBooking = result.latestBooking;
+        if (latestBooking) {
+          setBookings((current) => upsertBooking(current, latestBooking));
+        }
+        setToast(
+          result.error instanceof Error
+            ? result.error.message
+            : 'Не удалось отменить запись.',
+        );
+        return;
+      }
+
+      const refreshStatus = await finalizeBookingMutation(
+        result.booking,
+        (updatedBooking) => {
+          setBookings((current) => upsertBooking(current, updatedBooking));
+          setToast('Запись отменена, место вернулось в расписание.');
+        },
+        () => refresh(),
+      );
+      if (refreshStatus === 'stale') {
+        setToast('Запись отменена, но обновить расписание не удалось. Повторите позже.');
+      }
+    } catch {
+      setToast('Отмена выполнена с неизвестным результатом. Обновите список записей.');
     } finally {
       setBusy(false);
     }
@@ -946,10 +969,23 @@ export default function App() {
     if (!reviewBooking) return;
     setBusy(true);
     try {
-      await api.submitReview({ bookingId: reviewBooking.id, rating, comment });
-      await refresh();
-      setReviewBooking(null);
-      setToast('Спасибо! Оценка поможет команде студии.');
+      const updatedBooking = await api.submitReview({
+        bookingId: reviewBooking.id,
+        rating,
+        comment,
+      });
+      const refreshStatus = await finalizeBookingMutation(
+        updatedBooking,
+        (booking) => {
+          setBookings((current) => upsertBooking(current, booking));
+          setReviewBooking(null);
+          setToast('Спасибо! Оценка поможет команде студии.');
+        },
+        () => refresh(),
+      );
+      if (refreshStatus === 'stale') {
+        setToast('Оценка сохранена, но обновить остальные данные не удалось.');
+      }
     } catch (error) {
       setToast(error instanceof Error ? error.message : 'Не удалось отправить оценку.');
     } finally {
