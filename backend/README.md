@@ -29,6 +29,19 @@ Run from `backend/`:
 
 For local PostgreSQL, set `DATABASE_URL` from `.env.example`, then use `python -m alembic upgrade head` and `python -m app.db.seed`.
 
+## Final backend gate
+
+Run the isolated PostgreSQL check from the repository root after the regular tests:
+
+```powershell
+docker compose build backend
+docker compose up -d db
+docker compose run --rm backend python -m app.postgres_check
+docker compose stop
+```
+
+The command creates `<DATABASE_URL database>_check`, applies real Alembic migrations, loads seed data, checks concurrent create/cancel/review, idempotency replay/conflict and push-token upsert, then drops the check database. The PostgreSQL user therefore needs `CREATEDB`; the configured source database is not mutated.
+
 ## Docker stack
 
 Run from the repository root:
@@ -50,3 +63,10 @@ The API is available at `http://127.0.0.1:8000`; health check: `GET /health`. Pr
 ## Contract workflow
 
 `docs/02-design/openapi.yaml` is the source of truth. Change it only after recording impact on requirements, client, backend and tests; then update Pydantic DTO/routes and run the contract command above. `contract-gaps.json` is empty now that all operations exist. The check fails on DTO drift, undeclared/stale gaps, unexpected operations, or differences in transport signatures.
+
+## Known limitations
+
+- Bearer authentication is a documented development identity; production OTP is outside the MVP.
+- Push tokens are stored, but production APNs/FCM delivery is outside the MVP.
+- `429` remains a contract-reserved response; no rate-limit policy is configured.
+- Studio-side schedule management and cancellation dispatch are external to this client API.

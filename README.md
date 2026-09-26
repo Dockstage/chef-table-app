@@ -96,6 +96,8 @@ npm run export:web
 - 24 автоматических теста — успешно;
 - web bundle — создаётся в `client/dist/`.
 
+Backend проверяется отдельно из `backend/`: Ruff, 42 pytest-теста и contract gate. Изолированный PostgreSQL/concurrency gate запускается из корня командой `docker compose run --rm backend python -m app.postgres_check` после `docker compose build backend` и запуска `db`; подробности приведены в [`backend/README.md`](backend/README.md).
+
 ## Демонстрационные сценарии
 
 1. На главном экране выбрать день и уровень класса.

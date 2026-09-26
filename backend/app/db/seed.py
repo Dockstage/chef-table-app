@@ -44,10 +44,10 @@ def _upsert_rows(connection: object, table: Table, rows: list[dict[str, object]]
     )
 
 
-def seed_database() -> dict[str, int]:
+def seed_database(database_url: str | None = None) -> dict[str, int]:
     data = build_seed_data()
     counts: dict[str, int] = {}
-    engine = create_database_engine()
+    engine = create_database_engine(database_url)
 
     with engine.begin() as connection:
         for name, table in SEED_TABLES:

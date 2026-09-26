@@ -97,10 +97,12 @@
 
 ### BE-08 — Финальный backend gate
 
-- [ ] Прогнать unit, API, PostgreSQL integration и concurrency tests.
-- [ ] Проверить полный набор success/error ответов против OpenAPI.
-- [ ] Обновить README командами запуска, миграций, seed и проверок.
-- [ ] Зафиксировать фактически реализованное и оставшиеся ограничения.
+- [x] Прогнать unit, API, PostgreSQL integration и concurrency tests.
+- [x] Проверить полный набор success/error ответов против OpenAPI.
+- [x] Обновить README командами запуска, миграций, seed и проверок.
+- [x] Зафиксировать фактически реализованное и оставшиеся ограничения.
+
+Результат: Ruff и 42 pytest-теста проходят; contract gate подтверждает 15 схем, 7 операций и 0 gaps. `app.postgres_check` создаёт отдельную БД, применяет Alembic с нуля, загружает seed, проверяет create/replay/conflict/cancel/review concurrency и push upsert, затем удаляет test-БД. Ограничения production-auth, APNs/FCM-доставки и rate limiting явно сохранены в README.
 
 ## Правило итерации
 

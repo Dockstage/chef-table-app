@@ -9,7 +9,7 @@
 | Цель | Истории / сценарии | Требования | Интерфейс и логика | Основные проверки | Статус |
 |---|---|---|---|---|---|
 | BR-001 Самообслуживание записи | US-01–US-03; UC-01 | FR-001–FR-008; NFR-001–NFR-003, NFR-007, NFR-009, NFR-012 | SCR-001; CMP-001; BS-001; LOGIC-001–LOGIC-003, LOGIC-007 | TC-001–TC-010, TC-017–TC-019, TC-023, TC-025 | Частично: нет полной обработки error/retry и измерения производительности |
-| BR-002 Корректные остатки и уникальность | US-03; UC-01 | FR-005–FR-008; NFR-004, NFR-006–NFR-008, NFR-011 | BS-001; LOGIC-002, LOGIC-003 | TC-005–TC-010, TC-017, TC-018 | Частично: стабильный retry и конкурентный backend ещё не реализованы |
+| BR-002 Корректные остатки и уникальность | US-03; UC-01 | FR-005–FR-008; NFR-004, NFR-006–NFR-008, NFR-011 | BS-001; LOGIC-002, LOGIC-003 | TC-005–TC-010, TC-017, TC-018; PostgreSQL gate | Частично: backend конкурентно безопасен, но клиент ещё создаёт новый ключ при повторном вызове |
 | BR-003 Управление записью и история | US-04, US-06; UC-02, UC-04 | FR-009–FR-011, FR-014; NFR-005, NFR-007 | SCR-002; CMP-002; DLG-001; LOGIC-004–LOGIC-007 | TC-011–TC-013, TC-016, TC-018, TC-022 | Частично: refresh failure отделён не во всех мутациях |
 | BR-004 Уведомление об отмене | US-06; UC-04 | FR-011, FR-013, FR-014; NFR-005, NFR-009 | SCR-003, SCR-002; CMP-002; LOGIC-006, LOGIC-007 | TC-016, TC-021, TC-022 | Частично: native-сценарии описаны и unit-tested, но не подтверждены на Android/iOS |
 | BR-005 Обратная связь | US-05; UC-03 | FR-009, FR-012, FR-015; NFR-005 | SCR-002; CMP-002; MDL-001; LOGIC-005, LOGIC-007 | TC-014, TC-015, TC-020; backend review tests | Полностью |
@@ -43,7 +43,7 @@
 | NFR-001 Интерактивность ≤ 2 с | BR-001; US-01; SCR-001 | Целевой профиль описан | — | `a6dd292` | Не покрыто: нет 20 release-замеров |
 | NFR-002 Viewport 360×800 | BR-001; US-01, US-02; все SCR | React Native styles; screenshot evidence | TC-023 | `7420444` | Частично: ручная web-проверка, native не проверен |
 | NFR-003 Touch и WCAG AA | BR-001; US-01, US-02; все SCR/overlay | Accessibility-атрибуты и UX-правки | — | `afde6b` | Не покрыто: нет замеров областей и контраста |
-| NFR-004 Конкурентная целостность | BR-002; US-03; UC-01; LOGIC-003 | Row/advisory locks, partial unique index, replay; проверка последнего места | TC-007–TC-009, TC-018; backend tests | `dcf5ff8`, `ac64757`; TASK-033 | Частично: базовая конкурентность доказана, нагрузочный прогон 20 запросов ещё впереди |
+| NFR-004 Конкурентная целостность | BR-002; US-03; UC-01; LOGIC-003 | Row/advisory locks, partial unique index; изолированный PostgreSQL gate create/cancel/review | TC-007–TC-009, TC-018; backend tests | `dcf5ff8`, `ac64757`; TASK-033, TASK-036 | Частично: критические гонки доказаны, нагрузочный прогон 20 запросов ещё впереди |
 | NFR-005 Данные при read failure | BR-003–BR-005; US-04–US-06; LOGIC-007 | Целевое состояние описано | — | `0bfe5a2` | Не покрыто: нет component/scenario test; refresh смешан с мутацией |
 | NFR-006 Нет аллергий/токенов в логах | BR-002; US-03; UC-01 | Безопасный JSON-log без headers/body | backend log-safety test | `a6dd292`; TASK-030 | Покрыто для backend-инфраструктуры; клиентские технические каналы проверяются отдельно |
 | NFR-007 Однозначные деньги и время | BR-001, BR-003; US-02–US-04; LOGIC-001, LOGIC-002, LOGIC-004 | Копейки, ISO 8601, domain policies | TC-005, TC-012, TC-013, TC-019 | `ed714fc` | Частично: timezone backend ещё не проверен |
