@@ -54,7 +54,7 @@ export class MockStudioApi implements StudioApi {
     return structuredClone(this.bookings);
   }
 
-  async createBooking(input: CreateBookingInput): Promise<Booking> {
+  async createBooking(input: CreateBookingInput, _idempotencyKey: string): Promise<Booking> {
     await wait(420);
     const cookingClass = this.classes.find((item) => item.id === input.classId);
     if (!cookingClass) {

@@ -21,11 +21,14 @@ describe('MockStudioApi booking invariants', () => {
     const api = new MockStudioApi(initialClasses, initialBookings);
 
     await expect(
-      api.createBooking({
-        classId: initialBookings[0]!.classId,
-        equipmentOption: 'own',
-        allergyNotes: 'Нет',
-      }),
+      api.createBooking(
+        {
+          classId: initialBookings[0]!.classId,
+          equipmentOption: 'own',
+          allergyNotes: 'Нет',
+        },
+        'attempt-1',
+      ),
     ).rejects.toMatchObject({ code: 'DUPLICATE_BOOKING' } satisfies Partial<StudioApiError>);
   });
 
@@ -34,11 +37,14 @@ describe('MockStudioApi booking invariants', () => {
     const cancelledClass = initialClasses.find((item) => item.status === 'cancelled')!;
 
     await expect(
-      api.createBooking({
-        classId: cancelledClass.id,
-        equipmentOption: 'own',
-        allergyNotes: 'Нет',
-      }),
+      api.createBooking(
+        {
+          classId: cancelledClass.id,
+          equipmentOption: 'own',
+          allergyNotes: 'Нет',
+        },
+        'attempt-2',
+      ),
     ).rejects.toMatchObject({ code: 'SLOT_CANCELLED' } satisfies Partial<StudioApiError>);
   });
 
@@ -47,11 +53,14 @@ describe('MockStudioApi booking invariants', () => {
     const target = initialClasses[0]!;
     const before = target.availableSeats;
 
-    await api.createBooking({
-      classId: target.id,
-      equipmentOption: 'rental',
-      allergyNotes: '',
-    });
+    await api.createBooking(
+      {
+        classId: target.id,
+        equipmentOption: 'rental',
+        allergyNotes: '',
+      },
+      'attempt-3',
+    );
 
     const updated = (await api.getClasses()).find((item) => item.id === target.id)!;
     expect(updated.availableSeats).toBe(before - 1);
@@ -64,11 +73,14 @@ describe('MockStudioApi booking invariants', () => {
     )!;
 
     await expect(
-      api.createBooking({
-        classId: target.id,
-        equipmentOption: 'rental',
-        allergyNotes: 'Нет',
-      }),
+      api.createBooking(
+        {
+          classId: target.id,
+          equipmentOption: 'rental',
+          allergyNotes: 'Нет',
+        },
+        'attempt-4',
+      ),
     ).rejects.toMatchObject({ code: 'RENTAL_UNAVAILABLE' } satisfies Partial<StudioApiError>);
   });
 

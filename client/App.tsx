@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -14,6 +14,10 @@ import {
 } from 'react-native';
 
 import { createStudioApi } from './src/data/createStudioApi';
+import {
+  BookingAttempt,
+  getOrCreateBookingAttempt,
+} from './src/features/booking/bookingAttempt';
 import {
   registerForPushNotifications,
   subscribeToStudioCancellations,
@@ -766,6 +770,7 @@ function BottomNav({ value, onChange }: { value: Tab; onChange: (tab: Tab) => vo
 }
 
 export default function App() {
+  const bookingAttemptRef = useRef<BookingAttempt | null>(null);
   const [tab, setTab] = useState<Tab>('discover');
   const [classes, setClasses] = useState<CookingClass[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -853,18 +858,25 @@ export default function App() {
 
   const handleBook = async (equipment: EquipmentOption, allergyNotes: string) => {
     if (!selectedClass) return;
+    const input = {
+      classId: selectedClass.id,
+      equipmentOption: equipment,
+      allergyNotes,
+    };
+    const attempt = getOrCreateBookingAttempt(input, bookingAttemptRef.current);
+    bookingAttemptRef.current = attempt;
     setBusy(true);
     try {
-      await api.createBooking({
-        classId: selectedClass.id,
-        equipmentOption: equipment,
-        allergyNotes,
-      });
+      await api.createBooking(input, attempt.idempotencyKey);
+      bookingAttemptRef.current = null;
       await refresh();
       setSelectedClass(null);
       setTab('bookings');
       setToast('Готово! Класс добавлен в ваши планы.');
     } catch (error) {
+      if (!(error instanceof StudioApiError && error.code === 'NETWORK_ERROR')) {
+        bookingAttemptRef.current = null;
+      }
       setToast(
         error instanceof StudioApiError
           ? error.message

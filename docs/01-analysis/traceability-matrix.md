@@ -9,7 +9,7 @@
 | Цель | Истории / сценарии | Требования | Интерфейс и логика | Основные проверки | Статус |
 |---|---|---|---|---|---|
 | BR-001 Самообслуживание записи | US-01–US-03; UC-01 | FR-001–FR-008; NFR-001–NFR-003, NFR-007, NFR-009, NFR-012 | SCR-001; CMP-001; BS-001; LOGIC-001–LOGIC-003, LOGIC-007 | TC-001–TC-010, TC-017–TC-019, TC-023, TC-025 | Частично: нет полной обработки error/retry и измерения производительности |
-| BR-002 Корректные остатки и уникальность | US-03; UC-01 | FR-005–FR-008; NFR-004, NFR-006–NFR-008, NFR-011 | BS-001; LOGIC-002, LOGIC-003 | TC-005–TC-010, TC-017, TC-018; PostgreSQL gate | Частично: backend конкурентно безопасен, но клиент ещё создаёт новый ключ при повторном вызове |
+| BR-002 Корректные остатки и уникальность | US-03; UC-01 | FR-005–FR-008; NFR-004, NFR-006–NFR-008, NFR-011 | BS-001; LOGIC-002, LOGIC-003 | TC-005–TC-010, TC-017, TC-018; PostgreSQL gate; client retry tests | Полностью: backend конкурентно безопасен, клиент повторяет неопределённую попытку с тем же ключом |
 | BR-003 Управление записью и история | US-04, US-06; UC-02, UC-04 | FR-009–FR-011, FR-014; NFR-005, NFR-007 | SCR-002; CMP-002; DLG-001; LOGIC-004–LOGIC-007 | TC-011–TC-013, TC-016, TC-018, TC-022 | Частично: refresh failure отделён не во всех мутациях |
 | BR-004 Уведомление об отмене | US-06; UC-04 | FR-011, FR-013, FR-014; NFR-005, NFR-009 | SCR-003, SCR-002; CMP-002; LOGIC-006, LOGIC-007 | TC-016, TC-021, TC-022 | Частично: native-сценарии описаны и unit-tested, но не подтверждены на Android/iOS |
 | BR-005 Обратная связь | US-05; UC-03 | FR-009, FR-012, FR-015; NFR-005 | SCR-002; CMP-002; MDL-001; LOGIC-005, LOGIC-007 | TC-014, TC-015, TC-020; backend review tests | Полностью |
@@ -25,7 +25,7 @@
 | FR-004 Состояния чтения | US-01 | SCR-001; LOGIC-007 | `listClasses` | `refresh`, `DiscoverScreen` | TC-003 | `69ebdbd` | Частично: нет отдельного постоянного Error state и TC на retry |
 | FR-005 Данные брони | US-03; UC-01 | BS-001; LOGIC-002, LOGIC-003 | `createBooking` | `ClassModal`, `handleBook`, `BookingService` | TC-005–TC-007; backend booking tests | `4d8a1b4`; TASK-033 | Полностью |
 | FR-006 Цена и прокат | US-02, US-03; UC-01 | BS-001; LOGIC-002, LOGIC-003 | `getClass`, `createBooking` | catalog/booking repositories, client policies | TC-005, TC-017, TC-018; backend tests | `ac64757`; TASK-032, TASK-033 | Полностью |
-| FR-007 Атомарность и идемпотентность | US-03; UC-01 | BS-001; LOGIC-003 | `createBooking` | `SqlAlchemyBookingRepository`, `IdempotencyRecord`, adapters | TC-007, TC-009, TC-018; PostgreSQL concurrency check | `dcf5ff8`, `a3c5ae1`; TASK-033 | Частично: backend готов, клиент создаёт новый ключ при повторном вызове |
+| FR-007 Атомарность и идемпотентность | US-03; UC-01 | BS-001; LOGIC-003 | `createBooking` | `SqlAlchemyBookingRepository`, `IdempotencyRecord`, `getOrCreateBookingAttempt`, adapters | TC-007, TC-009, TC-018; PostgreSQL concurrency check; client retry tests | `dcf5ff8`, `a3c5ae1`; TASK-033, TASK-037 | Полностью |
 | FR-008 Различимые ошибки | US-03; UC-01 | BS-001; LOGIC-003 | `createBooking` | `ApiErrorCode`, adapters, `handleBook` | TC-008–TC-010, TC-017 | `f070a38`, `ac64757` | Частично: не все OpenAPI-коды типизированы, после конфликта нет refresh |
 | FR-009 Предстоящие и история | US-04, US-05; UC-02, UC-03 | SCR-002; CMP-002; LOGIC-005 | `listBookings` | `filterBookings`, `BookingsScreen`, booking repository | TC-011, TC-016; backend booking tests | `ef12f07`; TASK-033 | Полностью |
 | FR-010 Отмена до дедлайна | US-04; UC-02 | SCR-002; DLG-001; LOGIC-004 | `cancelBooking` | client policy, `BookingService`, booking repository | TC-012, TC-013, TC-018; backend cancellation tests | `69ebdbd`, `ac64757`; TASK-034 | Полностью |
@@ -68,6 +68,6 @@
 ## Выводы для следующих этапов
 
 1. Аналитические связи полны: все 6 BR и 16 FR имеют нисходящую цепочку; NFR привязаны к сценариям или общим границам.
-2. Критические пробелы реализации: FR-007, FR-008, FR-015, NFR-005, NFR-008 и NFR-011.
+2. Критические пробелы реализации: FR-008, FR-015, NFR-005, NFR-008 и NFR-011.
 3. Критические пробелы тестирования: NFR-001, NFR-003, NFR-005, NFR-006, NFR-008, NFR-011; частично покрыты NFR-002, NFR-004, NFR-007 и NFR-009.
 4. Эти пробелы не маскируются статусом документации и остаются открытыми в `docs/lecture-gap-checklists.md`.

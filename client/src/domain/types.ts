@@ -97,9 +97,8 @@ export interface StudioApi {
   getClasses(query?: ScheduleQuery): Promise<CookingClass[]>;
   getClass(classId: string): Promise<CookingClass>;
   getBookings(): Promise<Booking[]>;
-  createBooking(input: CreateBookingInput): Promise<Booking>;
+  createBooking(input: CreateBookingInput, idempotencyKey: string): Promise<Booking>;
   cancelBooking(bookingId: string): Promise<Booking>;
   submitReview(input: ReviewInput): Promise<Booking>;
   registerPushToken(input: PushTokenInput): Promise<void>;
 }
-
