@@ -31,4 +31,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации реализации.
+`533ca40` — `feat: implement reviews and push token registration`.
