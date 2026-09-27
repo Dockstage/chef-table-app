@@ -30,4 +30,4 @@ CL-02 и архитектурное правило направленных за
 
 ## Commit
 
-Будет указан после фиксации реализации.
+`5eca9da` — `refactor: extract client orchestration`.
