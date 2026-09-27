@@ -54,20 +54,24 @@ export function ProfileScreen({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Включить уведомления об отмене классов"
-          disabled={pushStatus === 'enabling' || pushStatus === 'enabled' || pushStatus === 'unsupported'}
+          disabled={
+            pushStatus === 'enabling' || pushStatus === 'enabled' || pushStatus === 'unsupported'
+          }
           onPress={onEnablePush}
           style={styles.profileListItem}
         >
           <View>
             <Text style={styles.profileItemTitle}>Уведомления об отменах</Text>
             <Text style={styles.profileItemSubtitle}>
-              {{
-                idle: 'Включить push-уведомления',
-                enabling: 'Подключаем…',
-                enabled: 'Включены',
-                denied: 'Нет разрешения — нажмите, чтобы повторить',
-                unsupported: 'Доступны в Android и iOS приложении',
-              }[pushStatus]}
+              {
+                {
+                  idle: 'Включить push-уведомления',
+                  enabling: 'Подключаем…',
+                  enabled: 'Включены',
+                  denied: 'Нет разрешения — нажмите, чтобы повторить',
+                  unsupported: 'Доступны в Android и iOS приложении',
+                }[pushStatus]
+              }
             </Text>
           </View>
           <Text style={styles.chevron}>{pushStatus === 'enabled' ? '✓' : '›'}</Text>

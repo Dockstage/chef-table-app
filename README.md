@@ -85,6 +85,8 @@ python -m venv .venv
 
 ```bash
 cd client
+npm run lint
+npm run format:check
 npm run typecheck
 npm test
 npm run export:web
@@ -92,8 +94,10 @@ npm run export:web
 
 Ожидаемый результат:
 
+- ESLint — без ошибок и предупреждений;
+- Prettier — форматирование актуально;
 - TypeScript — без ошибок;
-- 24 автоматических теста — успешно;
+- 55 автоматических тестов — успешно;
 - web bundle — создаётся в `client/dist/`.
 
 Backend проверяется отдельно из `backend/`: Ruff, 42 pytest-теста и contract gate. Изолированный PostgreSQL/concurrency gate запускается из корня командой `docker compose run --rm backend python -m app.postgres_check` после `docker compose build backend` и запуска `db`; подробности приведены в [`backend/README.md`](backend/README.md).

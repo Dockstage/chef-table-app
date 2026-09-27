@@ -26,10 +26,7 @@ export class MockStudioApi implements StudioApi {
   private bookings: Booking[];
   private pushTokens: PushTokenInput[] = [];
 
-  constructor(
-    classes: CookingClass[] = initialClasses,
-    bookings: Booking[] = initialBookings,
-  ) {
+  constructor(classes: CookingClass[] = initialClasses, bookings: Booking[] = initialBookings) {
     this.classes = structuredClone(classes);
     this.bookings = structuredClone(bookings);
   }
@@ -127,10 +124,7 @@ export class MockStudioApi implements StudioApi {
       );
     }
     booking.status = 'cancelled_by_client';
-    cookingClass.availableSeats = Math.min(
-      cookingClass.capacity,
-      cookingClass.availableSeats + 1,
-    );
+    cookingClass.availableSeats = Math.min(cookingClass.capacity, cookingClass.availableSeats + 1);
     if (booking.equipmentOption === 'rental') {
       cookingClass.availableRentalKits = Math.min(
         cookingClass.capacity,
@@ -144,11 +138,7 @@ export class MockStudioApi implements StudioApi {
     await wait();
     validateReviewInput(input);
     const booking = this.bookings.find((item) => item.id === input.bookingId);
-    if (
-      !booking ||
-      booking.status !== 'attended' ||
-      booking.rating !== null
-    ) {
+    if (!booking || booking.status !== 'attended' || booking.rating !== null) {
       throw new StudioApiError('REVIEW_NOT_ALLOWED', 'Эту запись нельзя оценить.');
     }
     booking.rating = input.rating;

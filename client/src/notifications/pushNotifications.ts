@@ -1,10 +1,7 @@
 import { Platform } from 'react-native';
 
 import { PushPlatform } from '../domain/types';
-import {
-  parseStudioCancellationNotification,
-  StudioCancellationNotification,
-} from './pushPayload';
+import { parseStudioCancellationNotification, StudioCancellationNotification } from './pushPayload';
 
 export type PushRegistrationResult =
   | { status: 'enabled'; token: string; platform: PushPlatform }
@@ -24,9 +21,7 @@ export async function registerForPushNotifications(): Promise<PushRegistrationRe
   }
 
   const current = await Notifications.getPermissionsAsync();
-  const permission = current.granted
-    ? current
-    : await Notifications.requestPermissionsAsync();
+  const permission = current.granted ? current : await Notifications.requestPermissionsAsync();
   if (!permission.granted) return { status: 'denied' };
 
   const token = await Notifications.getDevicePushTokenAsync();

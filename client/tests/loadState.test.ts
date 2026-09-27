@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  beginLoad,
-  completeLoad,
-  failLoad,
-  isInitialLoad,
-} from '../src/shared/loadState';
+import { beginLoad, completeLoad, failLoad, isInitialLoad } from '../src/shared/loadState';
 
 describe('load state machine', () => {
   it('distinguishes initial loading from refresh over a snapshot', () => {

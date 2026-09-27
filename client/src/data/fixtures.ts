@@ -1,9 +1,5 @@
 import { Booking, Chef, CookingClass } from '../domain/types';
-import {
-  addStudioCalendarDays,
-  getStudioDateKey,
-  getStudioDateTimeIso,
-} from '../domain/policies';
+import { addStudioCalendarDays, getStudioDateKey, getStudioDateTimeIso } from '../domain/policies';
 
 const chefs: Chef[] = [
   {

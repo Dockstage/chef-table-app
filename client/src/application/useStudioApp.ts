@@ -1,18 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 
 import { getScheduleQuery } from '../domain/policies';
-import {
-  Booking,
-  CookingClass,
-  EquipmentOption,
-  StudioApi,
-  StudioApiError,
-} from '../domain/types';
-import {
-  BookingAttempt,
-  getOrCreateBookingAttempt,
-} from '../features/booking/bookingAttempt';
+import { Booking, CookingClass, EquipmentOption, StudioApi, StudioApiError } from '../domain/types';
+import { BookingAttempt, getOrCreateBookingAttempt } from '../features/booking/bookingAttempt';
 import {
   executeBooking,
   executeCancellation,
@@ -56,71 +47,79 @@ export function useStudioApp(api: StudioApi) {
     return [...byId.values()];
   }, [bookingClasses, scheduleClasses]);
 
-  const refresh = async (days = horizonDays) => {
-    const requestId = ++refreshRequestRef.current;
-    const isLatestRequest = () => requestId === refreshRequestRef.current;
-    setScheduleLoadState(beginLoad(scheduleSnapshotRef.current));
-    setBookingsLoadState(beginLoad(bookingsSnapshotRef.current));
-
-    const { scheduleResult, bookingsResult, detailResults } = await loadStudioSnapshot(
-      api,
-      getScheduleQuery(days),
-      classes,
-    );
-
-    if (isLatestRequest()) {
-      if (scheduleResult.status === 'fulfilled') {
-        setScheduleClasses(scheduleResult.value);
-        scheduleSnapshotRef.current = true;
-        setScheduleLoadState(completeLoad(scheduleResult.value.length));
-      } else {
-        setScheduleLoadState(failLoad(scheduleSnapshotRef.current));
-      }
-    }
-
-    let classDetailsFailed = false;
-    if (bookingsResult.status === 'fulfilled') {
-      const nextBookings = bookingsResult.value;
-      classDetailsFailed = detailResults.some((result) => result.status === 'rejected');
-
-      if (isLatestRequest()) {
-        const wantedClassIds = new Set(nextBookings.map((item) => item.classId));
-        const loadedClasses = detailResults.flatMap((result) =>
-          result.status === 'fulfilled' ? [result.value] : [],
-        );
-        setBookingClasses((current) => {
-          const byId = new Map(
-            current
-              .filter((item) => wantedClassIds.has(item.id))
-              .map((item) => [item.id, item]),
-          );
-          loadedClasses.forEach((item) => byId.set(item.id, item));
-          return [...byId.values()];
-        });
-        setBookings(nextBookings);
-        bookingsSnapshotRef.current = true;
-        setBookingsLoadState(
-          classDetailsFailed ? 'stale' : completeLoad(nextBookings.length),
-        );
-      }
-    } else if (isLatestRequest()) {
-      setBookingsLoadState(failLoad(bookingsSnapshotRef.current));
-    }
-
-    if (
-      scheduleResult.status === 'rejected' ||
-      bookingsResult.status === 'rejected' ||
-      classDetailsFailed
-    ) {
-      throw new Error('Не все данные удалось обновить.');
-    }
-  };
+  const classesRef = useRef(classes);
+  const horizonDaysRef = useRef(horizonDays);
 
   useEffect(() => {
-    refresh(horizonDays).catch(() =>
-      setToast('Не все данные удалось обновить. Доступен повтор.'),
-    );
+    classesRef.current = classes;
+  }, [classes]);
+
+  useEffect(() => {
+    horizonDaysRef.current = horizonDays;
   }, [horizonDays]);
+
+  const refresh = useCallback(
+    async (days = horizonDaysRef.current) => {
+      const requestId = ++refreshRequestRef.current;
+      const isLatestRequest = () => requestId === refreshRequestRef.current;
+      setScheduleLoadState(beginLoad(scheduleSnapshotRef.current));
+      setBookingsLoadState(beginLoad(bookingsSnapshotRef.current));
+
+      const { scheduleResult, bookingsResult, detailResults } = await loadStudioSnapshot(
+        api,
+        getScheduleQuery(days),
+        classesRef.current,
+      );
+
+      if (isLatestRequest()) {
+        if (scheduleResult.status === 'fulfilled') {
+          setScheduleClasses(scheduleResult.value);
+          scheduleSnapshotRef.current = true;
+          setScheduleLoadState(completeLoad(scheduleResult.value.length));
+        } else {
+          setScheduleLoadState(failLoad(scheduleSnapshotRef.current));
+        }
+      }
+
+      let classDetailsFailed = false;
+      if (bookingsResult.status === 'fulfilled') {
+        const nextBookings = bookingsResult.value;
+        classDetailsFailed = detailResults.some((result) => result.status === 'rejected');
+
+        if (isLatestRequest()) {
+          const wantedClassIds = new Set(nextBookings.map((item) => item.classId));
+          const loadedClasses = detailResults.flatMap((result) =>
+            result.status === 'fulfilled' ? [result.value] : [],
+          );
+          setBookingClasses((current) => {
+            const byId = new Map(
+              current.filter((item) => wantedClassIds.has(item.id)).map((item) => [item.id, item]),
+            );
+            loadedClasses.forEach((item) => byId.set(item.id, item));
+            return [...byId.values()];
+          });
+          setBookings(nextBookings);
+          bookingsSnapshotRef.current = true;
+          setBookingsLoadState(classDetailsFailed ? 'stale' : completeLoad(nextBookings.length));
+        }
+      } else if (isLatestRequest()) {
+        setBookingsLoadState(failLoad(bookingsSnapshotRef.current));
+      }
+
+      if (
+        scheduleResult.status === 'rejected' ||
+        bookingsResult.status === 'rejected' ||
+        classDetailsFailed
+      ) {
+        throw new Error('Не все данные удалось обновить.');
+      }
+    },
+    [api],
+  );
+
+  useEffect(() => {
+    refresh(horizonDays).catch(() => setToast('Не все данные удалось обновить. Доступен повтор.'));
+  }, [horizonDays, refresh]);
 
   useEffect(() => {
     if (!toast) return;
@@ -163,7 +162,7 @@ export function useStudioApp(api: StudioApi) {
       disposed = true;
       unsubscribe();
     };
-  }, []);
+  }, [api]);
 
   const handleEnablePush = async () => {
     setPushStatus('enabling');
@@ -236,9 +235,7 @@ export function useStudioApp(api: StudioApi) {
       if (bookingAttemptRef.current?.idempotencyKey === attempt.idempotencyKey) {
         bookingAttemptRef.current = null;
       }
-      setToast(
-        'Не удалось обработать результат записи. Обновите данные и проверьте «Мои записи».',
-      );
+      setToast('Не удалось обработать результат записи. Обновите данные и проверьте «Мои записи».');
     } finally {
       setBusy(false);
     }
@@ -254,9 +251,7 @@ export function useStudioApp(api: StudioApi) {
           setBookings((current) => upsertBooking(current, latestBooking));
         }
         setToast(
-          result.error instanceof Error
-            ? result.error.message
-            : 'Не удалось отменить запись.',
+          result.error instanceof Error ? result.error.message : 'Не удалось отменить запись.',
         );
         return;
       }

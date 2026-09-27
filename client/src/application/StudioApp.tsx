@@ -82,19 +82,22 @@ export function StudioApp({ api }: { api: StudioApi }) {
         )}
       </View>
 
-      <ClassModal
-        cookingClass={app.selectedClass}
-        busy={app.busy}
-        onClose={() => app.setSelectedClass(null)}
-        onBook={app.handleBook}
-      />
-      <ReviewModal
-        booking={app.reviewBooking}
-        cookingClass={app.reviewClass}
-        busy={app.busy}
-        onClose={() => app.setReviewBooking(null)}
-        onSubmit={app.handleReview}
-      />
+      {app.selectedClass && (
+        <ClassModal
+          cookingClass={app.selectedClass}
+          busy={app.busy}
+          onClose={() => app.setSelectedClass(null)}
+          onBook={app.handleBook}
+        />
+      )}
+      {app.reviewBooking && (
+        <ReviewModal
+          cookingClass={app.reviewClass}
+          busy={app.busy}
+          onClose={() => app.setReviewBooking(null)}
+          onSubmit={app.handleReview}
+        />
+      )}
     </View>
   );
 }

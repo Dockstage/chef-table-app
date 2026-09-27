@@ -1,11 +1,5 @@
 export type LoadState =
-  | 'initial'
-  | 'loading'
-  | 'content'
-  | 'empty'
-  | 'error'
-  | 'refreshing'
-  | 'stale';
+  'initial' | 'loading' | 'content' | 'empty' | 'error' | 'refreshing' | 'stale';
 
 export function beginLoad(hasSnapshot: boolean): LoadState {
   return hasSnapshot ? 'refreshing' : 'loading';

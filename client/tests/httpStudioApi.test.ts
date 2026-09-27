@@ -5,11 +5,12 @@ import { initialBookings, initialClasses } from '../src/data/fixtures';
 
 describe('HttpStudioApi contract', () => {
   it('sends the selected date range as query parameters', async () => {
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
-      new Response(JSON.stringify([initialClasses[0]]), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+    const fetchMock = vi.fn(
+      async (_input: RequestInfo | URL, _init?: RequestInit) =>
+        new Response(JSON.stringify([initialClasses[0]]), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
     );
     const api = new HttpStudioApi('https://studio.example/v1/', fetchMock as typeof fetch);
 
@@ -53,11 +54,16 @@ describe('HttpStudioApi contract', () => {
   });
 
   it('maps an API problem to StudioApiError', async () => {
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
-      new Response(
-        JSON.stringify({ status: 409, code: 'RENTAL_UNAVAILABLE', message: 'Наборы закончились.' }),
-        { status: 409, headers: { 'Content-Type': 'application/json' } },
-      ),
+    const fetchMock = vi.fn(
+      async (_input: RequestInfo | URL, _init?: RequestInit) =>
+        new Response(
+          JSON.stringify({
+            status: 409,
+            code: 'RENTAL_UNAVAILABLE',
+            message: 'Наборы закончились.',
+          }),
+          { status: 409, headers: { 'Content-Type': 'application/json' } },
+        ),
     );
     const api = new HttpStudioApi('https://studio.example/v1', fetchMock as typeof fetch);
 
@@ -74,8 +80,8 @@ describe('HttpStudioApi contract', () => {
   });
 
   it('registers a native push token with the backend', async () => {
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
-      new Response(null, { status: 204 }),
+    const fetchMock = vi.fn(
+      async (_input: RequestInfo | URL, _init?: RequestInit) => new Response(null, { status: 204 }),
     );
     const api = new HttpStudioApi('https://studio.example/v1', fetchMock as typeof fetch);
 
@@ -88,11 +94,12 @@ describe('HttpStudioApi contract', () => {
   });
 
   it('rejects a success payload that does not match the OpenAPI DTO', async () => {
-    const fetchMock = vi.fn(async () =>
-      new Response(JSON.stringify([{ id: initialClasses[0]!.id }]), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(JSON.stringify([{ id: initialClasses[0]!.id }]), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
     );
     const api = new HttpStudioApi('https://studio.example/v1', fetchMock as typeof fetch);
 
@@ -100,11 +107,12 @@ describe('HttpStudioApi contract', () => {
   });
 
   it('rejects an unknown problem code instead of trusting the payload', async () => {
-    const fetchMock = vi.fn(async () =>
-      new Response(JSON.stringify({ status: 409, code: 'UNKNOWN', message: 'Ошибка.' }), {
-        status: 409,
-        headers: { 'Content-Type': 'application/problem+json' },
-      }),
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ status: 409, code: 'UNKNOWN', message: 'Ошибка.' }), {
+          status: 409,
+          headers: { 'Content-Type': 'application/problem+json' },
+        }),
     );
     const api = new HttpStudioApi('https://studio.example/v1', fetchMock as typeof fetch);
 

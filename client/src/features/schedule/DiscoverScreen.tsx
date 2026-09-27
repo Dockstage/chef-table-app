@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import {
@@ -11,13 +11,7 @@ import {
 import { CookingClass, Level } from '../../domain/types';
 import { isInitialLoad, LoadState } from '../../shared/loadState';
 import { layoutStyles } from '../../ui/layout';
-import {
-  EmptyState,
-  ErrorState,
-  RefreshNotice,
-  ScreenHeader,
-  Segment,
-} from '../../ui/primitives';
+import { EmptyState, ErrorState, RefreshNotice, ScreenHeader, Segment } from '../../ui/primitives';
 import { palette } from '../../ui/theme';
 
 type DayOption = {
@@ -78,16 +72,10 @@ function ClassCard({ item, onPress }: { item: CookingClass; onPress: () => void 
         <View style={styles.cardFooter}>
           <Text style={styles.price}>{formatMoney(item.priceKopecks)}</Text>
           <View
-            style={[
-              styles.seatsPill,
-              almostFull ? styles.seatsPillUrgent : styles.seatsPillCalm,
-            ]}
+            style={[styles.seatsPill, almostFull ? styles.seatsPillUrgent : styles.seatsPillCalm]}
           >
             <Text
-              style={[
-                styles.seatsText,
-                almostFull ? styles.seatsTextUrgent : styles.seatsTextCalm,
-              ]}
+              style={[styles.seatsText, almostFull ? styles.seatsTextUrgent : styles.seatsTextCalm]}
             >
               {almostFull ? `Осталось ${item.availableSeats}` : `${item.availableSeats} мест`}
             </Text>
@@ -116,14 +104,11 @@ export function DiscoverScreen({
   const days = useMemo(() => getDays(horizonDays), [horizonDays]);
   const [selectedDay, setSelectedDay] = useState(days[0]!.key);
   const [level, setLevel] = useState<Level | 'all'>('all');
+  const selectedDayKey = days.some((day) => day.key === selectedDay) ? selectedDay : days[0]!.key;
   const visibleClasses = useMemo(
-    () => filterClasses(classes, selectedDay, level),
-    [classes, selectedDay, level],
+    () => filterClasses(classes, selectedDayKey, level),
+    [classes, selectedDayKey, level],
   );
-
-  useEffect(() => {
-    if (!days.some((day) => day.key === selectedDay)) setSelectedDay(days[0]!.key);
-  }, [days, selectedDay]);
 
   return (
     <ScrollView
@@ -150,7 +135,14 @@ export function DiscoverScreen({
           { value: '14', label: '14 дней' },
           { value: '30', label: '30 дней' },
         ]}
-        onChange={(value) => onHorizonChange(Number(value))}
+        onChange={(value) => {
+          const nextHorizon = Number(value);
+          const nextDays = getDays(nextHorizon);
+          if (!nextDays.some((day) => day.key === selectedDay)) {
+            setSelectedDay(nextDays[0]!.key);
+          }
+          onHorizonChange(nextHorizon);
+        }}
       />
       <Text style={styles.sectionLabel}>Выберите дату</Text>
       <ScrollView
@@ -159,7 +151,7 @@ export function DiscoverScreen({
         contentContainerStyle={styles.daysRow}
       >
         {days.map((day) => {
-          const active = day.key === selectedDay;
+          const active = day.key === selectedDayKey;
           return (
             <Pressable
               key={day.key}
@@ -169,9 +161,7 @@ export function DiscoverScreen({
               onPress={() => setSelectedDay(day.key)}
               style={[styles.dayCard, active && styles.dayCardActive]}
             >
-              <Text style={[styles.dayWeekday, active && styles.dayTextActive]}>
-                {day.weekday}
-              </Text>
+              <Text style={[styles.dayWeekday, active && styles.dayTextActive]}>{day.weekday}</Text>
               <Text style={[styles.dayNumber, active && styles.dayTextActive]}>{day.day}</Text>
               <Text style={[styles.dayMonth, active && styles.dayTextActive]}>{day.month}</Text>
             </Pressable>

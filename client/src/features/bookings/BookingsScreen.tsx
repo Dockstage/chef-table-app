@@ -14,13 +14,7 @@ import { Booking, CookingClass } from '../../domain/types';
 import { isInitialLoad, LoadState } from '../../shared/loadState';
 import { BookingFilter } from '../../shared/viewTypes';
 import { layoutStyles } from '../../ui/layout';
-import {
-  EmptyState,
-  ErrorState,
-  RefreshNotice,
-  ScreenHeader,
-  Segment,
-} from '../../ui/primitives';
+import { EmptyState, ErrorState, RefreshNotice, ScreenHeader, Segment } from '../../ui/primitives';
 import { palette } from '../../ui/theme';
 
 function formatCountdown(cookingClass: CookingClass): string {
@@ -86,10 +80,7 @@ export function BookingsScreen({
   onCancel: (booking: Booking) => void;
   onReview: (booking: Booking) => void;
 }) {
-  const classById = useMemo(
-    () => new Map(classes.map((item) => [item.id, item])),
-    [classes],
-  );
+  const classById = useMemo(() => new Map(classes.map((item) => [item.id, item])), [classes]);
   const visible = filterBookings(bookings, filter);
 
   return (
@@ -144,7 +135,9 @@ export function BookingsScreen({
                     <Text style={styles.bookingDate}>{formatLongDate(cookingClass.startsAt)}</Text>
                     <Text style={styles.bookingTitle}>{cookingClass.title}</Text>
                     <View style={styles.bookingDetails}>
-                      <Text style={styles.bookingDetail}>◷ {formatTime(cookingClass.startsAt)}</Text>
+                      <Text style={styles.bookingDetail}>
+                        ◷ {formatTime(cookingClass.startsAt)}
+                      </Text>
                       <Text style={styles.bookingDetail}>· {cookingClass.chef.name}</Text>
                     </View>
 

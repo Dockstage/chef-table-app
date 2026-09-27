@@ -17,11 +17,7 @@ export type CancellationExecutionResult =
   | { kind: 'cancelled'; booking: Booking }
   | { kind: 'rejected'; error: unknown; latestBooking?: Booking };
 
-const refreshableConflictCodes = new Set([
-  'SLOT_FULL',
-  'SLOT_CANCELLED',
-  'RENTAL_UNAVAILABLE',
-]);
+const refreshableConflictCodes = new Set(['SLOT_FULL', 'SLOT_CANCELLED', 'RENTAL_UNAVAILABLE']);
 
 export async function executeBooking(
   api: BookingApi,

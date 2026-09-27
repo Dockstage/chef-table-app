@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
@@ -22,7 +22,7 @@ export function ClassModal({
   onClose,
   onBook,
 }: {
-  cookingClass: CookingClass | null;
+  cookingClass: CookingClass;
   busy: boolean;
   onClose: () => void;
   onBook: (equipment: EquipmentOption, allergyNotes: string) => void;
@@ -30,17 +30,8 @@ export function ClassModal({
   const [equipment, setEquipment] = useState<EquipmentOption>('own');
   const [allergies, setAllergies] = useState('');
 
-  useEffect(() => {
-    if (cookingClass) {
-      setEquipment('own');
-      setAllergies('');
-    }
-  }, [cookingClass?.id]);
-
-  if (!cookingClass) return null;
   const total =
-    cookingClass.priceKopecks +
-    (equipment === 'rental' ? cookingClass.rentalPriceKopecks : 0);
+    cookingClass.priceKopecks + (equipment === 'rental' ? cookingClass.rentalPriceKopecks : 0);
   const bookable = isBookable(cookingClass) && allergies.length <= 300;
   const rentalAvailable = cookingClass.availableRentalKits > 0;
   const selectionAvailable = equipment !== 'rental' || rentalAvailable;
@@ -49,7 +40,10 @@ export function ClassModal({
     <Modal visible animationType="slide" onRequestClose={onClose} transparent>
       <View style={styles.modalBackdrop}>
         <View style={styles.modalSheet}>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalContent}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.modalContent}
+          >
             <View style={styles.modalHandle} />
             <View style={styles.modalTopRow}>
               <View style={styles.modalTopCopy}>
@@ -164,9 +158,7 @@ export function ClassModal({
                 <Text style={actionStyles.primaryButtonText}>Записаться на класс</Text>
               )}
             </Pressable>
-            <Text style={styles.cancelHint}>
-              Бесплатная отмена не позднее чем за 12 часов.
-            </Text>
+            <Text style={styles.cancelHint}>Бесплатная отмена не позднее чем за 12 часов.</Text>
           </ScrollView>
         </View>
       </View>

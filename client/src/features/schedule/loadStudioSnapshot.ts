@@ -25,9 +25,7 @@ export async function loadStudioSnapshot(
     const knownClassIds = new Set(currentClasses.map((item) => item.id));
     const missingClassIds = [
       ...new Set(
-        bookingsResult.value
-          .map((item) => item.classId)
-          .filter((id) => !knownClassIds.has(id)),
+        bookingsResult.value.map((item) => item.classId).filter((id) => !knownClassIds.has(id)),
       ),
     ];
     detailResults = await Promise.allSettled(

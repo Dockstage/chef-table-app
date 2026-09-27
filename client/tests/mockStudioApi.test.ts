@@ -91,9 +91,7 @@ describe('MockStudioApi booking invariants', () => {
 
     await api.cancelBooking(rentalBooking.id);
 
-    const targetAfter = (await api.getClasses()).find(
-      (item) => item.id === rentalBooking.classId,
-    )!;
+    const targetAfter = (await api.getClasses()).find((item) => item.id === rentalBooking.classId)!;
     expect(targetAfter.availableRentalKits).toBe(targetBefore.availableRentalKits + 1);
   });
 

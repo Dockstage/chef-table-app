@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { subscribeToStudioCancellations } from '../src/notifications/pushNotifications';
+
 const notificationMocks = vi.hoisted(() => ({
   receivedListener: undefined as ((notification: any) => void) | undefined,
   responseListener: undefined as ((response: any) => void) | undefined,
@@ -24,8 +26,6 @@ vi.mock('expo-notifications', () => ({
   getLastNotificationResponseAsync: vi.fn(async () => notificationMocks.lastResponse),
   clearLastNotificationResponseAsync: notificationMocks.clearLastResponse,
 }));
-
-import { subscribeToStudioCancellations } from '../src/notifications/pushNotifications';
 
 const validPayload = {
   type: 'class_cancelled',

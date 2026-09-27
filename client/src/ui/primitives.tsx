@@ -36,12 +36,7 @@ export function Segment<T extends string>({
           onPress={() => onChange(option.value)}
           style={[styles.segmentItem, value === option.value && styles.segmentItemActive]}
         >
-          <Text
-            style={[
-              styles.segmentText,
-              value === option.value && styles.segmentTextActive,
-            ]}
-          >
+          <Text style={[styles.segmentText, value === option.value && styles.segmentTextActive]}>
             {option.label}
           </Text>
         </Pressable>
@@ -158,9 +153,7 @@ const styles = StyleSheet.create({
   },
   segmentItemActive: {
     backgroundColor: palette.paper,
-    ...(Platform.OS === 'web'
-      ? { boxShadow: '0 2px 7px rgba(57,48,35,.10)' }
-      : { elevation: 2 }),
+    ...(Platform.OS === 'web' ? { boxShadow: '0 2px 7px rgba(57,48,35,.10)' } : { elevation: 2 }),
   },
   segmentText: { color: palette.muted, fontSize: 12, fontWeight: '700' },
   segmentTextActive: { color: palette.ink },

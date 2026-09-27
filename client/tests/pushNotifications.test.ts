@@ -15,9 +15,7 @@ const validPayload = {
 
 describe('push notification routing', () => {
   it('recognizes a studio cancellation event', () => {
-    expect(
-      isStudioCancellationNotification(validPayload),
-    ).toBe(true);
+    expect(isStudioCancellationNotification(validPayload)).toBe(true);
     expect(parseStudioCancellationNotification(validPayload)).toEqual(validPayload);
   });
 

@@ -4,8 +4,7 @@ export type StudioCancellationNotification = {
   reason: string;
 };
 
-const uuidPattern =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const allowedKeys = new Set(['type', 'bookingId', 'reason']);
 
 export function parseStudioCancellationNotification(

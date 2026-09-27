@@ -9,8 +9,7 @@ import {
   StudioApiError,
 } from '../domain/types';
 
-const uuidPattern =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const colorPattern = /^#[0-9a-f]{6}$/i;
 const offsetDateTimePattern = /T.*(?:Z|[+-]\d{2}:\d{2})$/;
 const levels = new Set(['beginner', 'advanced']);
@@ -51,7 +50,10 @@ function assertContract(condition: unknown, message: string): asserts condition 
 }
 
 function record(value: unknown, name: string): JsonRecord {
-  assertContract(typeof value === 'object' && value !== null && !Array.isArray(value), `${name}: object expected`);
+  assertContract(
+    typeof value === 'object' && value !== null && !Array.isArray(value),
+    `${name}: object expected`,
+  );
   return value as JsonRecord;
 }
 
@@ -71,7 +73,10 @@ function text(value: unknown, name: string, min: number, max: number): string {
 }
 
 function integer(value: unknown, name: string, minimum: number): number {
-  assertContract(Number.isInteger(value) && (value as number) >= minimum, `${name}: invalid integer`);
+  assertContract(
+    Number.isInteger(value) && (value as number) >= minimum,
+    `${name}: invalid integer`,
+  );
   return value as number;
 }
 
@@ -83,7 +88,10 @@ function uuid(value: unknown, name: string): string {
 
 function dateTime(value: unknown, name: string): string {
   const result = text(value, name, 1, 100);
-  assertContract(offsetDateTimePattern.test(result) && !Number.isNaN(Date.parse(result)), `${name}: offset date-time expected`);
+  assertContract(
+    offsetDateTimePattern.test(result) && !Number.isNaN(Date.parse(result)),
+    `${name}: offset date-time expected`,
+  );
   return result;
 }
 
@@ -94,7 +102,10 @@ function nullableText(value: unknown, name: string, max: number): string | null 
 function parseChef(value: unknown) {
   const item = record(value, 'chef');
   exactKeys(item, ['id', 'name', 'role', 'rating', 'initials'], 'chef');
-  assertContract(typeof item.rating === 'number' && item.rating >= 0 && item.rating <= 5, 'chef.rating: invalid number');
+  assertContract(
+    typeof item.rating === 'number' && item.rating >= 0 && item.rating <= 5,
+    'chef.rating: invalid number',
+  );
   return {
     id: uuid(item.id, 'chef.id'),
     name: text(item.name, 'chef.name', 1, 100),
@@ -109,19 +120,40 @@ export function parseCookingClass(value: unknown): CookingClass {
   exactKeys(
     item,
     [
-      'id', 'title', 'eyebrow', 'description', 'dishes', 'level', 'chef', 'startsAt',
-      'durationMinutes', 'status', 'capacity', 'availableSeats', 'priceKopecks',
-      'rentalPriceKopecks', 'availableRentalKits', 'address', 'accent', 'softAccent',
+      'id',
+      'title',
+      'eyebrow',
+      'description',
+      'dishes',
+      'level',
+      'chef',
+      'startsAt',
+      'durationMinutes',
+      'status',
+      'capacity',
+      'availableSeats',
+      'priceKopecks',
+      'rentalPriceKopecks',
+      'availableRentalKits',
+      'address',
+      'accent',
+      'softAccent',
       'cancellationReason',
     ],
     'CookingClass',
   );
-  assertContract(Array.isArray(item.dishes) && item.dishes.length > 0, 'dishes: non-empty array expected');
+  assertContract(
+    Array.isArray(item.dishes) && item.dishes.length > 0,
+    'dishes: non-empty array expected',
+  );
   assertContract(levels.has(item.level as string), 'level: invalid value');
   assertContract(classStatuses.has(item.status as string), 'status: invalid value');
   const accent = text(item.accent, 'accent', 7, 7);
   const softAccent = text(item.softAccent, 'softAccent', 7, 7);
-  assertContract(colorPattern.test(accent) && colorPattern.test(softAccent), 'accent: hex color expected');
+  assertContract(
+    colorPattern.test(accent) && colorPattern.test(softAccent),
+    'accent: hex color expected',
+  );
   const cancellationReason = nullableText(item.cancellationReason, 'cancellationReason', 500);
   assertContract(
     item.status === 'cancelled' ? Boolean(cancellationReason?.trim()) : cancellationReason === null,
@@ -160,14 +192,29 @@ export function parseBooking(value: unknown): Booking {
   exactKeys(
     item,
     [
-      'id', 'classId', 'status', 'equipmentOption', 'allergyNotes', 'totalPriceKopecks',
-      'createdAt', 'studioCancellationReason', 'rating', 'reviewComment',
+      'id',
+      'classId',
+      'status',
+      'equipmentOption',
+      'allergyNotes',
+      'totalPriceKopecks',
+      'createdAt',
+      'studioCancellationReason',
+      'rating',
+      'reviewComment',
     ],
     'Booking',
   );
   assertContract(bookingStatuses.has(item.status as string), 'status: invalid value');
-  assertContract(equipmentOptions.has(item.equipmentOption as string), 'equipmentOption: invalid value');
-  const studioCancellationReason = nullableText(item.studioCancellationReason, 'studioCancellationReason', 500);
+  assertContract(
+    equipmentOptions.has(item.equipmentOption as string),
+    'equipmentOption: invalid value',
+  );
+  const studioCancellationReason = nullableText(
+    item.studioCancellationReason,
+    'studioCancellationReason',
+    500,
+  );
   assertContract(
     item.status === 'cancelled_by_studio'
       ? Boolean(studioCancellationReason?.trim())
@@ -175,7 +222,10 @@ export function parseBooking(value: unknown): Booking {
     'studioCancellationReason: inconsistent with status',
   );
   assertContract(
-    item.rating === null || (Number.isInteger(item.rating) && (item.rating as number) >= 1 && (item.rating as number) <= 5),
+    item.rating === null ||
+      (Number.isInteger(item.rating) &&
+        (item.rating as number) >= 1 &&
+        (item.rating as number) <= 5),
     'rating: invalid value',
   );
   return {
@@ -200,12 +250,18 @@ export function parseBookings(value: unknown): Booking[] {
 export function parseProblem(value: unknown, responseStatus: number) {
   const item = record(value, 'Problem');
   const allowed = ['status', 'code', 'message', 'traceId', 'fieldErrors'];
-  assertContract(Object.keys(item).every((key) => allowed.includes(key)), 'Problem: unknown field');
+  assertContract(
+    Object.keys(item).every((key) => allowed.includes(key)),
+    'Problem: unknown field',
+  );
   const status = integer(item.status, 'status', 400);
   assertContract(status <= 599 && status === responseStatus, 'status: inconsistent HTTP status');
   assertContract(problemCodes.has(item.code as ProblemCode), 'code: unknown problem code');
   if (item.traceId !== undefined) {
-    assertContract(item.traceId === null || typeof item.traceId === 'string', 'traceId: invalid value');
+    assertContract(
+      item.traceId === null || typeof item.traceId === 'string',
+      'traceId: invalid value',
+    );
   }
   if (item.fieldErrors !== undefined) {
     assertContract(Array.isArray(item.fieldErrors), 'fieldErrors: array expected');
@@ -242,7 +298,11 @@ export function validateReviewInput(input: ReviewInput): void {
     (input.comment !== undefined && typeof input.comment !== 'string') ||
     (input.comment === undefined ? 0 : [...input.comment].length) > 500
   ) {
-    throw new StudioApiError('VALIDATION_ERROR', 'Комментарий не должен превышать 500 символов.', 422);
+    throw new StudioApiError(
+      'VALIDATION_ERROR',
+      'Комментарий не должен превышать 500 символов.',
+      422,
+    );
   }
 }
 

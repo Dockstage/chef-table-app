@@ -3,10 +3,7 @@ export type ClassStatus = 'scheduled' | 'cancelled' | 'completed';
 export type EquipmentOption = 'own' | 'rental';
 export type PushPlatform = 'android' | 'ios';
 export type BookingStatus =
-  | 'confirmed'
-  | 'attended'
-  | 'cancelled_by_client'
-  | 'cancelled_by_studio';
+  'confirmed' | 'attended' | 'cancelled_by_client' | 'cancelled_by_studio';
 
 export type Chef = {
   id: string;

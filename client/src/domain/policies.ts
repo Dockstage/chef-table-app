@@ -43,11 +43,7 @@ export function addStudioCalendarDays(dateKey: string, days: number): string {
   return date.toISOString().slice(0, 10);
 }
 
-export function getStudioDateTimeIso(
-  dateKey: string,
-  hour = 0,
-  minute = 0,
-): string {
+export function getStudioDateTimeIso(dateKey: string, hour = 0, minute = 0): string {
   const [year, month, day] = dateKey.split('-').map(Number);
   const wanted = Date.UTC(year!, month! - 1, day!, hour, minute);
   let timestamp = wanted;
@@ -82,14 +78,8 @@ export function getScheduleQuery(days: number, now = new Date()): ScheduleQuery 
   };
 }
 
-export function getBookingTotal(
-  cookingClass: CookingClass,
-  equipment: EquipmentOption,
-): number {
-  return (
-    cookingClass.priceKopecks +
-    (equipment === 'rental' ? cookingClass.rentalPriceKopecks : 0)
-  );
+export function getBookingTotal(cookingClass: CookingClass, equipment: EquipmentOption): number {
+  return cookingClass.priceKopecks + (equipment === 'rental' ? cookingClass.rentalPriceKopecks : 0);
 }
 
 export function canCancelBooking(
@@ -99,8 +89,7 @@ export function canCancelBooking(
 ): boolean {
   if (booking.status !== 'confirmed') return false;
   const deadlineMs =
-    new Date(cookingClass.startsAt).getTime() -
-    CANCELLATION_DEADLINE_HOURS * 60 * 60 * 1000;
+    new Date(cookingClass.startsAt).getTime() - CANCELLATION_DEADLINE_HOURS * 60 * 60 * 1000;
   return now.getTime() <= deadlineMs;
 }
 
@@ -125,8 +114,7 @@ export function filterClasses(
     .filter((item) => level === 'all' || item.level === level)
     .filter((item) => item.status === 'scheduled')
     .sort(
-      (first, second) =>
-        new Date(first.startsAt).getTime() - new Date(second.startsAt).getTime(),
+      (first, second) => new Date(first.startsAt).getTime() - new Date(second.startsAt).getTime(),
     );
 }
 
@@ -134,10 +122,7 @@ export function canReview(booking: Booking): boolean {
   return booking.status === 'attended' && booking.rating === null;
 }
 
-export function filterBookings(
-  bookings: Booking[],
-  filter: 'upcoming' | 'history',
-): Booking[] {
+export function filterBookings(bookings: Booking[], filter: 'upcoming' | 'history'): Booking[] {
   return bookings.filter((booking) =>
     filter === 'upcoming'
       ? booking.status === 'confirmed'

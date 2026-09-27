@@ -9,6 +9,10 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "export:web": "expo export --platform web",
+    "lint": "eslint App.tsx index.ts src tests --max-warnings=0",
+    "lint:fix": "eslint App.tsx index.ts src tests --fix --max-warnings=0",
+    "format": "prettier --write App.tsx index.ts src tests eslint.config.js package.json tsconfig.json app.json",
+    "format:check": "prettier --check App.tsx index.ts src tests eslint.config.js package.json tsconfig.json app.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -25,6 +29,10 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.14",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "~57.0.2",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.9",
     "typescript": "~6.0.3",
     "vitest": "^4.0.18"
   }

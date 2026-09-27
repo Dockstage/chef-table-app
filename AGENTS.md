@@ -9,6 +9,8 @@ The Expo/React Native client lives in `client/`: `App.tsx` is its entry point, m
 Run client commands from `client/`:
 
 - `npm run web` — start the Expo web development server.
+- `npm run lint` — run Expo ESLint rules and fail on warnings.
+- `npm run format:check` — verify Prettier formatting without changing files.
 - `npm run typecheck` — check strict TypeScript without emitting files.
 - `npm test` — run the Vitest suite once.
 - `npm run export:web` — produce the web bundle in `dist/`.
@@ -17,7 +19,7 @@ Run backend and Docker commands documented in `backend/README.md`. Apply migrati
 
 ## Coding Style & Architecture
 
-Use TypeScript strict mode, two-space indentation, `PascalCase` for components/types, and `camelCase` for functions/variables. Python follows Ruff. Organize by feature and direct dependencies toward domain logic. Do not build monoliths: split screens, handlers, services, repositories, schemas, UI, and configuration into focused modules. `App.tsx` and `backend/app/main.py` are composition roots, not business-logic containers.
+Use TypeScript strict mode, two-space indentation, `PascalCase` for components/types, and `camelCase` for functions/variables. Format client code with Prettier and lint it with the Expo flat ESLint configuration; Python follows Ruff. Organize by feature and direct dependencies toward domain logic. Do not build monoliths: split screens, handlers, services, repositories, schemas, UI, and configuration into focused modules. `App.tsx` and `backend/app/main.py` are composition roots, not business-logic containers.
 
 ## Testing Guidelines
 

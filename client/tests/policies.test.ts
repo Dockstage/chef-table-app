@@ -43,9 +43,7 @@ describe('schedule policy', () => {
     const classAfterMoscowMidnight = { ...initialClasses[0]!, startsAt };
 
     expect(getStudioDateKey(startsAt)).toBe('2026-10-04');
-    expect(getStudioDateTimeIso('2026-10-04', 0, 30)).toBe(
-      '2026-10-03T21:30:00.000Z',
-    );
+    expect(getStudioDateTimeIso('2026-10-04', 0, 30)).toBe('2026-10-03T21:30:00.000Z');
     expect(formatTime(startsAt)).toBe('00:30');
     expect(filterClasses([classAfterMoscowMidnight], '2026-10-04', 'all')).toEqual([
       classAfterMoscowMidnight,
@@ -94,4 +92,3 @@ describe('cancellation and review policy', () => {
     expect(filterBookings(initialBookings, 'history')).toContain(cancelledByStudio);
   });
 });
-

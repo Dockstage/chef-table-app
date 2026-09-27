@@ -36,9 +36,6 @@ describe('loadStudioSnapshot', () => {
     const result = await loadStudioSnapshot(api, query, []);
 
     expect(result.bookingsResult.status).toBe('fulfilled');
-    expect(result.detailResults.map((item) => item.status)).toEqual([
-      'fulfilled',
-      'rejected',
-    ]);
+    expect(result.detailResults.map((item) => item.status)).toEqual(['fulfilled', 'rejected']);
   });
 });

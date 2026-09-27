@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { Booking, CookingClass } from '../../domain/types';
+import { CookingClass } from '../../domain/types';
 import { actionStyles } from '../../ui/layout';
 import { palette } from '../../ui/theme';
 
 export function ReviewModal({
-  booking,
   cookingClass,
   busy,
   onClose,
   onSubmit,
 }: {
-  booking: Booking | null;
   cookingClass: CookingClass | undefined;
   busy: boolean;
   onClose: () => void;
@@ -21,13 +19,8 @@ export function ReviewModal({
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
 
-  useEffect(() => {
-    setRating(0);
-    setComment('');
-  }, [booking]);
-
   return (
-    <Modal visible={Boolean(booking)} animationType="fade" transparent onRequestClose={onClose}>
+    <Modal visible animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.reviewBackdrop}>
         <View style={styles.reviewModal}>
           <View style={styles.reviewIcon}>
