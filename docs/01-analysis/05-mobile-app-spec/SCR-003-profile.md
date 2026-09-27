@@ -14,7 +14,7 @@
 | FB-003-02 | «Класс пройден» | bookings | Count `attended` |
 | FB-003-03 | «В планах» | bookings | Count `confirmed` |
 | FB-003-04 | Push setting | permission + registration state | LOGIC-006 |
-| FB-003-05 | Placeholder-функции | вне MVP | Скрыть или явно disabled, без navigation |
+| FB-003-05 | Placeholder-функции | вне MVP | Скрыты в текущей реализации, без navigation |
 | FB-003-06 | Версия | app metadata | Read-only |
 | FB-003-07 | Bottom navigation | navigation | Активен «Профиль» |
 
@@ -40,4 +40,3 @@
 - **AC-SCR003-02:** web показывает unsupported и не вызывает OS/API.
 - **AC-SCR003-03:** granted + API error не отображается как enabled.
 - **AC-SCR003-04:** placeholder-строки нельзя принять за работающие функции.
-

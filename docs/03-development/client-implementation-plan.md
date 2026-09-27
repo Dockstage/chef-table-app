@@ -98,7 +98,7 @@ client/
 
 - [x] Обеспечить touch target не меньше 44×44.
 - [x] Добавить роли, selected state и доступные названия элементов.
-- [ ] Реализовать действия строк с chevron либо убрать вид нажимаемого элемента.
+- [x] Реализовать действия строк с chevron либо убрать вид нажимаемого элемента.
 - [ ] Проверить keyboard, long text, font scaling, safe areas и narrow viewport.
 
 ### CL-09 — Интеграция с FastAPI

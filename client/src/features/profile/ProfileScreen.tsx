@@ -24,6 +24,14 @@ export function ProfileScreen({
       : pushStatus === 'unsupported'
         ? 'Уведомления об отмене классов недоступны на этой платформе'
         : 'Включить уведомления об отмене классов';
+  const pushAccessory =
+    pushStatus === 'enabled'
+      ? '✓'
+      : pushStatus === 'enabling'
+        ? '…'
+        : pushStatus === 'unsupported'
+          ? '—'
+          : '›';
   return (
     <ScrollView contentContainerStyle={layoutStyles.screenContent}>
       <ScreenHeader eyebrow="Личный кабинет" title="Профиль" />
@@ -47,18 +55,6 @@ export function ProfileScreen({
         </View>
       </View>
       <View style={styles.profileList}>
-        {[
-          ['Аллергии и предпочтения', 'Указать заранее'],
-          ['Помощь', 'Связаться со студией'],
-        ].map(([title, subtitle]) => (
-          <View key={title} style={styles.profileListItem}>
-            <View>
-              <Text style={styles.profileItemTitle}>{title}</Text>
-              <Text style={styles.profileItemSubtitle}>{subtitle}</Text>
-            </View>
-            <Text style={styles.chevron}>›</Text>
-          </View>
-        ))}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={pushAccessibilityLabel}
@@ -81,7 +77,7 @@ export function ProfileScreen({
               }
             </Text>
           </View>
-          <Text style={styles.chevron}>{pushStatus === 'enabled' ? '✓' : '›'}</Text>
+          <Text style={styles.chevron}>{pushAccessory}</Text>
         </Pressable>
       </View>
       <Text style={styles.version}>Шеф-стол · MVP 1.0</Text>
