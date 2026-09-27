@@ -34,4 +34,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации изменений.
+`bdba550` — `feat: improve client control accessibility`.
