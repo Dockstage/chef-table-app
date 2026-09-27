@@ -33,4 +33,4 @@
 
 ## Commit
 
-Будет указан после фиксации изменений.
+`3aab3e5` — `feat: complete responsive safe client layout`.
