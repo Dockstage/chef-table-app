@@ -40,8 +40,10 @@ import {
   formatMoney,
   formatTime,
   getScheduleQuery,
+  getStudioDateKeys,
   hoursUntilClass,
   isBookable,
+  STUDIO_TIME_ZONE,
 } from './src/domain/policies';
 import {
   Booking,
@@ -86,23 +88,25 @@ type DayOption = {
   month: string;
 };
 
-function toDateKey(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
 function getDays(length: number): DayOption[] {
-  const formatter = new Intl.DateTimeFormat('ru-RU', { weekday: 'short' });
-  const monthFormatter = new Intl.DateTimeFormat('ru-RU', { month: 'short' });
-  return Array.from({ length }, (_, index) => {
-    const date = new Date();
-    date.setDate(date.getDate() + index);
+  const formatter = new Intl.DateTimeFormat('ru-RU', {
+    timeZone: STUDIO_TIME_ZONE,
+    weekday: 'short',
+  });
+  const dayFormatter = new Intl.DateTimeFormat('ru-RU', {
+    timeZone: STUDIO_TIME_ZONE,
+    day: 'numeric',
+  });
+  const monthFormatter = new Intl.DateTimeFormat('ru-RU', {
+    timeZone: STUDIO_TIME_ZONE,
+    month: 'short',
+  });
+  return getStudioDateKeys(length).map((key, index) => {
+    const date = new Date(`${key}T12:00:00Z`);
     return {
-      key: toDateKey(date),
+      key,
       weekday: index === 0 ? 'Сегодня' : formatter.format(date).replace('.', ''),
-      day: String(date.getDate()),
+      day: dayFormatter.format(date),
       month: monthFormatter.format(date).replace('.', ''),
     };
   });

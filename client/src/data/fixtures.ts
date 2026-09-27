@@ -1,4 +1,9 @@
 import { Booking, Chef, CookingClass } from '../domain/types';
+import {
+  addStudioCalendarDays,
+  getStudioDateKey,
+  getStudioDateTimeIso,
+} from '../domain/policies';
 
 const chefs: Chef[] = [
   {
@@ -25,10 +30,8 @@ const chefs: Chef[] = [
 ];
 
 function atDay(offset: number, hours: number, minutes = 0): string {
-  const date = new Date();
-  date.setDate(date.getDate() + offset);
-  date.setHours(hours, minutes, 0, 0);
-  return date.toISOString();
+  const dateKey = addStudioCalendarDays(getStudioDateKey(new Date()), offset);
+  return getStudioDateTimeIso(dateKey, hours, minutes);
 }
 
 export const initialClasses: CookingClass[] = [

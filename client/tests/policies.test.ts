@@ -6,8 +6,11 @@ import {
   canReview,
   filterClasses,
   filterBookings,
+  formatTime,
   getBookingTotal,
   getScheduleQuery,
+  getStudioDateKey,
+  getStudioDateTimeIso,
   isBookable,
 } from '../src/domain/policies';
 
@@ -26,12 +29,28 @@ describe('booking price', () => {
 });
 
 describe('schedule policy', () => {
-  it('builds an exclusive 30-day API range from the local day boundary', () => {
-    const now = new Date('2026-06-10T15:30:00+03:00');
+  it('builds an exclusive 30-day API range from the Moscow day boundary', () => {
+    const now = new Date('2026-06-09T21:30:00Z');
     const query = getScheduleQuery(30, now);
-    expect(new Date(query.to).getTime() - new Date(query.from).getTime()).toBe(
-      30 * 24 * 3_600_000,
+    expect(query).toEqual({
+      from: '2026-06-09T21:00:00.000Z',
+      to: '2026-07-09T21:00:00.000Z',
+    });
+  });
+
+  it('groups and formats a timestamp by the studio timezone', () => {
+    const startsAt = '2026-10-03T21:30:00Z';
+    const classAfterMoscowMidnight = { ...initialClasses[0]!, startsAt };
+
+    expect(getStudioDateKey(startsAt)).toBe('2026-10-04');
+    expect(getStudioDateTimeIso('2026-10-04', 0, 30)).toBe(
+      '2026-10-03T21:30:00.000Z',
     );
+    expect(formatTime(startsAt)).toBe('00:30');
+    expect(filterClasses([classAfterMoscowMidnight], '2026-10-04', 'all')).toEqual([
+      classAfterMoscowMidnight,
+    ]);
+    expect(filterClasses([classAfterMoscowMidnight], '2026-10-03', 'all')).toEqual([]);
   });
 
   it('keeps the selected date while applying a level filter', () => {

@@ -18,14 +18,14 @@
 | QA-002 | COVERAGE | Метрика BR-001 «не более пяти действий» не имела требования и теста | Добавлены NFR-012 и TC-025; определено, что считается действием | Исправлено |
 | QA-003 | DECOMP | Не были определены срок жизни идемпотентного результата и основа `requestHash` | D-009: хранение до сброса учебной БД; SHA-256 канонического валидированного payload | Исправлено |
 | QA-004 | REQUEST | Профиль выглядит как настройка push, но API поддерживает только регистрацию, без logout/отзыва токена | Для MVP это действие подключения; production opt-out остаётся в OQ-004 | Принято |
-| QA-005 | CONFLICT | LOGIC-001 требует московскую дату, а текущий `getScheduleQuery()` использует timezone устройства | Не менять требование; исправить клиент на этапе разработки и добавить timezone-тесты | Открыто |
-| QA-006 | FORMAT | OpenAPI требует явные nullable-поля, текущие TypeScript DTO используют optional; `ApiErrorCode` неполон | Синхронизировать DTO/error union с OpenAPI перед backend-интеграцией | Открыто |
+| QA-005 | CONFLICT | LOGIC-001 требует московскую дату, а текущий `getScheduleQuery()` использует timezone устройства | Запросы, группировка и отображение переведены на `Europe/Moscow`; добавлен тест полуночной границы | Исправлено |
+| QA-006 | FORMAT | OpenAPI требует явные nullable-поля, текущие TypeScript DTO используют optional; `ApiErrorCode` неполон | DTO и полный ProblemCode синхронизированы; HTTP-ответы проходят runtime validation | Исправлено |
 | QA-007 | COVERAGE | Initial Error, Stale и независимый refresh после mutation описаны, но component/scenario-тестов нет | Добавить проверки состояний и не считать unit domain-тест эквивалентом UI-сценария | Открыто |
 | QA-008 | COVERAGE | NFR-001, NFR-003, NFR-006, NFR-008 и NFR-011 не имеют воспроизводимого доказательства | Закрывать отдельными performance, accessibility, log-capture, schema и auth проверками | Открыто |
 | QA-009 | LAYOUT | Web 360×800 проверен, но keyboard/safe-area и длинный контент BS-001/MDL-001 на Android/iOS не проверены | Добавить native layout-набор на обеих платформах | Открыто |
 | QA-010 | DECOMP | Отмена класса и отметка посещения нужны сценарию, но публичная админка запрещена scope | Использовать внутренние backend services и seed/test fixtures; не добавлять client/admin endpoints | Принято |
 | QA-011 | COVERAGE | TC с пометкой UI/auto не означает наличие component/e2e-теста; текущие 24 автотеста проверяют domain/data/notifications | Развести unit/component/scenario/layout suites и отчётность на этапе тестирования | Открыто |
-| QA-012 | FORMAT | Лимиты 300/500 должны одинаково считаться Python и TypeScript, особенно для emoji | D-010: сервер — источник истины; клиент считает Unicode code points, не UTF-16 units | Исправлено в требованиях; код открыт |
+| QA-012 | FORMAT | Лимиты 300/500 должны одинаково считаться Python и TypeScript, особенно для emoji | Клиент и Python считают Unicode code points; границы с emoji покрыты тестами | Исправлено |
 
 ## Импакт-анализ
 

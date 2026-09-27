@@ -2,17 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import { initialBookings, initialClasses } from '../src/data/fixtures';
 import { MockStudioApi } from '../src/data/mockStudioApi';
+import { getScheduleQuery } from '../src/domain/policies';
 import { StudioApiError } from '../src/domain/types';
 
 describe('MockStudioApi booking invariants', () => {
   it('returns classes inside the requested extended date range', async () => {
     const api = new MockStudioApi(initialClasses, initialBookings);
-    const from = new Date();
-    from.setHours(0, 0, 0, 0);
-    const to = new Date(from);
-    to.setDate(to.getDate() + 14);
-
-    const classes = await api.getClasses({ from: from.toISOString(), to: to.toISOString() });
+    const classes = await api.getClasses(getScheduleQuery(14));
     expect(classes.some((item) => item.title === 'Хлеб на закваске')).toBe(true);
     expect(classes.some((item) => item.title === 'Грузинское застолье')).toBe(false);
   });
@@ -140,16 +136,16 @@ describe('MockStudioApi booking invariants', () => {
     const updated = await acceptedApi.submitReview({
       bookingId: attended.id,
       rating: 1,
-      comment: 'а'.repeat(500),
+      comment: '😀'.repeat(500),
     });
-    expect(updated.reviewComment).toHaveLength(500);
+    expect([...updated.reviewComment!]).toHaveLength(500);
 
     const rejectedApi = new MockStudioApi(initialClasses, initialBookings);
     await expect(
       rejectedApi.submitReview({
         bookingId: attended.id,
         rating: 5,
-        comment: 'а'.repeat(501),
+        comment: '😀'.repeat(501),
       }),
     ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
   });
@@ -160,11 +156,11 @@ describe('MockStudioApi booking invariants', () => {
       {
         classId: initialClasses[0]!.id,
         equipmentOption: 'own',
-        allergyNotes: 'а'.repeat(300),
+        allergyNotes: '😀'.repeat(300),
       },
       'attempt-allergy-limit-accepted',
     );
-    expect(accepted.allergyNotes).toHaveLength(300);
+    expect([...accepted.allergyNotes]).toHaveLength(300);
 
     const rejectedApi = new MockStudioApi(initialClasses, []);
 
@@ -173,7 +169,7 @@ describe('MockStudioApi booking invariants', () => {
         {
           classId: initialClasses[0]!.id,
           equipmentOption: 'own',
-          allergyNotes: 'а'.repeat(301),
+          allergyNotes: '😀'.repeat(301),
         },
         'attempt-allergy-limit',
       ),

@@ -65,7 +65,8 @@ function exactKeys(value: JsonRecord, keys: string[], name: string): void {
 
 function text(value: unknown, name: string, min: number, max: number): string {
   assertContract(typeof value === 'string', `${name}: string expected`);
-  assertContract(value.length >= min && value.length <= max, `${name}: invalid length`);
+  const length = [...value].length;
+  assertContract(length >= min && length <= max, `${name}: invalid length`);
   return value;
 }
 
@@ -211,8 +212,8 @@ export function parseProblem(value: unknown, responseStatus: number) {
     item.fieldErrors.forEach((value, index) => {
       const fieldError = record(value, `fieldErrors[${index}]`);
       exactKeys(fieldError, ['field', 'message'], `fieldErrors[${index}]`);
-      text(fieldError.field, `fieldErrors[${index}].field`, 0, 500);
-      text(fieldError.message, `fieldErrors[${index}].message`, 0, 500);
+      text(fieldError.field, `fieldErrors[${index}].field`, 0, Number.POSITIVE_INFINITY);
+      text(fieldError.message, `fieldErrors[${index}].message`, 0, Number.POSITIVE_INFINITY);
     });
   }
   return {
@@ -227,7 +228,7 @@ export function validateCreateBookingInput(input: CreateBookingInput): void {
   if (!equipmentOptions.has(input.equipmentOption)) {
     throw new StudioApiError('VALIDATION_ERROR', 'Некорректный вариант рабочего набора.', 422);
   }
-  if (typeof input.allergyNotes !== 'string' || input.allergyNotes.length > 300) {
+  if (typeof input.allergyNotes !== 'string' || [...input.allergyNotes].length > 300) {
     throw new StudioApiError('VALIDATION_ERROR', 'Аллергии не должны превышать 300 символов.', 422);
   }
 }
@@ -239,7 +240,7 @@ export function validateReviewInput(input: ReviewInput): void {
   }
   if (
     (input.comment !== undefined && typeof input.comment !== 'string') ||
-    (input.comment?.length ?? 0) > 500
+    (input.comment === undefined ? 0 : [...input.comment].length) > 500
   ) {
     throw new StudioApiError('VALIDATION_ERROR', 'Комментарий не должен превышать 500 символов.', 422);
   }
@@ -263,7 +264,8 @@ export function validateScheduleQuery(query: ScheduleQuery): void {
 }
 
 export function validatePushTokenInput(input: PushTokenInput): void {
-  if (typeof input.token !== 'string' || input.token.length < 1 || input.token.length > 4096) {
+  const tokenLength = typeof input.token === 'string' ? [...input.token].length : 0;
+  if (typeof input.token !== 'string' || tokenLength < 1 || tokenLength > 4096) {
     throw new StudioApiError('VALIDATION_ERROR', 'Некорректный push-токен.', 422);
   }
   if (input.platform !== 'android' && input.platform !== 'ios') {
