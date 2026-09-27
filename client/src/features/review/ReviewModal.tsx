@@ -1,0 +1,140 @@
+import { useEffect, useState } from 'react';
+import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { Booking, CookingClass } from '../../domain/types';
+import { actionStyles } from '../../ui/layout';
+import { palette } from '../../ui/theme';
+
+export function ReviewModal({
+  booking,
+  cookingClass,
+  busy,
+  onClose,
+  onSubmit,
+}: {
+  booking: Booking | null;
+  cookingClass: CookingClass | undefined;
+  busy: boolean;
+  onClose: () => void;
+  onSubmit: (rating: number, comment: string) => void;
+}) {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+
+  useEffect(() => {
+    setRating(0);
+    setComment('');
+  }, [booking]);
+
+  return (
+    <Modal visible={Boolean(booking)} animationType="fade" transparent onRequestClose={onClose}>
+      <View style={styles.reviewBackdrop}>
+        <View style={styles.reviewModal}>
+          <View style={styles.reviewIcon}>
+            <Text style={styles.reviewIconText}>✦</Text>
+          </View>
+          <Text style={styles.reviewTitle}>Как вам шеф?</Text>
+          <Text style={styles.reviewSubtitle}>
+            {cookingClass?.chef.name} · {cookingClass?.title}
+          </Text>
+          <View style={styles.starsRow}>
+            {[1, 2, 3, 4, 5].map((value) => (
+              <Pressable
+                key={value}
+                accessibilityRole="radio"
+                accessibilityLabel={`Оценка ${value} из 5`}
+                accessibilityState={{ checked: value === rating }}
+                onPress={() => setRating(value)}
+                style={styles.starButton}
+              >
+                <Text style={[styles.star, value <= rating && styles.starActive]}>★</Text>
+              </Pressable>
+            ))}
+          </View>
+          <TextInput
+            accessibilityLabel="Комментарий к оценке шефа"
+            multiline
+            maxLength={500}
+            value={comment}
+            onChangeText={setComment}
+            placeholder="Комментарий — по желанию"
+            placeholderTextColor="#9D988F"
+            style={styles.reviewCommentInput}
+          />
+          <Text style={styles.reviewCommentCount}>{comment.length}/500</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Отправить оценку шефу"
+            disabled={rating === 0 || busy}
+            onPress={() => onSubmit(rating, comment)}
+            style={[
+              actionStyles.primaryButton,
+              (rating === 0 || busy) && actionStyles.buttonDisabled,
+            ]}
+          >
+            <Text style={actionStyles.primaryButtonText}>Отправить оценку</Text>
+          </Pressable>
+          <Pressable onPress={onClose} style={styles.reviewClose}>
+            <Text style={styles.reviewCloseText}>Не сейчас</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+const styles = StyleSheet.create({
+  reviewBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(24,24,22,.54)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 22,
+  },
+  reviewModal: {
+    backgroundColor: palette.paper,
+    width: '100%',
+    maxWidth: 430,
+    borderRadius: 26,
+    padding: 24,
+    alignItems: 'center',
+  },
+  reviewIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: palette.warningSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+  },
+  reviewIconText: { color: palette.warning, fontSize: 24 },
+  reviewTitle: { fontSize: 24, fontWeight: '900', color: palette.ink },
+  reviewSubtitle: { color: palette.muted, fontSize: 12, textAlign: 'center', marginTop: 6 },
+  starsRow: { flexDirection: 'row', marginVertical: 22 },
+  starButton: { padding: 5 },
+  star: { fontSize: 34, color: '#D8D1C6' },
+  starActive: { color: '#E4A638' },
+  reviewCommentInput: {
+    width: '100%',
+    minHeight: 82,
+    borderWidth: 1,
+    borderColor: palette.line,
+    backgroundColor: palette.canvas,
+    borderRadius: 14,
+    padding: 12,
+    color: palette.ink,
+    fontSize: 12,
+    textAlignVertical: 'top',
+  },
+  reviewCommentCount: {
+    width: '100%',
+    textAlign: 'right',
+    color: palette.muted,
+    fontSize: 10,
+    marginTop: 5,
+    marginBottom: 12,
+  },
+  reviewClose: { padding: 12, marginTop: 5 },
+  reviewCloseText: { color: palette.muted, fontSize: 12, fontWeight: '700' },
+});
