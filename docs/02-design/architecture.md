@@ -27,14 +27,14 @@ flowchart LR
 
 | Слой | Ответственность | Примеры |
 |---|---|---|
-| UI | Экраны, формы, состояния загрузки/ошибки | `client/src/ui` theme/primitives/layout, `features/schedule/DiscoverScreen`, Booking sheet, My classes |
+| UI | Экраны, формы, состояния загрузки/ошибки | `client/src/ui` theme/primitives/layout, `features/schedule/DiscoverScreen`, `features/bookings/BookingsScreen`, Booking sheet |
 | Application | Состояние приложения и пользовательские действия | загрузка слотов, бронирование, отмена |
 | Domain | Чистые типы и бизнес-правила | цена, дедлайн отмены, фильтрация |
 | Data | Реализация API и преобразование DTO | `HttpStudioApi`, `MockStudioApi` |
 
 Backend использует слои `api` → `services` → `domain` → `repositories/db`; FastAPI handlers валидируют HTTP и делегируют транзакционную логику сервисам. Composition root находится в `backend/app/main.py`.
 
-Зависимости направлены внутрь: UI использует domain и интерфейс API; domain не зависит от React Native. Общая палитра находится в `client/src/ui/theme.ts`, общая раскладка — в `client/src/ui/layout.ts`, а не зависящие от features примитивы — в `client/src/ui/primitives.tsx`; feature-компоненты не импортируются обратно в этот слой. Экран расписания и его карточка инкапсулированы в `client/src/features/schedule/DiscoverScreen.tsx` и получают данные/actions через props.
+Зависимости направлены внутрь: UI использует domain и интерфейс API; domain не зависит от React Native. Общая палитра находится в `client/src/ui/theme.ts`, общая раскладка — в `client/src/ui/layout.ts`, а не зависящие от features примитивы — в `client/src/ui/primitives.tsx`; feature-компоненты не импортируются обратно в этот слой. Экраны расписания и записей инкапсулированы в `features/schedule/DiscoverScreen.tsx` и `features/bookings/BookingsScreen.tsx`, получают данные/actions через props и не импортируют друг друга.
 
 ## Состояния интерфейса
 

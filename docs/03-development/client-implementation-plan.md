@@ -47,7 +47,7 @@ client/
 ### CL-02 — Модульная архитектура
 
 - [x] Вынести theme и переиспользуемые UI primitives.
-- [ ] Разделить экраны и overlays по feature-модулям. `DiscoverScreen` уже вынесен в `features/schedule`; остаются bookings/profile и overlays.
+- [ ] Разделить экраны и overlays по feature-модулям. `DiscoverScreen` и `BookingsScreen` вынесены; остаются profile и overlays.
 - [ ] Вынести orchestration и навигацию из UI-компонентов.
 - [ ] Обновить `docs/02-design/architecture.md` по фактической структуре.
 
