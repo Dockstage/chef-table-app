@@ -102,6 +102,8 @@ npm run export:web
 
 Backend проверяется отдельно из `backend/`: Ruff, 42 pytest-теста и contract gate. Изолированный PostgreSQL/concurrency gate запускается из корня командой `docker compose run --rm backend python -m app.postgres_check` после `docker compose build backend` и запуска `db`; подробности приведены в [`backend/README.md`](backend/README.md).
 
+Workflow [`Client CI`](.github/workflows/client-ci.yml) воспроизводит клиентские проверки на каждом push в `main`, pull request с изменениями клиента и при ручном запуске.
+
 ## Демонстрационные сценарии
 
 1. На главном экране выбрать день и уровень класса.
