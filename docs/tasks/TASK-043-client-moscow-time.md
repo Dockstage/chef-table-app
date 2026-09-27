@@ -29,4 +29,4 @@
 
 ## Commit
 
-Будет указан после фиксации реализации.
+`218d6e1` — `fix: use Moscow time in client`.
