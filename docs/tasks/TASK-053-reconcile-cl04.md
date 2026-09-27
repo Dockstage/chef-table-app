@@ -29,4 +29,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации изменений.
+`f2f1cac` — `docs: reconcile client load-state checklist`.
