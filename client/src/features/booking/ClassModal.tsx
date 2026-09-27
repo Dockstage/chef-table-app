@@ -52,7 +52,12 @@ export function ClassModal({
                 </Text>
                 <Text style={styles.modalTitle}>{cookingClass.title}</Text>
               </View>
-              <Pressable onPress={onClose} style={styles.closeButton}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Закрыть карточку класса"
+                onPress={onClose}
+                style={styles.closeButton}
+              >
                 <Text style={styles.closeButtonText}>×</Text>
               </Pressable>
             </View>
@@ -145,6 +150,7 @@ export function ClassModal({
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={`Записаться на класс, итого ${formatMoney(total)}`}
+              accessibilityState={{ disabled: !bookable || !selectionAvailable || busy }}
               disabled={!bookable || !selectionAvailable || busy}
               onPress={() => onBook(equipment, allergies)}
               style={[
@@ -208,9 +214,9 @@ const styles = StyleSheet.create({
   },
   modalTitle: { color: palette.ink, fontSize: 30, lineHeight: 35, fontWeight: '900', marginTop: 4 },
   closeButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#E9E2D7',
     alignItems: 'center',
     justifyContent: 'center',

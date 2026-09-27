@@ -58,6 +58,7 @@ export function ReviewModal({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Отправить оценку шефу"
+            accessibilityState={{ disabled: rating === 0 || busy }}
             disabled={rating === 0 || busy}
             onPress={() => onSubmit(rating, comment)}
             style={[
@@ -67,7 +68,12 @@ export function ReviewModal({
           >
             <Text style={actionStyles.primaryButtonText}>Отправить оценку</Text>
           </Pressable>
-          <Pressable onPress={onClose} style={styles.reviewClose}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Закрыть форму оценки"
+            onPress={onClose}
+            style={styles.reviewClose}
+          >
             <Text style={styles.reviewCloseText}>Не сейчас</Text>
           </Pressable>
         </View>
@@ -105,7 +111,12 @@ const styles = StyleSheet.create({
   reviewTitle: { fontSize: 24, fontWeight: '900', color: palette.ink },
   reviewSubtitle: { color: palette.muted, fontSize: 12, textAlign: 'center', marginTop: 6 },
   starsRow: { flexDirection: 'row', marginVertical: 22 },
-  starButton: { padding: 5 },
+  starButton: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   star: { fontSize: 34, color: '#D8D1C6' },
   starActive: { color: '#E4A638' },
   reviewCommentInput: {
@@ -128,6 +139,12 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 12,
   },
-  reviewClose: { padding: 12, marginTop: 5 },
+  reviewClose: {
+    minHeight: 44,
+    paddingHorizontal: 12,
+    marginTop: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   reviewCloseText: { color: palette.muted, fontSize: 12, fontWeight: '700' },
 });

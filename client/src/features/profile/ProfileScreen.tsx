@@ -16,6 +16,14 @@ export function ProfileScreen({
   onEnablePush: () => void;
 }) {
   const visited = bookings.filter((item) => item.status === 'attended').length;
+  const pushDisabled =
+    pushStatus === 'enabling' || pushStatus === 'enabled' || pushStatus === 'unsupported';
+  const pushAccessibilityLabel =
+    pushStatus === 'enabled'
+      ? 'Уведомления об отмене классов включены'
+      : pushStatus === 'unsupported'
+        ? 'Уведомления об отмене классов недоступны на этой платформе'
+        : 'Включить уведомления об отмене классов';
   return (
     <ScrollView contentContainerStyle={layoutStyles.screenContent}>
       <ScreenHeader eyebrow="Личный кабинет" title="Профиль" />
@@ -53,10 +61,9 @@ export function ProfileScreen({
         ))}
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Включить уведомления об отмене классов"
-          disabled={
-            pushStatus === 'enabling' || pushStatus === 'enabled' || pushStatus === 'unsupported'
-          }
+          accessibilityLabel={pushAccessibilityLabel}
+          accessibilityState={{ disabled: pushDisabled, busy: pushStatus === 'enabling' }}
+          disabled={pushDisabled}
           onPress={onEnablePush}
           style={styles.profileListItem}
         >

@@ -155,6 +155,13 @@ export function BookingsScreen({
                           <Text style={styles.countdownValue}>{formatCountdown(cookingClass)}</Text>
                         </View>
                         <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={
+                            cancellable
+                              ? `Отменить запись на ${cookingClass.title}`
+                              : `Отмена записи на ${cookingClass.title} недоступна`
+                          }
+                          accessibilityState={{ disabled: !cancellable }}
                           disabled={!cancellable}
                           onPress={() => onCancel(booking)}
                           style={[styles.ghostButton, !cancellable && styles.buttonDisabled]}
@@ -167,7 +174,12 @@ export function BookingsScreen({
                     )}
 
                     {canReview(booking) && (
-                      <Pressable onPress={() => onReview(booking)} style={styles.reviewButton}>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Оценить шефа класса ${cookingClass.title}`}
+                        onPress={() => onReview(booking)}
+                        style={styles.reviewButton}
+                      >
                         <Text style={styles.reviewButtonStars}>★★★★★</Text>
                         <Text style={styles.reviewButtonText}>Оценить шефа</Text>
                       </Pressable>
@@ -246,21 +258,25 @@ const styles = StyleSheet.create({
   countdownLabel: { color: palette.muted, fontSize: 10, marginRight: 5 },
   countdownValue: { color: palette.ink, fontSize: 14, fontWeight: '900' },
   ghostButton: {
+    minHeight: 44,
     borderWidth: 1,
     borderColor: palette.line,
     borderRadius: 13,
     paddingHorizontal: 13,
     paddingVertical: 10,
+    justifyContent: 'center',
   },
   ghostButtonText: { color: palette.ink, fontSize: 11, fontWeight: '800' },
   buttonDisabled: { opacity: 0.42 },
   reviewButton: {
+    minHeight: 44,
     backgroundColor: palette.ink,
     borderRadius: 14,
     paddingVertical: 13,
     marginTop: 18,
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     gap: 8,
   },
   reviewButtonStars: { color: '#F1BD5B', fontSize: 12, letterSpacing: 1 },

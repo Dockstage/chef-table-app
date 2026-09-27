@@ -96,8 +96,8 @@ client/
 
 ### CL-08 — Доступность и честные affordance
 
-- [ ] Обеспечить touch target не меньше 44×44.
-- [ ] Добавить роли, selected state и доступные названия элементов.
+- [x] Обеспечить touch target не меньше 44×44.
+- [x] Добавить роли, selected state и доступные названия элементов.
 - [ ] Реализовать действия строк с chevron либо убрать вид нажимаемого элемента.
 - [ ] Проверить keyboard, long text, font scaling, safe areas и narrow viewport.
 

@@ -22,7 +22,14 @@ function BottomNav({ value, onChange }: { value: Tab; onChange: (tab: Tab) => vo
       {tabs.map((tab) => {
         const active = value === tab.value;
         return (
-          <Pressable key={tab.value} onPress={() => onChange(tab.value)} style={styles.navItem}>
+          <Pressable
+            key={tab.value}
+            accessibilityRole="tab"
+            accessibilityLabel={tab.label}
+            accessibilityState={{ selected: active }}
+            onPress={() => onChange(tab.value)}
+            style={styles.navItem}
+          >
             <Text style={[styles.navIcon, active && styles.navActive]}>{tab.icon}</Text>
             <Text style={[styles.navLabel, active && styles.navActive]}>{tab.label}</Text>
             {active && <View style={styles.navIndicator} />}
@@ -75,7 +82,7 @@ export function StudioApp({ api }: { api: StudioApi }) {
         <BottomNav value={app.tab} onChange={app.setTab} />
 
         {app.toast && (
-          <View style={styles.toast}>
+          <View accessibilityRole="alert" style={styles.toast}>
             <Text style={styles.toastMark}>✓</Text>
             <Text style={styles.toastText}>{app.toast}</Text>
           </View>
@@ -125,7 +132,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: palette.line,
   },
-  navItem: { flex: 1, alignItems: 'center', justifyContent: 'center', position: 'relative' },
+  navItem: {
+    flex: 1,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
   navIcon: { fontSize: 22, color: '#99938A', lineHeight: 23 },
   navLabel: { fontSize: 9, fontWeight: '700', color: '#99938A', marginTop: 3 },
   navActive: { color: palette.tomato },

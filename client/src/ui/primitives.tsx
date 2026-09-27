@@ -31,7 +31,8 @@ export function Segment<T extends string>({
       {options.map((option) => (
         <Pressable
           key={option.value}
-          accessibilityRole="button"
+          accessibilityRole="tab"
+          accessibilityLabel={option.label}
           accessibilityState={{ selected: value === option.value }}
           onPress={() => onChange(option.value)}
           style={[styles.segmentItem, value === option.value && styles.segmentItemActive]}
@@ -86,7 +87,12 @@ export function RefreshNotice({ stale, onRetry }: { stale: boolean; onRetry: () 
       {stale ? (
         <>
           <Text style={styles.refreshNoticeText}>Показаны сохранённые данные.</Text>
-          <Pressable accessibilityRole="button" onPress={onRetry}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Повторить обновление данных"
+            onPress={onRetry}
+            style={styles.refreshNoticeButton}
+          >
             <Text style={styles.refreshNoticeAction}>Повторить</Text>
           </Pressable>
         </>
@@ -146,7 +152,7 @@ const styles = StyleSheet.create({
   },
   segmentItem: {
     flex: 1,
-    height: 38,
+    minHeight: 44,
     borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
@@ -193,5 +199,12 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   refreshNoticeText: { color: palette.warning, fontSize: 12, flex: 1 },
+  refreshNoticeButton: {
+    minWidth: 44,
+    minHeight: 44,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   refreshNoticeAction: { color: palette.tomatoDark, fontSize: 12, fontWeight: '900' },
 });
