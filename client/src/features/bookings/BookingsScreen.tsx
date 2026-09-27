@@ -12,6 +12,7 @@ import {
 } from '../../domain/policies';
 import { Booking, CookingClass } from '../../domain/types';
 import { isInitialLoad, LoadState } from '../../shared/loadState';
+import { BookingFilter } from '../../shared/viewTypes';
 import { layoutStyles } from '../../ui/layout';
 import {
   EmptyState,
@@ -21,8 +22,6 @@ import {
   Segment,
 } from '../../ui/primitives';
 import { palette } from '../../ui/theme';
-
-export type BookingFilter = 'upcoming' | 'history';
 
 function formatCountdown(cookingClass: CookingClass): string {
   const hours = hoursUntilClass(cookingClass);

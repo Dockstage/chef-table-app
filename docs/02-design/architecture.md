@@ -28,13 +28,15 @@ flowchart LR
 | Слой | Ответственность | Примеры |
 |---|---|---|
 | UI | Экраны, формы, состояния загрузки/ошибки | `client/src/ui`, feature screens, `features/booking/ClassModal`, `features/review/ReviewModal` |
-| Application | Состояние приложения и пользовательские действия | загрузка слотов, бронирование, отмена |
+| Application | Состояние, эффекты, навигационный shell и пользовательские действия | `application/useStudioApp`, `application/StudioApp` |
 | Domain | Чистые типы и бизнес-правила | цена, дедлайн отмены, фильтрация |
 | Data | Реализация API и преобразование DTO | `HttpStudioApi`, `MockStudioApi` |
 
 Backend использует слои `api` → `services` → `domain` → `repositories/db`; FastAPI handlers валидируют HTTP и делегируют транзакционную логику сервисам. Composition root находится в `backend/app/main.py`.
 
 Зависимости направлены внутрь: UI использует domain и интерфейс API; domain не зависит от React Native. Общая палитра находится в `client/src/ui/theme.ts`, общая раскладка и action styles — в `client/src/ui/layout.ts`, а не зависящие от features примитивы — в `client/src/ui/primitives.tsx`; feature-компоненты не импортируются обратно в этот слой. Экраны расписания, записей и профиля, а также booking/review overlays инкапсулированы в одноимённых feature-модулях, получают данные/actions через props и не импортируют друг друга.
+
+`client/App.tsx` — восьмистрочный composition root: создаёт `StudioApi` и передаёт его в `application/StudioApp`. `StudioApp` собирает экраны, overlays и нижнюю навигацию; `application/useStudioApp` владеет загрузкой, snapshot-state, мутациями, idempotency, push-эффектами и переходами. UI-состояния `Tab`, `BookingFilter` и `PushStatus` объявлены в `shared/viewTypes.ts`. Название слоя `application`, а не `src/app`, выбрано намеренно: Expo резервирует `src/app` как корень Expo Router.
 
 ## Состояния интерфейса
 
@@ -75,4 +77,4 @@ Backend использует слои `api` → `services` → `domain` → `rep
 
 ## Границы текущей реализации
 
-Остаются известные разрывы: `App.tsx` требует декомпозиции, а OpenAPI gate не включён в CI и не сверяется автоматически с TypeScript. Нативная доставка не подтверждена на реальных Android/iOS-устройствах. Разрывы перечислены в `docs/lecture-gap-checklists.md`.
+Остаются известные разрывы: OpenAPI gate не включён в CI и не сверяется автоматически с TypeScript. Нативная доставка не подтверждена на реальных Android/iOS-устройствах. Разрывы перечислены в `docs/lecture-gap-checklists.md`.

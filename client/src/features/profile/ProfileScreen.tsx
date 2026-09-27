@@ -1,11 +1,10 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Booking } from '../../domain/types';
+import { PushStatus } from '../../shared/viewTypes';
 import { layoutStyles } from '../../ui/layout';
 import { ScreenHeader } from '../../ui/primitives';
 import { palette } from '../../ui/theme';
-
-export type PushStatus = 'idle' | 'enabling' | 'enabled' | 'denied' | 'unsupported';
 
 export function ProfileScreen({
   bookings,
