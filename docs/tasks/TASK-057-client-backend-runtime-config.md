@@ -31,4 +31,4 @@
 
 ## Commit
 
-Будет указан после фиксации изменений.
+`31a3af8` — `feat: configure explicit client api mode`.
