@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import { CookingClass } from '../../domain/types';
 import { actionStyles } from '../../ui/layout';
@@ -21,63 +31,72 @@ export function ReviewModal({
 
   return (
     <Modal visible animationType="fade" transparent onRequestClose={onClose}>
-      <View style={styles.reviewBackdrop}>
-        <View style={styles.reviewModal}>
-          <View style={styles.reviewIcon}>
-            <Text style={styles.reviewIconText}>✦</Text>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.reviewBackdrop}
+      >
+        <ScrollView
+          contentContainerStyle={styles.reviewScrollContent}
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.reviewModal}>
+            <View style={styles.reviewIcon}>
+              <Text style={styles.reviewIconText}>✦</Text>
+            </View>
+            <Text style={styles.reviewTitle}>Как вам шеф?</Text>
+            <Text style={styles.reviewSubtitle}>
+              {cookingClass?.chef.name} · {cookingClass?.title}
+            </Text>
+            <View style={styles.starsRow}>
+              {[1, 2, 3, 4, 5].map((value) => (
+                <Pressable
+                  key={value}
+                  accessibilityRole="radio"
+                  accessibilityLabel={`Оценка ${value} из 5`}
+                  accessibilityState={{ checked: value === rating }}
+                  onPress={() => setRating(value)}
+                  style={styles.starButton}
+                >
+                  <Text style={[styles.star, value <= rating && styles.starActive]}>★</Text>
+                </Pressable>
+              ))}
+            </View>
+            <TextInput
+              accessibilityLabel="Комментарий к оценке шефа"
+              multiline
+              maxLength={500}
+              value={comment}
+              onChangeText={setComment}
+              placeholder="Комментарий — по желанию"
+              placeholderTextColor="#9D988F"
+              style={styles.reviewCommentInput}
+            />
+            <Text style={styles.reviewCommentCount}>{comment.length}/500</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Отправить оценку шефу"
+              accessibilityState={{ disabled: rating === 0 || busy }}
+              disabled={rating === 0 || busy}
+              onPress={() => onSubmit(rating, comment)}
+              style={[
+                actionStyles.primaryButton,
+                (rating === 0 || busy) && actionStyles.buttonDisabled,
+              ]}
+            >
+              <Text style={actionStyles.primaryButtonText}>Отправить оценку</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Закрыть форму оценки"
+              onPress={onClose}
+              style={styles.reviewClose}
+            >
+              <Text style={styles.reviewCloseText}>Не сейчас</Text>
+            </Pressable>
           </View>
-          <Text style={styles.reviewTitle}>Как вам шеф?</Text>
-          <Text style={styles.reviewSubtitle}>
-            {cookingClass?.chef.name} · {cookingClass?.title}
-          </Text>
-          <View style={styles.starsRow}>
-            {[1, 2, 3, 4, 5].map((value) => (
-              <Pressable
-                key={value}
-                accessibilityRole="radio"
-                accessibilityLabel={`Оценка ${value} из 5`}
-                accessibilityState={{ checked: value === rating }}
-                onPress={() => setRating(value)}
-                style={styles.starButton}
-              >
-                <Text style={[styles.star, value <= rating && styles.starActive]}>★</Text>
-              </Pressable>
-            ))}
-          </View>
-          <TextInput
-            accessibilityLabel="Комментарий к оценке шефа"
-            multiline
-            maxLength={500}
-            value={comment}
-            onChangeText={setComment}
-            placeholder="Комментарий — по желанию"
-            placeholderTextColor="#9D988F"
-            style={styles.reviewCommentInput}
-          />
-          <Text style={styles.reviewCommentCount}>{comment.length}/500</Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Отправить оценку шефу"
-            accessibilityState={{ disabled: rating === 0 || busy }}
-            disabled={rating === 0 || busy}
-            onPress={() => onSubmit(rating, comment)}
-            style={[
-              actionStyles.primaryButton,
-              (rating === 0 || busy) && actionStyles.buttonDisabled,
-            ]}
-          >
-            <Text style={actionStyles.primaryButtonText}>Отправить оценку</Text>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Закрыть форму оценки"
-            onPress={onClose}
-            style={styles.reviewClose}
-          >
-            <Text style={styles.reviewCloseText}>Не сейчас</Text>
-          </Pressable>
-        </View>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -86,6 +105,9 @@ const styles = StyleSheet.create({
   reviewBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(24,24,22,.54)',
+  },
+  reviewScrollContent: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 22,
@@ -110,7 +132,12 @@ const styles = StyleSheet.create({
   reviewIconText: { color: palette.warning, fontSize: 24 },
   reviewTitle: { fontSize: 24, fontWeight: '900', color: palette.ink },
   reviewSubtitle: { color: palette.muted, fontSize: 12, textAlign: 'center', marginTop: 6 },
-  starsRow: { flexDirection: 'row', marginVertical: 22 },
+  starsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginVertical: 22,
+  },
   starButton: {
     minWidth: 44,
     minHeight: 44,
@@ -128,7 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 12,
     color: palette.ink,
-    fontSize: 12,
+    fontSize: 16,
     textAlignVertical: 'top',
   },
   reviewCommentCount: {

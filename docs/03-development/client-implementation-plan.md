@@ -99,7 +99,9 @@ client/
 - [x] Обеспечить touch target не меньше 44×44.
 - [x] Добавить роли, selected state и доступные названия элементов.
 - [x] Реализовать действия строк с chevron либо убрать вид нажимаемого элемента.
-- [ ] Проверить keyboard, long text, font scaling, safe areas и narrow viewport.
+- [x] Проверить keyboard, long text, font scaling, safe areas и narrow viewport.
+
+TASK-056 добавил safe-area и keyboard-aware layout, переносы и минимальные размеры для узких экранов. Web-интерфейс вручную проверен при 360×800 и стрессово при 320×640, включая длинный ввод и прокрутку модальных форм. Фактические системные keyboard, cutout, font scaling и screen reader на Android/iOS остаются платформенной проверкой CL-09/CL-10 и этапа тестирования.
 
 ### CL-09 — Интеграция с FastAPI
 

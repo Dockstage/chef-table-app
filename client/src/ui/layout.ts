@@ -1,10 +1,10 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { palette } from './theme';
 
 export const layoutStyles = StyleSheet.create({
   screenContent: {
-    paddingTop: Platform.OS === 'ios' ? 58 : 38,
+    paddingTop: 24,
     paddingHorizontal: 20,
     paddingBottom: 34,
   },

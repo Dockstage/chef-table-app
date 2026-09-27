@@ -217,6 +217,8 @@ const styles = StyleSheet.create({
   },
   bookingTopRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 17,
@@ -232,7 +234,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   bookingTitle: { fontSize: 22, fontWeight: '800', color: palette.ink, marginTop: 5 },
-  bookingDetails: { flexDirection: 'row', marginTop: 8 },
+  bookingDetails: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 },
   bookingDetail: { color: palette.muted, fontSize: 12, marginRight: 5 },
   reasonBox: {
     backgroundColor: palette.dangerSoft,
@@ -250,6 +252,8 @@ const styles = StyleSheet.create({
   reasonText: { color: '#704136', fontSize: 12, lineHeight: 17, marginTop: 4 },
   bookingActionRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 18,

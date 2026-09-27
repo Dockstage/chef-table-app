@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StudioApi } from '../domain/types';
 import { ClassModal } from '../features/booking/ClassModal';
@@ -42,12 +43,13 @@ function BottomNav({ value, onChange }: { value: Tab; onChange: (tab: Tab) => vo
 
 export function StudioApp({ api }: { api: StudioApi }) {
   const app = useStudioApp(api);
+  const insets = useSafeAreaInsets();
   const retry = () => void app.refresh(app.horizonDays).catch(() => undefined);
 
   return (
     <View style={styles.root}>
       <StatusBar style="dark" />
-      <View style={styles.phoneFrame}>
+      <SafeAreaView edges={['top']} style={styles.phoneFrame}>
         <View style={styles.page}>
           {app.tab === 'discover' && (
             <DiscoverScreen
@@ -79,15 +81,17 @@ export function StudioApp({ api }: { api: StudioApi }) {
             />
           )}
         </View>
-        <BottomNav value={app.tab} onChange={app.setTab} />
+        <SafeAreaView edges={['bottom']} style={styles.navSafeArea}>
+          <BottomNav value={app.tab} onChange={app.setTab} />
+        </SafeAreaView>
 
         {app.toast && (
-          <View accessibilityRole="alert" style={styles.toast}>
+          <View accessibilityRole="alert" style={[styles.toast, { bottom: 84 + insets.bottom }]}>
             <Text style={styles.toastMark}>✓</Text>
             <Text style={styles.toastText}>{app.toast}</Text>
           </View>
         )}
-      </View>
+      </SafeAreaView>
 
       {app.selectedClass && (
         <ClassModal
@@ -124,9 +128,9 @@ const styles = StyleSheet.create({
       : {}),
   },
   page: { flex: 1 },
+  navSafeArea: { backgroundColor: palette.paper },
   nav: {
-    height: Platform.OS === 'ios' ? 88 : 74,
-    paddingBottom: Platform.OS === 'ios' ? 16 : 4,
+    height: 70,
     flexDirection: 'row',
     backgroundColor: palette.paper,
     borderTopWidth: 1,
@@ -154,7 +158,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     right: 16,
-    bottom: Platform.OS === 'ios' ? 102 : 84,
     backgroundColor: palette.ink,
     borderRadius: 16,
     paddingHorizontal: 16,

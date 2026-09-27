@@ -5,7 +5,7 @@ import { palette } from './theme';
 export function ScreenHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
     <View style={styles.header}>
-      <View>
+      <View style={styles.headerCopy}>
         <Text style={styles.headerEyebrow}>{eyebrow}</Text>
         <Text style={styles.headerTitle}>{title}</Text>
       </View>
@@ -113,6 +113,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
+  headerCopy: { flex: 1, minWidth: 0, paddingRight: 12 },
   headerEyebrow: {
     color: palette.tomato,
     textTransform: 'uppercase',

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -10,6 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { formatLongDate, formatMoney, formatTime, isBookable } from '../../domain/policies';
 import { CookingClass, EquipmentOption } from '../../domain/types';
@@ -38,10 +40,15 @@ export function ClassModal({
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose} transparent>
-      <View style={styles.modalBackdrop}>
-        <View style={styles.modalSheet}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.modalBackdrop}
+      >
+        <SafeAreaView edges={['bottom']} style={styles.modalSheet}>
           <ScrollView
             showsVerticalScrollIndicator={false}
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+            keyboardShouldPersistTaps="handled"
             contentContainerStyle={styles.modalContent}
           >
             <View style={styles.modalHandle} />
@@ -166,8 +173,8 @@ export function ClassModal({
             </Pressable>
             <Text style={styles.cancelHint}>Бесплатная отмена не позднее чем за 12 часов.</Text>
           </ScrollView>
-        </View>
-      </View>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -189,7 +196,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     paddingHorizontal: 22,
-    paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+    paddingBottom: 24,
   },
   modalHandle: {
     width: 42,
@@ -223,8 +230,14 @@ const styles = StyleSheet.create({
   },
   closeButtonText: { color: palette.ink, fontSize: 27, lineHeight: 28 },
   modalDescription: { color: palette.muted, fontSize: 13, lineHeight: 20, marginTop: 12 },
-  infoGrid: { flexDirection: 'row', gap: 10, marginTop: 20 },
-  infoCell: { flex: 1, backgroundColor: palette.paper, borderRadius: 16, padding: 14 },
+  infoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 20 },
+  infoCell: {
+    flex: 1,
+    minWidth: 130,
+    backgroundColor: palette.paper,
+    borderRadius: 16,
+    padding: 14,
+  },
   infoLabel: { color: palette.muted, fontSize: 9, letterSpacing: 1.2, fontWeight: '900' },
   infoValue: {
     color: palette.ink,
@@ -250,10 +263,11 @@ const styles = StyleSheet.create({
     borderBottomColor: '#EEE8DE',
   },
   dishIndex: { color: palette.tomato, fontSize: 10, fontWeight: '900', width: 30 },
-  dishText: { color: palette.ink, fontSize: 13, fontWeight: '700' },
-  equipmentRow: { flexDirection: 'row', gap: 10 },
+  dishText: { flex: 1, color: palette.ink, fontSize: 13, fontWeight: '700' },
+  equipmentRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   optionCard: {
     flex: 1,
+    minWidth: 130,
     borderWidth: 1,
     borderColor: palette.line,
     borderRadius: 17,
@@ -267,6 +281,7 @@ const styles = StyleSheet.create({
   optionPrice: { color: palette.muted, fontSize: 10, marginTop: 3 },
   formLabelRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
@@ -280,7 +295,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
     color: palette.ink,
-    fontSize: 12,
+    fontSize: 16,
     textAlignVertical: 'top',
   },
   privacyHint: { color: palette.muted, fontSize: 10, marginTop: 7 },
