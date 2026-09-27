@@ -29,4 +29,4 @@
 
 ## Commit
 
-Будет добавлен после фиксации изменений.
+`a2a2c9f` — `fix: remove misleading profile affordances`.
