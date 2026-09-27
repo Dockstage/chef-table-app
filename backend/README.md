@@ -60,6 +60,8 @@ docker compose ps
 
 The API is available at `http://127.0.0.1:8000`; health check: `GET /health`. Protected `/v1` operations require `Authorization: Bearer <DEV_BEARER_TOKEN>`. All seven client operations are implemented: catalog, booking list/create/cancel, review creation and push-token registration.
 
+For client integration, set `EXPO_PUBLIC_API_MODE=http`, `EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/v1` and copy the same local token to `EXPO_PUBLIC_DEV_BEARER_TOKEN` in `client/.env`. Expo public variables are bundled into the app, so this development identity must never be reused as a production secret.
+
 ## Contract workflow
 
 `docs/02-design/openapi.yaml` is the source of truth. Change it only after recording impact on requirements, client, backend and tests; then update Pydantic DTO/routes and run the contract command above. `contract-gaps.json` is empty now that all operations exist. The check fails on DTO drift, undeclared/stale gaps, unexpected operations, or differences in transport signatures.

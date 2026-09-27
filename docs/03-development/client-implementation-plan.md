@@ -105,10 +105,12 @@ TASK-056 добавил safe-area и keyboard-aware layout, переносы и 
 
 ### CL-09 — Интеграция с FastAPI
 
-- [ ] Подключить локальный backend через `EXPO_PUBLIC_API_BASE_URL`.
-- [ ] Оставить `MockStudioApi` только как явно выбранный demo/test fallback.
+- [x] Подключить локальный backend через `EXPO_PUBLIC_API_BASE_URL`.
+- [x] Оставить `MockStudioApi` только как явно выбранный demo/test fallback.
 - [ ] Пройти расписание → бронь → конфликт/retry → отмена → отзыв → push token.
 - [ ] Проверить web и минимум одну нативную среду, если она доступна.
+
+TASK-057 ввёл обязательный режим `http/mock`, передаёт локальный development Bearer token во все запросы `HttpStudioApi` и запрещает тихий переход на demo-данные при ошибке конфигурации. CI выбирает mock явно; реальный сквозной прогон выполняется следующим шагом.
 
 ### CL-10 — Финальный client gate
 

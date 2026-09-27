@@ -15,7 +15,7 @@
 - loading, empty, success и предметные error states;
 - доступные подписи и состояния интерактивных элементов.
 
-Без настройки приложение использует асинхронный `MockStudioApi`. Для подключения API скопируйте `client/.env.example` в `client/.env` и задайте `EXPO_PUBLIC_API_BASE_URL`: фабрика автоматически выберет `HttpStudioApi`. FastAPI backend реализует все семь клиентских операций: каталог, брони, отмену, отзывы и регистрацию push-токенов.
+Источник данных выбирается явно через `EXPO_PUBLIC_API_MODE`: `http` подключает FastAPI, `mock` включает автономные demo-данные. Неявного отката на mock нет. Для локального HTTP-режима клиенту нужны `EXPO_PUBLIC_API_BASE_URL` и тот же development Bearer token, который задан backend. FastAPI реализует все семь клиентских операций: каталог, брони, отмену, отзывы и регистрацию push-токенов.
 
 ## Технологии
 
@@ -33,19 +33,22 @@
 
 Требования: Node.js 22.13 или новее и npm.
 
-```bash
+```powershell
 cd client
 npm install
+$env:EXPO_PUBLIC_API_MODE="mock"
 npm run web
 ```
 
 Для запуска с реальным API:
 
-```bash
-copy .env.example .env
-# замените EXPO_PUBLIC_API_BASE_URL на адрес инфраструктуры студии
+```powershell
+Copy-Item .env.example .env
+# Укажите адрес backend и тот же локальный token, что в backend/.env.
 npm run web
 ```
+
+`EXPO_PUBLIC_*` попадает в клиентский bundle, поэтому здесь допустим только локальный учебный token, не production-секрет. На физическом устройстве вместо `127.0.0.1` укажите LAN-адрес компьютера; Android Emulator обычно обращается к хосту через `10.0.2.2`.
 
 После запуска открыть адрес, который покажет Expo, обычно `http://localhost:8081`.
 
@@ -97,7 +100,7 @@ npm run export:web
 - ESLint — без ошибок и предупреждений;
 - Prettier — форматирование актуально;
 - TypeScript — без ошибок;
-- 55 автоматических тестов — успешно;
+- 58 автоматических тестов — успешно;
 - web bundle — создаётся в `client/dist/`.
 
 Backend проверяется отдельно из `backend/`: Ruff, 42 pytest-теста и contract gate. Изолированный PostgreSQL/concurrency gate запускается из корня командой `docker compose run --rm backend python -m app.postgres_check` после `docker compose build backend` и запуска `db`; подробности приведены в [`backend/README.md`](backend/README.md).
@@ -138,7 +141,7 @@ Workflow [`Client CI`](.github/workflows/client-ci.yml) воспроизводи
 ```text
 client/App.tsx                  интерфейс и application state
 client/src/domain/              типы и чистые бизнес-правила
-client/src/data/                HTTP-адаптер, mock fallback и demo-данные
+client/src/data/                HTTP-адаптер, явный mock-режим и demo-данные
 client/src/notifications/       регистрация и обработка push
 client/tests/                   автоматические тесты
 backend/app/                    FastAPI, SQLAlchemy-модели и seed

@@ -31,6 +31,7 @@ jobs:
     env:
       CI: "true"
       EXPO_NO_TELEMETRY: "1"
+      EXPO_PUBLIC_API_MODE: "mock"
     steps:
       - name: Check out repository
         uses: actions/checkout@v5

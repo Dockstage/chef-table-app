@@ -58,7 +58,7 @@ Backend использует слои `api` → `services` → `domain` → `rep
 ## Решения для MVP
 
 - Expo + React Native + TypeScript: единая кодовая база и web-preview.
-- `HttpStudioApi` реализует OpenAPI-контракт; mock остаётся автономным demo fallback.
+- `HttpStudioApi` реализует OpenAPI-контракт и получает локальную Bearer identity из явной runtime-конфигурации; mock включается только режимом `EXPO_PUBLIC_API_MODE=mock`.
 - `docs/02-design/openapi.yaml` — источник истины; локальный contract gate сравнивает Pydantic DTO и runtime FastAPI, а следующим усилением остаётся запуск в CI и сверка TypeScript.
 - Все endpoint клиентского API используют Bearer identity seeded demo-клиента; client ID не передаётся в body.
 - PostgreSQL, row locks, partial unique index и `IdempotencyRecord` обеспечивают конкурентную целостность.
