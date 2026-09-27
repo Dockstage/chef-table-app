@@ -29,4 +29,4 @@ CL-02, архитектурное правило декомпозиции и P1-
 
 ## Commit
 
-Будет указан после фиксации реализации.
+`a78eba1` — `refactor: extract client UI foundation`.
