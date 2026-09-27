@@ -32,4 +32,4 @@ CL-01, чеклист разработки и запрет на `npm audit fix -
 
 ## Commit
 
-Будет добавлен после фиксации изменений.
+`c0f97d2` — `chore: audit client dependencies`.
