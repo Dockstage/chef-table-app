@@ -33,4 +33,4 @@ CL-10, `NFR-008`–`NFR-010`, правила сдачи и ограничени�
 
 ## Commit
 
-Будет указан после фиксации изменений.
+`5cccdc7` — `docs: complete final client gate`.
