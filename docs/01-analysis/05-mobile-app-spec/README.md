@@ -62,4 +62,4 @@ flowchart LR
 
 ## Граница текущей реализации
 
-Текущий `client/App.tsx` — визуальный baseline. Известные расхождения (стабильный idempotency retry, полноценный Error state, refresh после conflict, nullable DTO, auth wiring и строгая push-валидация) остаются открытыми в `docs/lecture-gap-checklists.md` и устраняются на этапе разработки.
+Текущий `client/App.tsx` является composition root, а UI и orchestration разделены по feature/application-модулям. Стабильный idempotency retry, полноценные Error/Stale states, refresh после conflict, nullable DTO, auth wiring и строгая push-валидация реализованы на этапе разработки. Открытые component UI, scenario/E2E, contract CI и нативные проверки перечислены в `docs/lecture-gap-checklists.md` и относятся к этапу тестирования.

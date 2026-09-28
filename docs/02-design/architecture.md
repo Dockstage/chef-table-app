@@ -2,7 +2,7 @@
 
 ## Контекст и статус
 
-Клиент «Шеф-стол» работает на Android/iOS и в web-preview. По ADR-001 проект расширен референсным FastAPI-backend и PostgreSQL, воспроизводящими контракт существующей инфраструктуры. Управляющие интерфейсы студии остаются внешними; клиент не меняет каталог и расписание.
+Клиент «Шеф-стол» предназначен для Android/iOS и web-preview; фактический сквозной прогон выполнен в web, а нативные платформы ещё требуют отдельной проверки. По ADR-001 проект расширен референсным FastAPI-backend и PostgreSQL, воспроизводящими контракт существующей инфраструктуры. Управляющие интерфейсы студии остаются внешними; клиент не меняет каталог и расписание.
 
 Expo-клиент расположен в `client/`. В `backend/` созданы слоистый FastAPI, SQLAlchemy-модели, Alembic, seed и health endpoint; PostgreSQL и сервис запускаются корневым Docker Compose. Все семь операций каталога, броней, отзывов и push-токенов реализованы через service/repository-слои. `MockStudioApi` сохраняется только как demo/test fallback.
 
@@ -36,7 +36,7 @@ Backend использует слои `api` → `services` → `domain` → `rep
 
 Зависимости направлены внутрь: UI использует domain и интерфейс API; domain не зависит от React Native. Общая палитра находится в `client/src/ui/theme.ts`, общая раскладка и action styles — в `client/src/ui/layout.ts`, а не зависящие от features примитивы — в `client/src/ui/primitives.tsx`; feature-компоненты не импортируются обратно в этот слой. Экраны расписания, записей и профиля, а также booking/review overlays инкапсулированы в одноимённых feature-модулях, получают данные/actions через props и не импортируют друг друга.
 
-`client/App.tsx` — восьмистрочный composition root: создаёт `StudioApi` и передаёт его в `application/StudioApp`. `StudioApp` собирает экраны, overlays и нижнюю навигацию; `application/useStudioApp` владеет загрузкой, snapshot-state, мутациями, idempotency, push-эффектами и переходами. UI-состояния `Tab`, `BookingFilter` и `PushStatus` объявлены в `shared/viewTypes.ts`. Название слоя `application`, а не `src/app`, выбрано намеренно: Expo резервирует `src/app` как корень Expo Router.
+`client/App.tsx` — компактный composition root: создаёт `StudioApi` и передаёт его в `application/StudioApp`. `StudioApp` собирает экраны, overlays и нижнюю навигацию; `application/useStudioApp` владеет загрузкой, snapshot-state, мутациями, idempotency, push-эффектами и переходами. UI-состояния `Tab`, `BookingFilter` и `PushStatus` объявлены в `shared/viewTypes.ts`. Название слоя `application`, а не `src/app`, выбрано намеренно: Expo резервирует `src/app` как корень Expo Router.
 
 ## Состояния интерфейса
 
