@@ -21,12 +21,11 @@
 
 ## Перед отправкой формы
 
-1. Закоммитить и запушить локальные результаты тестирования MIN-01–MIN-04.
-2. Убедиться, что `git status` чистый и GitHub содержит итоговые отчёты/evidence.
-3. Открыть [репозиторий](https://github.com/Dockstage/chef-table-app) в режиме инкогнито и убедиться, что он доступен проверяющим.
-4. В форму задания вставить ссылку на репозиторий.
-5. В инструментах указать: Codex, Expo, React Native, TypeScript, Vitest, Expo Notifications, Python, FastAPI, SQLAlchemy, PostgreSQL и Docker.
-6. При необходимости заменить демонстрационные имя и телефон в `client/src/features/profile/ProfileScreen.tsx` — на оценивание функций это не влияет.
+1. Убедиться, что `git status` чистый и GitHub содержит итоговые отчёты/evidence.
+2. Открыть [репозиторий](https://github.com/Dockstage/chef-table-app) в режиме инкогнито и убедиться, что он доступен проверяющим.
+3. В форму задания вставить ссылку на репозиторий.
+4. В инструментах указать: Codex, Expo, React Native, TypeScript, Vitest, Expo Notifications, Python, FastAPI, SQLAlchemy, PostgreSQL и Docker.
+5. При необходимости заменить демонстрационные имя и телефон в `client/src/features/profile/ProfileScreen.tsx` — на оценивание функций это не влияет.
 
 Нативная доставка push на физическом Android/iOS не проверена: доступной нативной среды и production APNs/FCM-ключей не было. Клиентские ветви foreground, открытия уведомления и холодного запуска покрыты автоматическими тестами; web fallback и backend-регистрация токена проверены вручную.
 
