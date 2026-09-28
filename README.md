@@ -86,12 +86,15 @@ python -m venv .venv
 
 ## Проверки
 
-```bash
+```powershell
 cd client
+npm ci --include=dev
+npx expo install --check
 npm run lint
 npm run format:check
 npm run typecheck
 npm test
+$env:EXPO_PUBLIC_API_MODE="mock"
 npm run export:web
 ```
 
@@ -102,6 +105,8 @@ npm run export:web
 - TypeScript — без ошибок;
 - 58 автоматических тестов — успешно;
 - web bundle — создаётся в `client/dist/`.
+
+Флаг `--include=dev` делает clean install независимым от глобальной настройки npm `production`; без devDependencies недоступны локальные ESLint, Prettier, TypeScript и Vitest.
 
 Backend проверяется отдельно из `backend/`: Ruff, 42 pytest-теста и contract gate. Изолированный PostgreSQL/concurrency gate запускается из корня командой `docker compose run --rm backend python -m app.postgres_check` после `docker compose build backend` и запуска `db`; подробности приведены в [`backend/README.md`](backend/README.md).
 

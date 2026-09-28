@@ -46,7 +46,7 @@ client/
 
 Результат TASK-051: зависимости приведены к ожидаемым Expo patch-версиям. `npm audit` и `npm audit --omit=dev` сохраняют 10 moderate по одной транзитивной цепочке `expo → @expo/config-plugins → xcode → uuid@7.0.3`. Уязвимый сценарий относится к передаче buffer в UUID v3/v5/v6 внутри native project tooling; приложение эти API не вызывает. npm предлагает только несовместимый откат до Expo 46 через `--force`, поэтому риск временно принят до исправления upstream.
 
-Результат TASK-052: workflow `Client CI` на push/PR воспроизводит `npm ci`, lint, format check, typecheck, 55 тестов и web-export. Права ограничены чтением, повторные запуски одной ветки отменяются. Все пункты CL-01 закрыты.
+Результат TASK-052: workflow `Client CI` на push/PR воспроизводит `npm ci`, lint, format check, typecheck, полный Vitest-suite и web-export. Права ограничены чтением, повторные запуски одной ветки отменяются. Актуальный объём suite подтверждён TASK-059.
 
 ### CL-02 — Модульная архитектура
 
@@ -116,9 +116,11 @@ TASK-058 прошёл web-поток на Docker-стеке с PostgreSQL: ра�
 
 ### CL-10 — Финальный client gate
 
-- [ ] Выполнить clean install, typecheck, lint, tests и web export.
-- [ ] Обновить трассировку, README и чеклист только по фактическому результату.
-- [ ] Зафиксировать ограничения нативного push и непроверенных платформ.
+- [x] Выполнить clean install, typecheck, lint, tests и web export.
+- [x] Обновить трассировку, README и чеклист только по фактическому результату.
+- [x] Зафиксировать ограничения нативного push и непроверенных платформ.
+
+TASK-059 выполнил clean install на Node 24.15.0/npm 11.12.1 с явным `--include=dev`, подтвердил совместимость Expo-зависимостей, lint, format, strict TypeScript, 58/58 тестов и web-export. Документация не заявляет проверки Android/iOS, системного screen reader, native font scaling или production APNs/FCM.
 
 ## Зависимости между планами
 

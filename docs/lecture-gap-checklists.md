@@ -80,7 +80,7 @@
 - [ ] **P1 — оформить каждую новую доработку по заданию.** Для каждого пункта создать TASK/BUG `.md` с целью/симптомом, требованиями, точным промптом, проверкой и commit.
 - [x] **P0 — привести правила Git к актуальному состоянию.** `AGENTS.md` отслеживается и описывает фактический Expo-проект, целевой monorepo и правила декомпозиции; `node_modules`, `.npm-cache` и `dist` остаются ignored.
 - [x] **P1 — проверить зависимости.** Expo-пакеты обновлены до совместимых patch-версий; `expo install --check` проходит. Все 10 moderate ведут к `uuid@7.0.3` через native tooling `xcode`; прямого вызова уязвимого API приложением нет. Безопасного автоматического исправления нет: `npm audit fix --force` откатывает Expo 57 до 46, поэтому риск задокументирован и оставлен на контроль upstream.
-- [x] **P2 — добавить CI.** Workflow `Client CI` на push/PR выполняет `npm ci`, lint, format check, typecheck, 55 тестов и web-export; также доступен ручной запуск.
+- [x] **P2 — добавить CI.** Workflow `Client CI` на push/PR выполняет `npm ci`, lint, format check, typecheck, текущие 58 тестов и web-export; также доступен ручной запуск.
 
 ## Тестирование
 
@@ -127,12 +127,12 @@
 7. Собрать двунаправленную матрицу трассировки и QA-ревью, затем привести код и тестовый пайплайн к согласованному ТЗ.
 8. Обновить TASK/BUG/prompts, ручные доказательства, README и итоговый отчёт; выполнить один финальный прогон и отдельные commits.
 
-## Выполненная проверка текущего состояния
+## Финальная проверка текущего состояния
 
-- `npm ci --cache .npm-cache` — успешно, 526 packages; npm сообщил о 10 moderate vulnerabilities.
-- `npm run typecheck` — успешно.
-- `npm test` — успешно: 5 файлов, 24/24 теста.
-- `EXPO_NO_TELEMETRY=1 npm run export:web` — успешно, bundle создан в `dist/`.
-- Локальные Markdown-ссылки — разрешаются.
-- Все commit-хеши из TASK/BUG-документов — существуют.
-- Рабочее дерево не чистое только из-за неотслеживаемого `AGENTS.md`; генерируемые каталоги ignored.
+- `npm ci --include=dev` — успешно, 763 packages; известные 10 moderate остаются в цепочке native tooling.
+- `npx expo install --check` — зависимости совместимы с Expo SDK 57.
+- `npm run lint`, `npm run format:check`, `npm run typecheck` — успешно.
+- `npm test` — успешно: 10 файлов, 58/58 тестов.
+- `EXPO_PUBLIC_API_MODE=mock npm run export:web` — успешно, bundle создан в `dist/`.
+- Сквозной web-поток с FastAPI/PostgreSQL отдельно подтверждён TASK-058.
+- Непроверенные Android/iOS, screen reader, native font scaling и production APNs/FCM явно сохранены как ограничения.

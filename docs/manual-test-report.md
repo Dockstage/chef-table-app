@@ -33,9 +33,12 @@
 
 ## Автоматический регресс
 
+- из `client/` `npm ci --include=dev` — чистая установка 763 packages успешно;
+- `npx expo install --check` — зависимости совместимы;
+- из `client/` `npm run lint` и `npm run format:check` — успешно;
 - из `client/` `npm run typecheck` — успешно;
 - из `client/` `npm test` — 58/58 тестов успешно;
-- из `client/` `npm run export:web` — успешно;
+- из `client/` `EXPO_PUBLIC_API_MODE=mock npm run export:web` — успешно;
 - HTTP-адаптер проверен unit-тестами и реальным web-потоком через FastAPI/PostgreSQL;
 - push payload, регистрация токена, foreground, открытие уведомления и холодный запуск покрыты unit/contract-тестами.
 
