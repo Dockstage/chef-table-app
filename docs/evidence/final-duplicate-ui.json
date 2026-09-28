@@ -1,0 +1,10 @@
+{
+  "visible": true,
+  "text": "У вас уже есть активная бронь этого класса.",
+  "url": "http://localhost:8081/",
+  "viewport": {
+    "height": 800,
+    "scrollWidth": 360,
+    "width": 360
+  }
+}

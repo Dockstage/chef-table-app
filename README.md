@@ -129,10 +129,11 @@ Workflow [`Client CI`](.github/workflows/client-ci.yml) воспроизводи
 | [`docs/01-analysis`](docs/01-analysis) | вопросы, допущения, MVP, user stories и use cases |
 | [`docs/02-design`](docs/02-design) | архитектура, модель данных, sequence diagrams и OpenAPI |
 | [`docs/03-development`](docs/03-development) | итеративные планы реализации клиента и backend |
-| [`docs/04-testing`](docs/04-testing) | аудит, планы, структурированные проверки и результаты тестирования |
+| [`docs/04-testing`](docs/04-testing) | аудит, финальный автоматический регресс, ручной smoke и итоговый тестовый отчёт |
 | [`docs/source`](docs/source) | полный исходный бриф заказчика |
 | [`docs/test-cases.md`](docs/test-cases.md) | 25 тест-кейсов и регрессионный минимум |
 | [`docs/manual-test-report.md`](docs/manual-test-report.md) | отчёт о ручной проверке |
+| [`docs/04-testing/final-test-report.md`](docs/04-testing/final-test-report.md) | итог тестирования, результаты и ограничения |
 | [`docs/tasks`](docs/tasks) | отдельная карточка каждой задачи и каждого бага |
 | [`docs/prompts`](docs/prompts) | все промпты, использованные при работе с ИИ |
 | [`docs/evidence`](docs/evidence) | снимки ручной проверки новых сценариев |

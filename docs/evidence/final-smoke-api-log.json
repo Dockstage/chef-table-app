@@ -1,0 +1,33 @@
+{
+  "date": "2026-09-28",
+  "codeRevision": "3b4e84c",
+  "environment": "Expo web -> FastAPI Docker -> PostgreSQL 16",
+  "healthStatus": 200,
+  "viewport": {
+    "width": 360,
+    "height": 800,
+    "documentScrollWidth": 360
+  },
+  "idempotency": {
+    "firstStatus": 201,
+    "replayStatus": 201,
+    "firstReplayed": false,
+    "replayReplayed": true,
+    "sameBookingId": true,
+    "bookingId": "2d5a9a45-dd0b-4610-9ff6-ef83b00cd239",
+    "changedPayloadStatus": 409,
+    "changedPayloadCode": "IDEMPOTENCY_CONFLICT"
+  },
+  "cancellation": {
+    "uiBookingId": "5038b754-3fa1-4584-a186-5e564ea2fff2",
+    "uiBookingStatus": "cancelled_by_client",
+    "classOneAvailableSeatsAfterCancel": 3,
+    "retryBookingCleanupStatus": "cancelled_by_client",
+    "classFourAvailableSeatsAfterCleanup": 6
+  },
+  "review": {
+    "bookingId": "30000000-0000-4000-8000-000000000002",
+    "rating": 5,
+    "comment": "Финальный smoke: понятно и вкусно"
+  }
+}

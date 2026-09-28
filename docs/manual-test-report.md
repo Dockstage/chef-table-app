@@ -1,47 +1,40 @@
 # Отчёт о ручной проверке
 
-Дата актуальной проверки: 28.09.2026.
+Дата финального прогона: 28.09.2026. Code revision: `3b4e84c`; локальные незакоммиченные изменения затрагивали только документацию и evidence.
 
-Среда: Expo SDK 57, React Native Web, Codex in-app browser, FastAPI в Docker, PostgreSQL 16 с реальными Alembic-миграциями и seed.
+Среда: Expo SDK 57, React Native Web, Codex in-app browser, FastAPI в Docker и PostgreSQL 16 с реальными Alembic migrations и seed. Финальный viewport: 360×800 px.
 
-## Результаты
+## Финальный smoke
 
-| Сценарий | Результат | Наблюдение |
+| Сценарий | Результат | Доказательство |
 |---|---|---|
-| Загрузка расписания | Пройден | После loading показан класс текущего дня |
-| Период 7 дней | Пройден | Значение выбрано по умолчанию |
-| Период 14 дней | Пройден | Доступен «Хлеб на закваске» на десятый день |
-| Период 30 дней | Пройден | Интерфейс формирует полный набор дат и API-range |
-| Фильтр уровня и empty state | Пройден | Дата сохраняется, пустая комбинация показывает понятный текст |
-| Детали класса | Пройден | Совпадают меню, шеф, время, цена и остаток |
-| Прокат доступен | Пройден | Итог увеличивается на тариф, остаток показан |
-| Прокат закончился | Пройден | Вариант отключён и подписан «нет свободных наборов» |
-| Аллергии | Пройден | Текст сохраняется в форме, счётчик ограничен 300 символами |
-| Создание брони | Пройден | Бронь появляется среди предстоящих, остатки уменьшаются |
-| Duplicate conflict | Пройден | Повторная запись через UI показывает предметное сообщение, новая бронь не создаётся |
-| Retry/idempotency | Пройден | Два запроса с одинаковыми body/key возвращают одну бронь; изменённый body даёт `409 IDEMPOTENCY_CONFLICT` |
-| Отмена клиентом | Пройден | До дедлайна действие доступно, после дедлайна блокируется |
-| Возврат места после отмены | Пройден | Статус стал `cancelled_by_client`, `availableSeats` восстановлен с 2 до 3 |
-| Отмена студией | Пройден | Бронь находится в истории, причина не потеряна |
-| Оценка и комментарий | Пройден | 5 звёзд и текст сохранены, повторная отправка скрыта |
-| Push web fallback | Пройден | Профиль сообщает о доступности только в Android/iOS |
-| Регистрация push-токена | Пройден частично | Существующий seed-токен дважды принят backend с `204`; нативная выдача токена не проверялась |
-| Адаптивность 360 px | Пройден | Viewport и документ имеют ширину 360 px, переполнения страницы нет, управление и нижняя навигация доступны |
-| Граница роли клиента | Пройден | Доступны только «Классы», «Мои записи» и «Профиль»; административных и поварских действий нет |
+| Расписание и responsive | Пройден | Класс загружен; `innerWidth=360`, `scrollWidth=360` — [`final-schedule-360.png`](evidence/final-schedule-360.png) |
+| Создание брони | Пройден | Бронь появилась в предстоящих, остаток уменьшился — [`final-booking-success-360.png`](evidence/final-booking-success-360.png) |
+| Duplicate conflict | Пройден | UI показал предметное сообщение, второй активной брони нет — [`final-duplicate-ui.json`](evidence/final-duplicate-ui.json) |
+| Retry/idempotency | Пройден | `201/201`, один booking ID, replay `false → true`; изменённый payload — `409 IDEMPOTENCY_CONFLICT` — [`final-smoke-api-log.json`](evidence/final-smoke-api-log.json) |
+| Отмена и возврат места | Пройден | Статус `cancelled_by_client`, бронь в истории, место восстановлено — [`final-cancellation-history-360.png`](evidence/final-cancellation-history-360.png) |
+| Оценка и комментарий | Пройден | Сохранены 5 звёзд и новый комментарий — [`final-review-success-360.png`](evidence/final-review-success-360.png) |
+| Push web fallback | Пройден | Финальный профиль сообщает про Android/iOS, ложные affordances отсутствуют — [`final-web-push-fallback-360.png`](evidence/final-web-push-fallback-360.png) |
 
-Снимки перечислены в [`docs/evidence/README.md`](evidence/README.md).
+Подробные шаги и итоговое состояние backend: [`04-testing/final-manual-smoke.md`](04-testing/final-manual-smoke.md).
+
+## Ранее проверенные дополнительные сценарии
+
+Периоды 14/30 дней, фильтр и empty state, детали класса, доступный/недоступный прокат, граница аллергий, дедлайн отмены и ограничение роли клиента проверялись на предыдущих итерациях и покрыты соответствующими domain/data/backend-тестами. Исторические screenshots сохранены в [`evidence/README.md`](evidence/README.md), но не выдаются за evidence финального UI.
 
 ## Автоматический регресс
 
-- из `client/` `npm ci --include=dev` — чистая установка 763 packages успешно;
-- `npx expo install --check` — зависимости совместимы;
-- из `client/` `npm run lint` и `npm run format:check` — успешно;
-- из `client/` `npm run typecheck` — успешно;
-- из `client/` `npm test` — 58/58 тестов успешно;
-- из `client/` `EXPO_PUBLIC_API_MODE=mock npm run export:web` — успешно;
-- HTTP-адаптер проверен unit-тестами и реальным web-потоком через FastAPI/PostgreSQL;
-- push payload, регистрация токена, foreground, открытие уведомления и холодный запуск покрыты unit/contract-тестами.
+- client clean install и Expo compatibility — успешно;
+- ESLint, Prettier и TypeScript — успешно;
+- Vitest — 10 файлов, 58/58 тестов;
+- web export — успешно;
+- backend Ruff — успешно;
+- pytest — 42/42 теста;
+- OpenAPI contract — 15 schemas, 0 operation gaps;
+- PostgreSQL gate — migrations, create/replay/cancel/review concurrency и push upsert прошли.
 
-## Ограничение внешней среды
+Полный журнал: [`04-testing/final-automated-regression.md`](04-testing/final-automated-regression.md).
 
-End-to-end доставка реального APNs/FCM push и нативные permission/token flow не проверены: в среде нет доступного Android/iOS-устройства или эмулятора и production-ключей. Web fallback, строгий payload, client routing и backend-регистрация токена проверены отдельно; это ограничение не маскируется web-результатом.
+## Ограничения
+
+Android/iOS, системное permission/token flow, APNs/FCM, screen reader, native font scaling и release performance не проверялись. Component UI/E2E suite, TMS/JSON-наборы и coverage threshold оставлены необязательным расширением и не заявляются выполненными. Новых дефектов в финальных прогонах не найдено.
