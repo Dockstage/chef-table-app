@@ -35,4 +35,4 @@
 
 ## Commit
 
-Будет указан после фиксации изменений.
+`01029ed` — `docs: record live client backend flow`.
