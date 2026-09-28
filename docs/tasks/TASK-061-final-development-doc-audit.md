@@ -29,4 +29,4 @@
 
 ## Commit
 
-Будет указан после создания focused commit.
+`ae52256` — `docs: finish development documentation audit`.
