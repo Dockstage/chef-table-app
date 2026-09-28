@@ -30,4 +30,4 @@
 
 ## Commit
 
-Будет указан после создания focused commit.
+`3bf2c67` — `docs: add stepwise testing checklist`.
