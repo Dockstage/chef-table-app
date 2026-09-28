@@ -30,4 +30,4 @@
 
 ## Commit
 
-Будет указан после создания focused commit.
+`3a29a18` — `docs: add testing stage audit`.
