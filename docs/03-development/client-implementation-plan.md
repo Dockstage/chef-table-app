@@ -1,8 +1,8 @@
 # План реализации клиента
 
-## Цель и исходное состояние
+## Цель и исходное состояние до CL-00
 
-Сохранить работающий Expo/React Native/TypeScript-клиент и привести его к отдельной модульной части monorepo. Уже реализованы восемь пользовательских возможностей, `MockStudioApi`, `HttpStudioApi`, push-модуль и Vitest-тесты. Главные пробелы перечислены в [`lecture-gap-checklists.md`](../lecture-gap-checklists.md): монолитный `App.tsx`, нестабильный retry, смешение mutation/refresh, неполные error states и недостаточная проверка входящих данных.
+Целью было сохранить работающий Expo/React Native/TypeScript-клиент и привести его к отдельной модульной части monorepo. До выполнения плана уже существовали восемь пользовательских возможностей, `MockStudioApi`, `HttpStudioApi`, push-модуль и Vitest-тесты. Стартовыми пробелами были монолитный `App.tsx`, нестабильный retry, смешение mutation/refresh, неполные error states и недостаточная проверка входящих данных; CL-02–CL-07 закрыли эти пункты.
 
 ## Целевая структура
 
@@ -10,7 +10,7 @@
 client/
   App.tsx
   src/
-    app/
+    application/
     domain/
     data/
     features/
@@ -20,8 +20,8 @@ client/
       review/
       profile/
     notifications/
-    shared/ui/
-    shared/theme/
+    shared/
+    ui/
   tests/
 ```
 
@@ -129,3 +129,7 @@ TASK-059 выполнил clean install на Node 24.15.0/npm 11.12.1 с явн�
 ## Правило итерации
 
 Каждый `CL-*` получает TASK/PROMPT, минимальное изменение, релевантные тесты и focused commit. Полный suite не запускается повторно, если после его результата не менялись влияющие файлы.
+
+## Статус этапа
+
+CL-00–CL-10 завершены. Оставшиеся component UI, scenario/E2E, CI contract и нативные проверки относятся к этапу тестирования и перечислены в `docs/lecture-gap-checklists.md`.

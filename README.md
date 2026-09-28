@@ -144,15 +144,18 @@ Workflow [`Client CI`](.github/workflows/client-ci.yml) воспроизводи
 ## Структура
 
 ```text
-client/App.tsx                  интерфейс и application state
+client/App.tsx                  composition root клиента
+client/src/application/        orchestration, состояния и навигационный shell
 client/src/domain/              типы и чистые бизнес-правила
 client/src/data/                HTTP-адаптер, явный mock-режим и demo-данные
+client/src/features/            экраны и overlays по пользовательским функциям
 client/src/notifications/       регистрация и обработка push
+client/src/ui/                  тема, раскладка и общие UI-примитивы
 client/tests/                   автоматические тесты
 backend/app/                    FastAPI, SQLAlchemy-модели и seed
 backend/migrations/             Alembic-миграции PostgreSQL
 backend/tests/                  backend pytest-тесты
-backend/contract-gaps.json      временный реестр отсутствующих API-операций
+backend/contract-gaps.json      machine-readable реестр расхождений, сейчас пустой
 compose.yaml                    локальные PostgreSQL и FastAPI
 docs/                           аналитика, проектирование и отчёты
 ```
